@@ -24,4 +24,3 @@ This solution consists of one main project, **BackEngin**, and two supporting su
    - **Unit of Work**: Provides a coordinated way to work with multiple repositories, ensuring efficient and organized data transactions.
    - **Database Connection**: Currently configured to connect to a local database on `localhost` for development and testing purposes. This will later be updated to a production-ready host as needed.
 
-This structure supports a clean, modular design, making it easy to extend the solution with additional features and APIs as needed.
