@@ -1,11 +1,34 @@
 ﻿using BackEngin.Models;
-using DataAccess.Repositories;
+using DataAccess.Repositories.IRepositories;
 
 namespace DataAccess.Repositories
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
+        // default one
         IRepository<WeatherForecast> WeatherForecastRepository { get; }
+
+        // enginar
+        IAddressesRepository Addresses { get; }
+        IBlogsRepository Blogs { get; }
+        ICitiesRepository Cities { get; }
+        ICountriesRepository Countries { get; }
+        IDistrictsRepository Districts { get; }
+        IEventsRepository Events { get; }
+        IEvents_RequirementsRepository Events_Requirements { get; }
+        IIngredientsRepository Ingredients { get; }
+        IIngredients_PreferencesRepository Ingredients_Preferences { get; }
+        IInteractionsRepository Interactions { get; }
+        IPreferencesRepository Preferences { get; }
+        IRecipesRepository Recipes { get; }
+        IRecipes_IngredientsRepository Recipes_Ingredients { get; }
+        IRequirementsRepository Requirements { get; }
+        IRolesRepository Roles { get; }
+        IUsers_Blogs_InteractionsRepository Users_Blogs_Interactions { get; }
+        IUsers_InteractionsRepository Users_Interactions { get; }
+        IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
+        IUsersRepository Users { get; }
+
         Task<int> CompleteAsync();
     }
 }
