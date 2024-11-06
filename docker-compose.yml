@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 1433:1433
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'TestServer.69420' # mssql-username: sa -- Just for test purposes, we are using sysadmin user.
+    restart: unless-stopped
