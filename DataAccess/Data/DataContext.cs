@@ -13,6 +13,7 @@ namespace BackEngin.Data
         }
 
         public DbSet<Roles> Roles { get; set; }
+        public DbSet<Users> Users { get; set; }
 
         public DbSet<WeatherForecast> WeatherForecasts { get; set; }
 
