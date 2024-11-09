@@ -45,5 +45,34 @@ namespace BackEngin.Controllers
 
             return Ok(new { Token = token, message = "User logged in successfully!" });
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var token = await _authService.SendPasswordResetTokenAsync(model.Email);
+
+            if (token == null)
+                return Ok(new { message = "If an account with that email exists, a password reset token has been generated." });
+
+            // Return the token directly (for testing purposes)
+            return Ok(new { Token = token, message = "Password reset token generated successfully." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.ResetPasswordAsync(model);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { message = "Password has been reset successfully." });
+        }
     }
 }

@@ -10,5 +10,8 @@ namespace BackEngin.Services.Interfaces
         Task<IdentityResult> RegisterUser(RegisterRequestModel model);
         Task<string> LoginUser(LoginRequestModel model);
         string GenerateJwtToken(Users user);
+
+        Task<string> SendPasswordResetTokenAsync(string email);  // Return the token for testing
+        Task<IdentityResult> ResetPasswordAsync(ResetPasswordModel model);
     }
 }

@@ -39,6 +39,40 @@ namespace BackEngin.Services
             return result ? GenerateJwtToken(user) : null;
         }
 
+        public async Task<string> SendPasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                // For security reasons, you might want to return a generic response
+                return null;
+            }
+
+            // Generate a token without sending an email
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            // Return the token directly (for testing purposes)
+            // In a real-world scenario, you would send the token to the user's email
+            return token;
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid email." });
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Passwords do not match." });
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            return result;
+        }
+
         public string GenerateJwtToken(Users user)
         {
             var expirationTime = DateTime.UtcNow.AddMinutes(30); //time is hard coded bcus I'm tired
