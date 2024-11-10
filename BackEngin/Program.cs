@@ -44,10 +44,15 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Configure IdentityCore with Entity Framework and Role support
-builder.Services.AddIdentityCore<Users>(options => options.SignIn.RequireConfirmedEmail = false)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<DataContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentityCore<Users>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = false;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<DataContext>()
+.AddDefaultTokenProviders();
+
 
 // Configure database context with environment variables
 builder.Services.AddDbContext<DataContext>(options =>
