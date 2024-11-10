@@ -10,8 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using BackEngin.Services.Interfaces;
 using BackEngin.Services;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add environment variables.
+Env.Load("../.env");
 
 // Add services to the container.
 
@@ -50,7 +54,12 @@ builder.Services.AddIdentityCore<Users>(options => options.SignIn.RequireConfirm
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var connectionString = $"Server={Environment.GetEnvironmentVariable("MSSQL_SERVER")},{Environment.GetEnvironmentVariable("MSSQL_HOST_PORT")};" +
+                           $"Database={Environment.GetEnvironmentVariable("MSSQL_DATABASE")};" +
+                           $"User Id={Environment.GetEnvironmentVariable("MSSQL_USER")};" +
+                           $"Password={Environment.GetEnvironmentVariable("MSSQL_PASSWORD")};" +
+                           $"TrustServerCertificate={Environment.GetEnvironmentVariable("TrustServerCertificate")};";
+    options.UseSqlServer(connectionString);
 });
 
 builder.Services.AddApiVersioning(options =>
