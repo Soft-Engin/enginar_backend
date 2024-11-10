@@ -7,11 +7,11 @@ namespace BackEngin.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<IdentityResult> RegisterUser(RegisterRequestModel model);
-        Task<string> LoginUser(LoginRequestModel model);
+        Task<IdentityResult> RegisterUser(RegisterRequestDTO model);
+        Task<string> LoginUser(LoginRequestDTO model);
         string GenerateJwtToken(Users user);
 
         Task<string> SendPasswordResetTokenAsync(string email);  // Return the token for testing
-        Task<IdentityResult> ResetPasswordAsync(ResetPasswordModel model);
+        Task<IdentityResult> ResetPasswordAsync(ResetPasswordDTO model);
     }
 }

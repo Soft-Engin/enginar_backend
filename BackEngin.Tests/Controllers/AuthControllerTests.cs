@@ -24,7 +24,7 @@ namespace BackEngin.Tests.Controllers
         public async Task Register_ShouldReturnOk_WhenRegistrationIsSuccessful()
         {
             // Arrange
-            var model = new RegisterRequestModel { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockAuthService.Setup(a => a.RegisterUser(model)).ReturnsAsync(IdentityResult.Success);
 
             // Act
@@ -38,7 +38,7 @@ namespace BackEngin.Tests.Controllers
         public async Task Register_ShouldReturnBadRequest_WhenRegistrationFails()
         {
             // Arrange
-            var model = new RegisterRequestModel { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockAuthService.Setup(a => a.RegisterUser(model)).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error" }));
 
             // Act
@@ -52,7 +52,7 @@ namespace BackEngin.Tests.Controllers
         public async Task Login_ShouldReturnOk_WhenLoginIsSuccessful()
         {
             // Arrange
-            var model = new LoginRequestModel { Identifier = "testuser", Password = "Password123" };
+            var model = new LoginRequestDTO { Identifier = "testuser", Password = "Password123" };
             string token = "sample-jwt-token";
             _mockAuthService.Setup(a => a.LoginUser(model)).ReturnsAsync(token);
 
@@ -69,7 +69,7 @@ namespace BackEngin.Tests.Controllers
         public async Task Login_ShouldReturnUnauthorized_WhenLoginFails()
         {
             // Arrange
-            var model = new LoginRequestModel { Identifier = "testuser", Password = "wrongpassword" };
+            var model = new LoginRequestDTO { Identifier = "testuser", Password = "wrongpassword" };
             _mockAuthService.Setup(a => a.LoginUser(model)).ReturnsAsync((string)null);
 
             // Act
@@ -83,7 +83,7 @@ namespace BackEngin.Tests.Controllers
         public async Task ForgotPassword_ShouldReturnOk_WithToken_WhenEmailExists()
         {
             // Arrange
-            var model = new ForgotPasswordModel { Email = "test@example.com" };
+            var model = new ForgotPasswordDTO { Email = "test@example.com" };
             string resetToken = "sample-reset-token";
             _mockAuthService.Setup(a => a.SendPasswordResetTokenAsync(model.Email)).ReturnsAsync(resetToken);
 
@@ -99,7 +99,7 @@ namespace BackEngin.Tests.Controllers
         public async Task ForgotPassword_ShouldReturnOk_WhenEmailDoesNotExist()
         {
             // Arrange
-            var model = new ForgotPasswordModel { Email = "nonexistent@example.com" };
+            var model = new ForgotPasswordDTO { Email = "nonexistent@example.com" };
             _mockAuthService.Setup(a => a.SendPasswordResetTokenAsync(model.Email)).ReturnsAsync((string)null);
 
             // Act
@@ -114,7 +114,7 @@ namespace BackEngin.Tests.Controllers
         public async Task ResetPassword_ShouldReturnOk_WhenResetIsSuccessful()
         {
             // Arrange
-            var model = new ResetPasswordModel { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
+            var model = new ResetPasswordDTO { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
             _mockAuthService.Setup(a => a.ResetPasswordAsync(model)).ReturnsAsync(IdentityResult.Success);
 
             // Act
@@ -128,7 +128,7 @@ namespace BackEngin.Tests.Controllers
         public async Task ResetPassword_ShouldReturnBadRequest_WhenResetFails()
         {
             // Arrange
-            var model = new ResetPasswordModel { Email = "test@example.com", Token = "invalid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
+            var model = new ResetPasswordDTO { Email = "test@example.com", Token = "invalid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
             _mockAuthService.Setup(a => a.ResetPasswordAsync(model)).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Invalid token" }));
 
             // Act

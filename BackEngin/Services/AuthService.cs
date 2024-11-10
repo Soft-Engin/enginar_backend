@@ -23,13 +23,13 @@ namespace BackEngin.Services
             _configuration = configuration;
         }
 
-        public async Task<IdentityResult> RegisterUser(RegisterRequestModel model)
+        public async Task<IdentityResult> RegisterUser(RegisterRequestDTO model)
         {
             var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = 1 };
             return await _userManager.CreateAsync(user, model.Password);
         }
 
-        public async Task<string> LoginUser(LoginRequestModel model)
+        public async Task<string> LoginUser(LoginRequestDTO model)
         {
 
             var user = await _userManager.FindByEmailAsync(model.Identifier) ?? await _userManager.FindByNameAsync(model.Identifier);
@@ -56,7 +56,7 @@ namespace BackEngin.Services
             return token;
         }
 
-        public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordModel model)
+        public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)

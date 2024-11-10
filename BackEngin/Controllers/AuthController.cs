@@ -22,7 +22,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -36,7 +36,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestModel model)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
             var token = await _authService.LoginUser(model);
 
@@ -47,7 +47,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -62,7 +62,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

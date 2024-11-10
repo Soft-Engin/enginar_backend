@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Models.DTO
 {
-    public class RegisterRequestModel
+    public class RegisterRequestDTO
     {
         [Required]
         [EmailAddress]

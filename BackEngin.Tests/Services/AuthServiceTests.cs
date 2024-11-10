@@ -25,7 +25,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task RegisterUser_ShouldReturnSuccess_WhenUserCreated()
         {
-            var model = new RegisterRequestModel { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Success);
 
@@ -37,7 +37,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task RegisterUser_ShouldReturnFailure_WhenUserCreationFails()
         {
-            var model = new RegisterRequestModel { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error creating user" }));
 
@@ -49,7 +49,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task LoginUser_ShouldReturnToken_WhenCredentialsAreValid()
         {
-            var model = new LoginRequestModel { Identifier = "testuser", Password = "Password123" };
+            var model = new LoginRequestDTO { Identifier = "testuser", Password = "Password123" };
             var user = new Users { UserName = model.Identifier, Id = "1" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Identifier)).ReturnsAsync(user);
@@ -64,7 +64,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task LoginUser_ShouldReturnNull_WhenCredentialsAreInvalid()
         {
-            var model = new LoginRequestModel { Identifier = "testuser", Password = "wrongpassword" };
+            var model = new LoginRequestDTO { Identifier = "testuser", Password = "wrongpassword" };
             var user = new Users { UserName = model.Identifier, Id = "1" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Identifier)).ReturnsAsync(user);
@@ -114,7 +114,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task ResetPasswordAsync_ShouldReturnSuccess_WhenTokenAndPasswordsAreValid()
         {
-            var model = new ResetPasswordModel { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
+            var model = new ResetPasswordDTO { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
             var user = new Users { UserName = "testuser", Email = model.Email, Id = "1" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Email)).ReturnsAsync(user);
@@ -129,7 +129,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task ResetPasswordAsync_ShouldReturnFailure_WhenTokenIsInvalid()
         {
-            var model = new ResetPasswordModel { Email = "test@example.com", Token = "invalid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
+            var model = new ResetPasswordDTO { Email = "test@example.com", Token = "invalid-token", NewPassword = "NewPassword123", ConfirmPassword = "NewPassword123" };
             var user = new Users { UserName = "testuser", Email = model.Email, Id = "1" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Email)).ReturnsAsync(user);
@@ -144,7 +144,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task ResetPasswordAsync_ShouldReturnFailure_WhenPasswordsDoNotMatch()
         {
-            var model = new ResetPasswordModel { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "DifferentPassword" };
+            var model = new ResetPasswordDTO { Email = "test@example.com", Token = "valid-token", NewPassword = "NewPassword123", ConfirmPassword = "DifferentPassword" };
             var user = new Users { UserName = "testuser", Email = model.Email, Id = "1" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Email)).ReturnsAsync(user);

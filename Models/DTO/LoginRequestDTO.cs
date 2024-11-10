@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Models.DTO
 {
-    public class LoginRequestModel
+    public class LoginRequestDTO
     {
         [Required]
         public string Identifier { get; set; }

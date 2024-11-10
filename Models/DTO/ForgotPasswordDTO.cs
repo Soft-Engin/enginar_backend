@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Models.DTO
 {
-    public class ForgotPasswordModel
+    public class ForgotPasswordDTO
     {
         [EmailAddress]
         public string Email { get; set; }
