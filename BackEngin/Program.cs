@@ -6,8 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
 using Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Asp.Versioning;
 using BackEngin.Services.Interfaces;
 using BackEngin.Services;
 using DotNetEnv;
@@ -18,7 +17,6 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load("../.env");
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -43,15 +41,15 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]))
         };
-    });
+});
 
-// Configure IdentityCore with Entity Framework and Role support (this has to be addIdentityCore to disable cookie authentication)
+// Configure IdentityCore with Entity Framework and Role support
 builder.Services.AddIdentityCore<Users>(options => options.SignIn.RequireConfirmedEmail = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataContext>()
     .AddDefaultTokenProviders();
 
-
+// Configure database context with environment variables
 builder.Services.AddDbContext<DataContext>(options =>
 {
     var connectionString = $"Server={Environment.GetEnvironmentVariable("MSSQL_SERVER")},{Environment.GetEnvironmentVariable("MSSQL_HOST_PORT")};" +
@@ -62,18 +60,20 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+// Add API versioning
 builder.Services.AddApiVersioning(options =>
 {
     options.AssumeDefaultVersionWhenUnspecified = true;  // Assume version 1 by default
-    options.DefaultApiVersion = new ApiVersion(1, 0);   // Set the default version
-    options.ReportApiVersions = true;  // Include versioning info in the response
+    options.DefaultApiVersion = new ApiVersion(1, 0);    // Set the default version
+    options.ReportApiVersions = true;                    // Include versioning info in the response
     options.ApiVersionReader = new UrlSegmentApiVersionReader(); // Use version in the URL path
 });
 
-// Register Unit of Work
+// Register services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -104,7 +104,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -115,20 +114,16 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-
 app.UseCors("AllowAll");
-
 
 app.UseRouting();
 app.UseHttpsRedirection();
