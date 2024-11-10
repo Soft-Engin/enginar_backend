@@ -17,11 +17,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    var connectionString = $"Server={Environment.GetEnvironmentVariable("MSSQL_SERVER")};" +
-                           $"Port={Environment.GetEnvironmentVariable("MSSQL_HOST_PORT")};" +
-                           $"Database={Environment.GetEnvironmentVariable("MSSQL_NAME")};" +
+    var connectionString = $"Server={Environment.GetEnvironmentVariable("MSSQL_SERVER")},{Environment.GetEnvironmentVariable("MSSQL_HOST_PORT")};" +
+                           $"Database={Environment.GetEnvironmentVariable("MSSQL_DATABASE")};" +
                            $"User Id={Environment.GetEnvironmentVariable("MSSQL_USER")};" +
-                           $"Password={Environment.GetEnvironmentVariable("MSSQL_PASSWORD")};";
+                           $"Password={Environment.GetEnvironmentVariable("MSSQL_PASSWORD")};" +
+                           $"TrustServerCertificate={Environment.GetEnvironmentVariable("TrustServerCertificate")};";
     options.UseSqlServer(connectionString);
 });
 
