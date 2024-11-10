@@ -9,7 +9,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{63406BFF-09D4-4E01-861A-814187B32F8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackEngin.Tests", "BackEngin.Tests\BackEngin.Tests.csproj", "{866EA9A7-EB4C-4ADA-A3F6-906741912F31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackEngin.Tests", "BackEngin.Tests\BackEngin.Tests.csproj", "{866EA9A7-EB4C-4ADA-A3F6-906741912F31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A15960EE-6E6B-48C9-A3A9-7C5FC367D2EF}"
+	ProjectSection(SolutionItems) = preProject
+		.env = .env
+		.env.example = .env.example
+		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
