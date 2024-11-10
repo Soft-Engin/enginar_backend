@@ -4,13 +4,13 @@ services:
     container_name: mssql_server
     environment:
       ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
     ports:
-      - "1434:1433"
+      - "${MSSQL_HOST_PORT}:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SA_PASSWORD}" -Q "SELECT 1" -b -o /dev/null
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -b -o /dev/null
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,14 +23,9 @@ services:
         condition: service_healthy
     volumes:
       - ./BackEngin/init.sql:/init.sql
-    environment:
-      SA_PASSWORD: ${SA_PASSWORD}
-      MSSQL_DATABASE: ${MSSQL_DATABASE}
-      MSSQL_USER: ${MSSQL_USER}
-      MSSQL_PASSWORD: ${MSSQL_PASSWORD}
     entrypoint: >
       /bin/bash -c "
-      /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P ${SA_PASSWORD} -d master -Q \"
+      /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P ${MSSQL_SA_PASSWORD} -d master -Q \"
         CREATE DATABASE ${MSSQL_DATABASE};
         GO
         CREATE LOGIN ${MSSQL_USER} WITH PASSWORD = '${MSSQL_PASSWORD}';
