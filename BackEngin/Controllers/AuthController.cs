@@ -46,19 +46,35 @@ namespace BackEngin.Controllers
             return Ok(new { Token = token, message = "User logged in successfully!" });
         }
 
+        [HttpPost("confirm-account")]
+        public async Task<IActionResult> ConfirmAccount([FromQuery] string email, [FromQuery] string token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Email and token are required.");
+            }
+
+            var result = await _authService.ConfirmAccountAsync(email, token);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Account confirmed successfully!" });
+            }
+
+            return BadRequest(new { message = "Account confirmation failed.", errors = result.Errors });
+        }
+
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var token = await _authService.SendPasswordResetTokenAsync(model.Email);
+            await _authService.SendPasswordResetTokenAsync(model.Email);
 
-            if (token == null)
-                return Ok(new { message = "If an account with that email exists, a password reset token has been generated." });
-
-            // Return the token directly (for testing purposes)
-            return Ok(new { Token = token, message = "Password reset token generated successfully." });
+            // Always return the same response to prevent email enumeration
+            return Ok(new { message = "If an account with that email exists, a password reset link has been sent." });
         }
 
         [HttpPost("reset-password")]

@@ -11,7 +11,9 @@ namespace BackEngin.Services.Interfaces
         Task<string> LoginUser(LoginRequestDTO model);
         string GenerateJwtToken(Users user);
 
-        Task<string> SendPasswordResetTokenAsync(string email);  // Return the token for testing
+        Task SendPasswordResetTokenAsync(string email);
         Task<IdentityResult> ResetPasswordAsync(ResetPasswordDTO model);
+
+        Task<IdentityResult> ConfirmAccountAsync(string email, string token);
     }
 }

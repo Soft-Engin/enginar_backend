@@ -16,18 +16,58 @@ namespace BackEngin.Services
     {
         private readonly UserManager<Users> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthService(UserManager<Users> userManager, IConfiguration configuration)
+        public AuthService(UserManager<Users> userManager, IConfiguration configuration, IEmailService emailService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         public async Task<IdentityResult> RegisterUser(RegisterRequestDTO model)
         {
             var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = 1 };
-            return await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, model.Password);
+            
+            if (result.Succeeded)
+            {
+                await SendEmailConfirmationTokenAsync(user.Email);
+            }
+            
+            return result;
         }
+
+        public async Task SendEmailConfirmationTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                // Handle the case where the user is not found
+                return;
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = $"https://enginar.space/confirm-email?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+            var subject = "Email Confirmation";
+            var message = $"Please confirm your email by clicking here: {confirmationLink}";
+
+            await _emailService.SendEmailAsync(email, subject, message);
+        }
+
+        public async Task<IdentityResult> ConfirmAccountAsync(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid email or token." });
+            }
+
+            // Confirm the email
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            return result;
+        }
+
 
         public async Task<string> LoginUser(LoginRequestDTO model)
         {
@@ -39,21 +79,27 @@ namespace BackEngin.Services
             return result ? GenerateJwtToken(user) : null;
         }
 
-        public async Task<string> SendPasswordResetTokenAsync(string email)
+        public async Task SendPasswordResetTokenAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                // For security reasons, you might want to return a generic response
-                return null;
+                // For security reasons, don't reveal that the email does not exist
+                return;
             }
 
-            // Generate a token without sending an email
+            // Generate a token
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            // Return the token directly (for testing purposes)
-            // In a real-world scenario, you would send the token to the user's email
-            return token;
+            // Create the reset link (update with your frontend URL)
+            var resetLink = $"https://enginar.space/reset-password?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+
+            // Compose the email
+            var subject = "Password Reset Request";
+            var message = $"Please reset your password by clicking here: {resetLink}";
+
+            // Send the email
+            await _emailService.SendEmailAsync(email, subject, message);
         }
 
         public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordDTO model)
