@@ -153,5 +153,36 @@ namespace BackEngin.Tests.Services
 
             result.Succeeded.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task RegisterUser_ShouldFail_WhenUsernameAlreadyExists()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO
+            {
+                UserName = "existinguser",
+                Email = "newemail@example.com",
+                Password = "Password123"
+            };
+
+            var existingUser = new Users { UserName = "existinguser", Email = "existing@example.com" };
+
+            // Setup UserManager to find an existing user by username
+            _mockUserManager.Setup(um => um.FindByNameAsync(model.UserName))
+                .ReturnsAsync(existingUser);
+
+            // Alternatively, depending on your AuthService implementation,
+            // UserManager.CreateAsync might automatically fail if username exists.
+            // Here, we simulate CreateAsync failing due to duplicate username.
+            _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Username already exists." }));
+
+            // Act
+            var result = await _authService.RegisterUser(model);
+
+            // Assert
+            result.Succeeded.Should().BeFalse();
+            result.Errors.Should().ContainSingle(e => e.Description == "Username already exists.");
+        }
     }
 }
