@@ -78,6 +78,7 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddScoped<IUrlService, UrlService>();
 
 
 // Configure Swagger with JWT support

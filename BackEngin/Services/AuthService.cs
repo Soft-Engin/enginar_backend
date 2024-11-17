@@ -17,12 +17,14 @@ namespace BackEngin.Services
         private readonly UserManager<Users> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IUrlService _urlService;
 
-        public AuthService(UserManager<Users> userManager, IConfiguration configuration, IEmailService emailService)
+        public AuthService(UserManager<Users> userManager, IConfiguration configuration, IEmailService emailService, IUrlService urlService)
         {
             _userManager = userManager;
             _configuration = configuration;
             _emailService = emailService;
+            _urlService = urlService;
         }
 
         public async Task<IdentityResult> RegisterUser(RegisterRequestDTO model)
@@ -47,11 +49,17 @@ namespace BackEngin.Services
                 return;
             }
 
+            // Generate email confirmation token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmationLink = $"https://enginar.space/confirm-email?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
-            var subject = "Email Confirmation";
-            var message = $"Please confirm your email by clicking here: {confirmationLink}";
 
+            // Generate the confirmation link
+            var confirmationLink = _urlService.GenerateFrontendUrl("confirm-account", new { email, token });
+
+            // Prepare the email content
+            var subject = "Account Confirmation";
+            var message = $"Please confirm your account by clicking the following link: {confirmationLink}";
+
+            // Send the email
             await _emailService.SendEmailAsync(email, subject, message);
         }
 
@@ -92,7 +100,7 @@ namespace BackEngin.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             // Create the reset link (update with your frontend URL)
-            var resetLink = $"https://enginar.space/reset-password?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+            var resetLink = _urlService.GenerateFrontendUrl("reset-password", new { email, token });
 
             // Compose the email
             var subject = "Password Reset Request";

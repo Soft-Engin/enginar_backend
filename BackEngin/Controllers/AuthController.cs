@@ -46,7 +46,9 @@ namespace BackEngin.Controllers
             return Ok(new { Token = token, message = "User logged in successfully!" });
         }
 
-        [HttpPost("confirm-account")]
+        [HttpPost("confirm-account", Name = "ConfirmAccount")]
+        // Name property is used to generate the URL in the email
+        // But it works for backend urls such as localhost:port ...
         public async Task<IActionResult> ConfirmAccount([FromQuery] string email, [FromQuery] string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
