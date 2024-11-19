@@ -1,4 +1,5 @@
 ﻿using BackEngin.Services.Interfaces;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,11 +17,13 @@ namespace BackEngin.Services
     {
         private readonly UserManager<Users> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(UserManager<Users> userManager, IConfiguration configuration)
+        public AuthService(UserManager<Users> userManager, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IdentityResult> RegisterUser(RegisterRequestDTO model)
@@ -75,6 +78,7 @@ namespace BackEngin.Services
 
         public string GenerateJwtToken(Users user)
         {
+            var role = _unitOfWork.Roles.GetByIdAsync(user.RoleId);
             var expirationTime = DateTime.UtcNow.AddMinutes(30); //time is hard coded bcus I'm tired
             var claims = new[]
             {
@@ -82,7 +86,7 @@ namespace BackEngin.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.Role.Name)
+                new Claim(ClaimTypes.Role, role.Result.Name)
             };
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
