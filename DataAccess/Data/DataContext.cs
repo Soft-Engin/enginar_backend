@@ -26,7 +26,9 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role"}
                 );
 
-
+            modelBuilder.Entity<Users>().HasData(
+                new Users { Id = "1", FirstName = "Berker ", LastName = "Bayar", RoleId = 1 }
+            );
         }
     }
 }

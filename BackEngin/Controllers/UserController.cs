@@ -22,7 +22,7 @@ namespace BackEngin.Controllers
         }
 
         // Get all users
-        [HttpGet]
+        [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -30,7 +30,7 @@ namespace BackEngin.Controllers
         }
 
         // Get a user by ID
-        [HttpGet("{id}")]
+        [HttpGet("GetUser{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -41,29 +41,16 @@ namespace BackEngin.Controllers
             return Ok(user);
         }
 
-        // Create a new user
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] Users user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var createdUser = await _userService.CreateUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
-        }
-
         // Update an existing user
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] Users user)
+        [HttpPut("UpdateUser{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var updatedUser = await _userService.UpdateUserAsync(id, user);
+            var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
             if (updatedUser == null)
             {
                 return NotFound();
@@ -73,7 +60,7 @@ namespace BackEngin.Controllers
         }
 
         // Delete a user
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteUser{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string id)
         {

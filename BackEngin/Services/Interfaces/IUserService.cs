@@ -10,8 +10,7 @@ namespace BackEngin.Services.Interfaces
     {
         Task<IEnumerable<Users>> GetAllUsersAsync();
         Task<Users?> GetUserByIdAsync(string id);
-        Task<Users> CreateUserAsync(Users user);
-        Task<Users> UpdateUserAsync(string id, Users user);
+        Task<Users> UpdateUserAsync(string id, UpdateUserDto userDTO);
         Task<bool> DeleteUserAsync(string id);
     }
 }

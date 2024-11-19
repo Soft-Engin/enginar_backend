@@ -1,4 +1,6 @@
-﻿using BackEngin.Services.Interfaces;
+﻿using BackEngin.Data;
+using BackEngin.Services.Interfaces;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +18,15 @@ namespace BackEngin.Services
 {
     public class UserService : IUserService
     {
-        private readonly DbContext _context;
+        private readonly DataContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(DbContext context, UserManager<Users> userManager)
+
+        public UserService(UserManager<Users> userManager, IUnitOfWork unitOfWork)
         {
-            _context = context;
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Users>> GetAllUsersAsync()
@@ -35,35 +39,38 @@ namespace BackEngin.Services
             return await _userManager.Users.Include(u => u.Address).Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<Users> CreateUserAsync(Users user)
-        {
-            var result = await _userManager.CreateAsync(user);
-            if (!result.Succeeded)
-            {
-                // Handle creation failure (e.g., validation errors)
-                return null;
-            }
-            return user;
-        }
-
-        public async Task<Users> UpdateUserAsync(string id, Users user)
+        public async Task<Users> UpdateUserAsync(string id, UpdateUserDto userDTO)
         {
             var existingUser = await _userManager.FindByIdAsync(id);
             if (existingUser == null)
             {
+                Console.Write("User not found");
                 return null;
             }
 
             // Update properties
-            existingUser.FirstName = user.FirstName;
-            existingUser.LastName = user.LastName;
-            existingUser.AddressId = user.AddressId;
-            existingUser.RoleId = user.RoleId;
+            existingUser.FirstName = userDTO.FirstName;
+            existingUser.LastName = userDTO.LastName;
+            existingUser.RoleId = userDTO.RoleId;
+            existingUser.AddressId = userDTO.AddressId;
+            existingUser.Email = userDTO.Email;
+            existingUser.UserName = userDTO.UserName;
+
+            var validationResult = await _userManager.UserValidators[0].ValidateAsync(_userManager, existingUser);
+            if (!validationResult.Succeeded)
+            {
+                foreach (var error in validationResult.Errors)
+                {
+                    Console.WriteLine($"Validation Error: {error.Code} - {error.Description}");
+                }
+                return null;
+            }
 
             var result = await _userManager.UpdateAsync(existingUser);
             if (!result.Succeeded)
             {
                 // Handle update failure (e.g., validation errors)
+                Console.WriteLine("Update Failed");
                 return null;
             }
 

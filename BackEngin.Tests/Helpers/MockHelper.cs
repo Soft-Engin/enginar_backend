@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System.Linq.Expressions;
 
 namespace BackEngin.Tests.Helpers
 {
@@ -27,5 +30,96 @@ namespace BackEngin.Tests.Helpers
 
             return mockConfig;
         }
+
+        public static Mock<DbSet<T>> BuildMockDbSet<T>(this IQueryable<T> source) where T : class
+        {
+            var mockDbSet = new Mock<DbSet<T>>();
+
+            // Set up IQueryable properties
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(source.Provider);
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(source.Expression);
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(source.ElementType);
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(source.GetEnumerator());
+
+            // Set up IAsyncEnumerable for EF Core async methods
+            mockDbSet.As<IAsyncEnumerable<T>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<System.Threading.CancellationToken>()))
+                .Returns(new TestAsyncEnumerator<T>(source.GetEnumerator()));
+
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<T>(source.Provider));
+
+            return mockDbSet;
+        }
+    }
+
+    public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
+    {
+        private readonly IEnumerator<T> _inner;
+
+        public TestAsyncEnumerator(IEnumerator<T> inner)
+        {
+            _inner = inner;
+        }
+
+        public T Current => _inner.Current;
+
+        public ValueTask DisposeAsync()
+        {
+            _inner.Dispose();
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(_inner.MoveNext());
+    }
+
+    public class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
+    {
+        private readonly IQueryProvider _inner;
+
+        public TestAsyncQueryProvider(IQueryProvider inner)
+        {
+            _inner = inner;
+        }
+
+        public IQueryable CreateQuery(Expression expression) => _inner.CreateQuery(expression);
+
+        public IQueryable<TElement> CreateQuery<TElement>(Expression expression) =>
+            new TestAsyncEnumerable<TElement>(expression);
+
+        public object Execute(Expression expression) => _inner.Execute(expression);
+
+        public TResult Execute<TResult>(Expression expression) =>
+            _inner.Execute<TResult>(expression);
+
+        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        {
+            // Extract the actual type that TResult is wrapping (e.g., Task<Users> -> Users)
+            var expectedResultType = typeof(TResult).GetGenericArguments().FirstOrDefault();
+
+            if (expectedResultType != null)
+            {
+                // Execute the query synchronously
+                var result = _inner.Execute(expression);
+
+                // Wrap the result in Task and cast it to the correct TResult type
+                var taskResult = typeof(Task).GetMethod(nameof(Task.FromResult))
+                                              .MakeGenericMethod(expectedResultType)
+                                              .Invoke(null, new[] { result });
+
+                return (TResult)taskResult;
+            }
+
+            throw new InvalidOperationException("Unexpected result type for async execution.");
+        }
+    }
+
+    public class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>
+    {
+        public TestAsyncEnumerable(IEnumerable<T> enumerable) : base(enumerable) { }
+        public TestAsyncEnumerable(Expression expression) : base(expression) { }
+
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
+            new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
     }
 }

@@ -4,6 +4,7 @@ using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241119174254_UserMigration")]
+    partial class UserMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -405,11 +408,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "590d142f-ecde-4427-8a8b-3603cdcfa160",
+                            ConcurrencyStamp = "bb6ab65f-f2d0-4fd4-b801-4c75ca35bc72",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e4f9c47a-5327-45f1-94a8-90333ac4569a",
+                            SecurityStamp = "46b12072-0925-4f2f-b669-8370bc6c8bd8",
                             TwoFactorEnabled = false,
                             FirstName = "Berker ",
                             LastName = "Bayar",
