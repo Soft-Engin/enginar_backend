@@ -77,6 +77,7 @@ builder.Services.AddApiVersioning(options =>
 // Register services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAllergenService, AllergenService>();
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
