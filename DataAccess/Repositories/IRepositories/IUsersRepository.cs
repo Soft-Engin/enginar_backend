@@ -1,4 +1,5 @@
 ﻿using Models;
+using Models.DTO;
 
 namespace DataAccess.Repositories.IRepositories
 {
@@ -9,5 +10,9 @@ namespace DataAccess.Repositories.IRepositories
         void Update(Users obj);
 
         */
+        Task<FollowersDTO> GetFollowersAsync(string userId);
+        Task<FollowedUsersDTO> GetFollowingAsync(string userId);
+        Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId);
+        Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
     }
 }

@@ -37,21 +37,35 @@ namespace BackEngin.Tests.Controllers
         public async Task GetUserById_ShouldReturnOk_WithUser()
         {
             // Arrange
-            var user = new Users { Id = "1", FirstName = "John" };
-            _mockUserService.Setup(us => us.GetUserByIdAsync("1")).ReturnsAsync(user);
+            var userDto = new GetUserByIdDTO
+            {
+                UserName = "JohnDoe",
+                Email = "johndoe@example.com",
+                FirstName = "John",
+                LastName = "Doe",
+                AddressName = "Home",
+                Street = "123 Main St",
+                District = "Downtown",
+                City = "Metropolis",
+                Country = "CountryLand",
+                PostCode = 12345,
+                RoleName = "User"
+            };
+
+            _mockUserService.Setup(us => us.GetUserByIdAsync("1")).ReturnsAsync(userDto);
 
             // Act
             var result = await _userController.GetUserById("1");
 
             // Assert
-            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(user);
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(userDto);
         }
 
         [Fact]
         public async Task GetUserById_ShouldReturnNotFound_WhenUserDoesNotExist()
         {
             // Arrange
-            _mockUserService.Setup(us => us.GetUserByIdAsync("1")).ReturnsAsync((Users)null);
+            _mockUserService.Setup(us => us.GetUserByIdAsync("1")).ReturnsAsync((GetUserByIdDTO)null);
 
             // Act
             var result = await _userController.GetUserById("1");
@@ -71,8 +85,12 @@ namespace BackEngin.Tests.Controllers
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
-                RoleId = 3,
-                AddressId = 20
+                AddressName = "Updated Address",
+                Street = "Updated Street",
+                District = "Updated District",
+                City = "Updated City",
+                Country = "Updated Country",
+                PostCode = 12345
             };
 
             var updatedUser = new Users
@@ -82,8 +100,21 @@ namespace BackEngin.Tests.Controllers
                 LastName = updateUserDto.LastName,
                 Email = updateUserDto.Email,
                 UserName = updateUserDto.UserName,
-                RoleId = updateUserDto.RoleId,
-                AddressId = updateUserDto.AddressId
+                Address = new Addresses
+                {
+                    Name = updateUserDto.AddressName,
+                    Street = updateUserDto.Street,
+                    District = new Districts
+                    {
+                        Name = updateUserDto.District,
+                        City = new Cities
+                        {
+                            Name = updateUserDto.City,
+                            Country = new Countries { Name = updateUserDto.Country }
+                        },
+                        PostCode = updateUserDto.PostCode
+                    }
+                }
             };
 
             _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync(updatedUser);
@@ -107,8 +138,12 @@ namespace BackEngin.Tests.Controllers
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
-                RoleId = 3,
-                AddressId = 20
+                AddressName = "Updated Address",
+                Street = "Updated Street",
+                District = "Updated District",
+                City = "Updated City",
+                Country = "Updated Country",
+                PostCode = 12345
             };
 
             _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync((Users)null);
@@ -146,5 +181,7 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundResult>();
         }
+
+
     }
 }

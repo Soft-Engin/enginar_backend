@@ -72,5 +72,39 @@ namespace BackEngin.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("{userId}/followers")]
+        public async Task<IActionResult> GetFollowers(string userId)
+        {
+            var followers = await _userService.GetFollowersAsync(userId);
+            return Ok(followers);
+        }
+
+        [HttpGet("{userId}/following")]
+        public async Task<IActionResult> GetFollowing(string userId)
+        {
+            var following = await _userService.GetFollowingAsync(userId);
+            return Ok(following);
+        }
+
+        [HttpPost("{userId}/follow")]
+        public async Task<IActionResult> FollowUser(string userId, [FromBody] string targetUserId)
+        {
+            var result = await _userService.FollowUserAsync(userId, targetUserId);
+            if (!result)
+                return BadRequest("Unable to follow user. Perhaps you already follow them.");
+
+            return Ok(new { Message = "Successfully followed user." });
+        }
+
+        [HttpDelete("{userId}/unfollow")]
+        public async Task<IActionResult> UnfollowUser(string userId, [FromBody] string targetUserId)
+        {
+            var result = await _userService.UnfollowUserAsync(userId, targetUserId);
+            if (!result)
+                return BadRequest("Unable to unfollow user. Perhaps you don't follow them.");
+
+            return Ok(new { Message = "Successfully unfollowed user." });
+        }
     }
 }

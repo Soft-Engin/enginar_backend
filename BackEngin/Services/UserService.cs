@@ -34,10 +34,38 @@ namespace BackEngin.Services
             return await _userManager.Users.Include(u => u.Address).Include(u => u.Role).ToListAsync();
         }
 
-        public async Task<Users?> GetUserByIdAsync(string id)
+        public async Task<GetUserByIdDTO?> GetUserByIdAsync(string id)
         {
-            return await _userManager.Users.Include(u => u.Address).Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
+            // Retrieve the user with all necessary related entities included
+            var user = await _userManager.Users
+                .Include(u => u.Address)
+                .ThenInclude(a => a.District)
+                .ThenInclude(d => d.City)
+                .ThenInclude(c => c.Country)
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            // If no user is found, return null
+            if (user == null)
+                return null;
+
+            // Map the retrieved user to the DTO
+            return new GetUserByIdDTO
+            {
+                UserName = user.UserName ?? "User Name",
+                Email = user.Email ?? "E-Mail",
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                AddressName = user.Address?.Name ?? "Address Name",
+                Street = user.Address?.Street ?? "Street",
+                District = user.Address?.District?.Name ?? "District",
+                City = user.Address?.District?.City?.Name ?? "City",
+                Country = user.Address?.District?.City?.Country?.Name ?? "Country",
+                PostCode = user.Address?.District?.PostCode ?? 0, // Default to 0 if null
+                RoleName = user.Role?.Name ?? "Role Name"
+            };
         }
+
 
         public async Task<Users> UpdateUserAsync(string id, UpdateUserDto userDTO)
         {
@@ -51,8 +79,17 @@ namespace BackEngin.Services
             // Update properties
             existingUser.FirstName = userDTO.FirstName;
             existingUser.LastName = userDTO.LastName;
-            existingUser.RoleId = userDTO.RoleId;
-            existingUser.AddressId = userDTO.AddressId;
+
+            if (existingUser.Address != null) {
+                existingUser.Address.Name = userDTO.AddressName;
+                existingUser.Address.Street = userDTO.Street;
+                existingUser.Address.District.Name = userDTO.District;
+                existingUser.Address.District.City.Name = userDTO.City;
+                existingUser.Address.District.City.Country.Name = userDTO.Country;
+                existingUser.Address.District.PostCode = userDTO.PostCode;
+            }
+            
+
             existingUser.Email = userDTO.Email;
             existingUser.UserName = userDTO.UserName;
 
@@ -88,6 +125,29 @@ namespace BackEngin.Services
             var result = await _userManager.DeleteAsync(user);
 
             return result.Succeeded;
+        }
+
+        public async Task<FollowersDTO> GetFollowersAsync(string userId)
+        {
+            return await _unitOfWork.Users.GetFollowersAsync(userId);
+        }
+
+        public async Task<FollowedUsersDTO> GetFollowingAsync(string userId)
+        {
+            return await _unitOfWork.Users.GetFollowingAsync(userId);
+        }
+
+        public async Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId)
+        {
+            if (initiatorUserId == targetUserId)
+                throw new InvalidOperationException("Users cannot follow themselves.");
+
+            return await _unitOfWork.Users.FollowUserAsync(initiatorUserId, targetUserId);
+        }
+
+        public async Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId)
+        {
+            return await _unitOfWork.Users.UnfollowUserAsync(initiatorUserId, targetUserId);
         }
     }
 }
