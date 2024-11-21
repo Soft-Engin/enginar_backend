@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 using Models;
 using Models.DTO;
 using BackEngin.Tests.Helpers;
+using DataAccess.Repositories;
+using System.Data;
+using DataAccess.Repositories.IRepositories;
 
 namespace BackEngin.Tests.Services
 {
@@ -14,12 +17,29 @@ namespace BackEngin.Tests.Services
         private readonly Mock<UserManager<Users>> _mockUserManager;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly AuthService _authService;
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+
+        /*
+         * Just keeping mocking role repository here 
+         * in case it is needed in the future.
+         */
+
+        //private readonly Mock<IRolesRepository> _mockRolesRepository;
 
         public AuthServiceTests()
         {
             _mockUserManager = MockHelper.MockUserManager<Users>();
             _mockConfiguration = MockHelper.MockConfiguration();
-            _authService = new AuthService(_mockUserManager.Object, _mockConfiguration.Object);
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            //_mockRolesRepository = new Mock<IRolesRepository>();
+
+            // Setup the Roles repository mock
+            //_mockUnitOfWork.Setup(uow => uow.Roles).Returns(_mockRolesRepository.Object);
+
+            _authService = new AuthService(
+                _mockUserManager.Object,
+                _mockConfiguration.Object,
+                _mockUnitOfWork.Object);
         }
 
         [Fact]
@@ -51,10 +71,14 @@ namespace BackEngin.Tests.Services
         {
             var model = new LoginRequestDTO { Identifier = "testuser", Password = "Password123" };
             var user = new Users { UserName = model.Identifier, Id = "1" };
+            var role = new Roles { Id = 2, Name = "User", Description = "Regular user" };
 
             _mockUserManager.Setup(um => um.FindByEmailAsync(model.Identifier)).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.FindByNameAsync(model.Identifier)).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.CheckPasswordAsync(user, model.Password)).ReturnsAsync(true);
+
+            // Mock the GetByIdAsync method to return the role
+            _mockUnitOfWork.Setup(uow => uow.Roles.GetByIdAsync(user.RoleId)).ReturnsAsync(role);
 
             var token = await _authService.LoginUser(model);
 
@@ -78,10 +102,18 @@ namespace BackEngin.Tests.Services
         [Fact]
         public void GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
         {
-            var user = new Users { UserName = "testuser", Id = "1" };
+            // Arrange
+            var user = new Users { UserName = "testuser", Id = "1", RoleId = 2 };
+            var role = new Roles { Id = 2, Name = "User", Description = "Regular user" };
 
+            // Mock the GetByIdAsync method to return the role
+            _mockUnitOfWork.Setup(uow => uow.Roles.GetByIdAsync(user.RoleId))
+                .ReturnsAsync(role);
+
+            // Act
             var token = _authService.GenerateJwtToken(user);
 
+            // Assert
             token.Should().NotBeNullOrEmpty();
         }
 
