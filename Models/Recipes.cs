@@ -23,5 +23,8 @@ namespace Models
 
         [Required]
         public string BodyText { get; set; }
+
+        // Navigation property for Recipes_Ingredients
+        public ICollection<Recipes_Ingredients> Recipes_Ingredients { get; set; }
     }
 }
