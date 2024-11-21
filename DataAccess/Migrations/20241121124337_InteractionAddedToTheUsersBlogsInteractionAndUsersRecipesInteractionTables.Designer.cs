@@ -4,6 +4,7 @@ using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241121124337_InteractionAddedToTheUsersBlogsInteractionAndUsersRecipesInteractionTables")]
+    partial class InteractionAddedToTheUsersBlogsInteractionAndUsersRecipesInteractionTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -277,38 +280,6 @@ namespace DataAccess.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("Models.Blogs", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Header")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Blogs");
-                });
-
             modelBuilder.Entity("Models.Cities", b =>
                 {
                     b.Property<int>("Id")
@@ -399,46 +370,7 @@ namespace DataAccess.Migrations
                             Id = 1,
                             Description = "User follows another user",
                             Name = "Follow"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "User bookmarks a recipe",
-                            Name = "BookmarkRecipe"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "User bookmarks a blog",
-                            Name = "BookmarkBlog"
                         });
-                });
-
-            modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Header")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("Models.Roles", b =>
@@ -476,35 +408,6 @@ namespace DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BlogId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InteractionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogId");
-
-                    b.HasIndex("InteractionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Users_Blogs_Interactions");
-                });
-
             modelBuilder.Entity("Models.Users_Interactions", b =>
                 {
                     b.Property<int>("Id")
@@ -533,35 +436,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("TargetUserId");
 
                     b.ToTable("Users_Interactions");
-                });
-
-            modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("InteractionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InteractionId");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Users_Recipes_Interactions");
                 });
 
             modelBuilder.Entity("Models.Users", b =>
@@ -593,11 +467,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2b0650bb-1bf1-417e-9a84-ae69a6fef2d0",
+                            ConcurrencyStamp = "a0f62981-ee86-4e9b-b9ff-84523b899833",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "81a10ca3-2076-4ccb-a954-19ffa78a6505",
+                            SecurityStamp = "df618a45-aeb9-46e1-bb52-dd68ab3ab8db",
                             TwoFactorEnabled = false,
                             FirstName = "Berker ",
                             LastName = "Bayar",
@@ -667,23 +541,6 @@ namespace DataAccess.Migrations
                     b.Navigation("District");
                 });
 
-            modelBuilder.Entity("Models.Blogs", b =>
-                {
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId");
-
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Models.Cities", b =>
                 {
                     b.HasOne("Models.Countries", "Country")
@@ -704,44 +561,6 @@ namespace DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("City");
-                });
-
-            modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
-                {
-                    b.HasOne("Models.Blogs", "Blog")
-                        .WithMany()
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Models.Interactions", "Interaction")
-                        .WithMany()
-                        .HasForeignKey("InteractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Blog");
-
-                    b.Navigation("Interaction");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Users_Interactions", b =>
@@ -769,33 +588,6 @@ namespace DataAccess.Migrations
                     b.Navigation("Interaction");
 
                     b.Navigation("TargetUser");
-                });
-
-            modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
-                {
-                    b.HasOne("Models.Interactions", "Interaction")
-                        .WithMany()
-                        .HasForeignKey("InteractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Interaction");
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Users", b =>

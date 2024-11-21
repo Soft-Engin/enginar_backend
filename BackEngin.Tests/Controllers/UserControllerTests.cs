@@ -20,18 +20,65 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetUsers_ShouldReturnOk_WithListOfUsers()
+        public async Task GetUsers_ShouldReturnOk_WithUserListDTO()
         {
             // Arrange
-            var users = new List<Users> { new Users { Id = "1", FirstName = "John" } };
-            _mockUserService.Setup(us => us.GetAllUsersAsync()).ReturnsAsync(users);
+            var userListDto = new UserListDTO
+            {
+                TotalCount = 2,
+                Users = new List<UserDTO>
+                {
+                    new UserDTO
+                    {
+                        Id = "1",
+                        FirstName = "John",
+                        LastName = "Doe",
+                        UserName = "johndoe",
+                        Email = "johndoe@example.com",
+                        PhoneNumber = "1234567890",
+                        Address = new Addresses
+                        {
+                            Name = "Home",
+                            Street = "123 Main St"
+                        },
+                        Role = new Roles
+                        {
+                            Name = "Admin"
+                        }
+                    },
+                    new UserDTO
+                    {
+                        Id = "2",
+                        FirstName = "Jane",
+                        LastName = "Smith",
+                        UserName = "janesmith",
+                        Email = "janesmith@example.com",
+                        PhoneNumber = "9876543210",
+                        Address = new Addresses
+                        {
+                            Name = "Office",
+                            Street = "456 Elm St"
+                        },
+                        Role = new Roles
+                        {
+                            Name = "User"
+                        }
+                    }
+                }
+            };
+
+            _mockUserService.Setup(us => us.GetAllUsersAsync()).ReturnsAsync(userListDto);
 
             // Act
             var result = await _userController.GetUsers();
 
             // Assert
-            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(users);
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(userListDto);
+
+            _mockUserService.Verify(us => us.GetAllUsersAsync(), Times.Once);
         }
+
 
         [Fact]
         public async Task GetUserById_ShouldReturnOk_WithUser()
@@ -85,6 +132,7 @@ namespace BackEngin.Tests.Controllers
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
+                PhoneNumber = "9876543210",
                 AddressName = "Updated Address",
                 Street = "Updated Street",
                 District = "Updated District",
@@ -93,39 +141,16 @@ namespace BackEngin.Tests.Controllers
                 PostCode = 12345
             };
 
-            var updatedUser = new Users
-            {
-                Id = userId,
-                FirstName = updateUserDto.FirstName,
-                LastName = updateUserDto.LastName,
-                Email = updateUserDto.Email,
-                UserName = updateUserDto.UserName,
-                Address = new Addresses
-                {
-                    Name = updateUserDto.AddressName,
-                    Street = updateUserDto.Street,
-                    District = new Districts
-                    {
-                        Name = updateUserDto.District,
-                        City = new Cities
-                        {
-                            Name = updateUserDto.City,
-                            Country = new Countries { Name = updateUserDto.Country }
-                        },
-                        PostCode = updateUserDto.PostCode
-                    }
-                }
-            };
-
-            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync(updatedUser);
+            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync(updateUserDto);
 
             // Act
             var result = await _userController.UpdateUser(userId, updateUserDto);
 
             // Assert
             result.Should().BeOfType<OkObjectResult>()
-                .Which.Value.Should().Be(updatedUser);
+                .Which.Value.Should().BeEquivalentTo(updateUserDto);
         }
+
 
         [Fact]
         public async Task UpdateUser_ShouldReturnNotFound_WhenUserDoesNotExist()
@@ -138,6 +163,7 @@ namespace BackEngin.Tests.Controllers
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
+                PhoneNumber = "9876543210",
                 AddressName = "Updated Address",
                 Street = "Updated Street",
                 District = "Updated District",
@@ -146,7 +172,7 @@ namespace BackEngin.Tests.Controllers
                 PostCode = 12345
             };
 
-            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync((Users)null);
+            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync((UpdateUserDto)null);
 
             // Act
             var result = await _userController.UpdateUser(userId, updateUserDto);
@@ -154,6 +180,7 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundResult>();
         }
+
 
 
         [Fact]
@@ -256,6 +283,116 @@ namespace BackEngin.Tests.Controllers
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             okResult.Value.Should().BeEquivalentTo(new { Message = "Successfully unfollowed user." });
+        }
+
+        [Fact]
+        public async Task GetBookmarkedRecipes_ShouldReturnOk_WhenBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+            var user = new Users { Id = userId, UserName = "john_doe" }; // Mock user
+
+            // Create mocked bookmark recipes data
+            var bookmarkedRecipes = new List<BookmarkRecipesItemDTO>
+            {
+                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe1", BodyText = "Delicious!" },
+                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe2", BodyText = "Tasty!" }
+            };
+
+            var bookmarkRecipesDTO = new BookmarkRecipesDTO
+            {
+                Recipes = bookmarkedRecipes,
+                TotalCount = 2
+            };
+
+            // Mock the service to return the BookmarkRecipesDTO
+            _mockUserService.Setup(s => s.GetBookmarkedRecipesAsync(userId))
+                .ReturnsAsync(bookmarkRecipesDTO);
+
+            // Act
+            var result = await _userController.GetBookmarkedRecipes(userId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult.StatusCode.Should().Be(200);
+            okResult.Value.Should().BeEquivalentTo(bookmarkRecipesDTO);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedRecipes_ShouldReturnNotFound_WhenNoBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            // Mock the service to return null (no bookmarked recipes)
+            _mockUserService.Setup(s => s.GetBookmarkedRecipesAsync(userId))
+                .ReturnsAsync((BookmarkRecipesDTO)null);
+
+            // Act
+            var result = await _userController.GetBookmarkedRecipes(userId);
+
+            // Assert
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().Be("No bookmarked recipes found for this user.");
+        }
+
+        [Fact]
+        public async Task GetBookmarkedBlogs_ShouldReturnOkResultWithBlogs_WhenBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            var mockedBlogs = new List<BookmarkBlogsItemDTO>
+            {
+                new BookmarkBlogsItemDTO { UserName = "User1", Header = "Blog 1", BodyText = "Content of Blog 1" },
+                new BookmarkBlogsItemDTO { UserName = "User2", Header = "Blog 2", BodyText = "Content of Blog 2" }
+            };
+
+            var bookmarkBlogsDTO = new BookmarkBlogsDTO
+            {
+                Blogs = mockedBlogs,
+                TotalCount = mockedBlogs.Count
+            };
+
+            _mockUserService.Setup(s => s.GetBookmarkedBlogsAsync(userId))
+                .ReturnsAsync(bookmarkBlogsDTO);
+
+            // Act
+            var result = await _userController.GetBookmarkedBlogs(userId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult.StatusCode.Should().Be(200);
+
+            var returnedValue = okResult.Value as BookmarkBlogsDTO;
+            returnedValue.Should().NotBeNull();
+            returnedValue.Blogs.Should().HaveCount(2);
+            returnedValue.TotalCount.Should().Be(2);
+            _mockUserService.Verify(s => s.GetBookmarkedBlogsAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedBlogs_ShouldReturnNotFound_WhenNoBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            _mockUserService.Setup(s => s.GetBookmarkedBlogsAsync(userId))
+                .ReturnsAsync((BookmarkBlogsDTO)null);
+
+            // Act
+            var result = await _userController.GetBookmarkedBlogs(userId);
+
+            // Assert
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().Be("No bookmarked blogs found for this user.");
+            _mockUserService.Verify(s => s.GetBookmarkedBlogsAsync(userId), Times.Once);
         }
 
 

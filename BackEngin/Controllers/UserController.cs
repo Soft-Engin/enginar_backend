@@ -106,5 +106,27 @@ namespace BackEngin.Controllers
 
             return Ok(new { Message = "Successfully unfollowed user." });
         }
+
+        [HttpGet("{userId}/bookmarks/recipes")]
+        public async Task<IActionResult> GetBookmarkedRecipes(string userId)
+        {
+            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId);
+
+            if (bookmarks == null)
+                return NotFound("No bookmarked recipes found for this user.");
+
+            return Ok(bookmarks);
+        }
+
+        [HttpGet("{userId}/bookmarks/blogs")]
+        public async Task<IActionResult> GetBookmarkedBlogs(string userId)
+        {
+            var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId);
+
+            if (bookmarkedBlogs == null)
+                return NotFound("No bookmarked blogs found for this user.");
+
+            return Ok(bookmarkedBlogs);
+        }
     }
 }

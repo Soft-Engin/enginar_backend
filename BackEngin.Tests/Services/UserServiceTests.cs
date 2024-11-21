@@ -27,29 +27,54 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllUsersAsync_ShouldReturnUsers()
+        public async Task GetAllUsersAsync_ShouldReturnUsersWithTotalCount()
         {
             // Arrange
             var users = new List<Users>
             {
-                new Users { Id = "1", FirstName = "John", LastName = "Doe" },
-                new Users { Id = "2", FirstName = "Jane", LastName = "Smith" }
+                new Users
+                {
+                    Id = "1",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    UserName = "johndoe",
+                    Email = "johndoe@example.com",
+                    PhoneNumber = "1234567890",
+                    Address = new Addresses { Name = "Home", Street = "123 Main St" },
+                    Role = new Roles { Name = "Admin" }
+                },
+                new Users
+                {
+                    Id = "2",
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    UserName = "janesmith",
+                    Email = "janesmith@example.com",
+                    PhoneNumber = "9876543210",
+                    Address = new Addresses { Name = "Office", Street = "456 Elm St" },
+                    Role = new Roles { Name = "User" }
+                }
             }.AsQueryable();
 
-            var mockDbSet = users.BuildMockDbSet();
+            var mockDbSet = MockHelper.BuildMockDbSet(users);
+
+            // Configure the mocked UserManager
             _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
 
-            var service = new UserService(_mockUserManager.Object, _mockUnitOfWork.Object);
-
             // Act
-            var result = await service.GetAllUsersAsync();
+            var result = await _userService.GetAllUsersAsync();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.Should().Contain(u => u.FirstName == "John" && u.LastName == "Doe");
-            result.Should().Contain(u => u.FirstName == "Jane" && u.LastName == "Smith");
+            result.TotalCount.Should().Be(2);
+            result.Users.Should().HaveCount(2);
+            result.Users.Should().Contain(u => u.FirstName == "John" && u.LastName == "Doe");
+            result.Users.Should().Contain(u => u.FirstName == "Jane" && u.LastName == "Smith");
+
+            // Verify the Users property was accessed at least once
+            _mockUserManager.Verify(m => m.Users, Times.AtLeastOnce);
         }
+
 
         [Fact]
         public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
@@ -180,6 +205,7 @@ namespace BackEngin.Tests.Services
                 LastName = "Doe",
                 Email = "john.doe@example.com",
                 UserName = "johndoe",
+                PhoneNumber = "1234567890",
                 Address = new Addresses
                 {
                     Name = "Old Address",
@@ -203,6 +229,7 @@ namespace BackEngin.Tests.Services
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
+                PhoneNumber = "9876543210",
                 AddressName = "Updated Address",
                 Street = "Updated Street",
                 District = "Updated District",
@@ -233,13 +260,91 @@ namespace BackEngin.Tests.Services
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
             result.UserName.Should().Be(updateUserDto.UserName);
-            result.Address.Name.Should().Be(updateUserDto.AddressName);
-            result.Address.Street.Should().Be(updateUserDto.Street);
-            result.Address.District.Name.Should().Be(updateUserDto.District);
-            result.Address.District.City.Name.Should().Be(updateUserDto.City);
-            result.Address.District.City.Country.Name.Should().Be(updateUserDto.Country);
-            result.Address.District.PostCode.Should().Be(updateUserDto.PostCode);
+            result.PhoneNumber.Should().Be(updateUserDto.PhoneNumber);
+            result.AddressName.Should().Be(updateUserDto.AddressName);
+            result.Street.Should().Be(updateUserDto.Street);
+            result.District.Should().Be(updateUserDto.District);
+            result.City.Should().Be(updateUserDto.City);
+            result.Country.Should().Be(updateUserDto.Country);
+            result.PostCode.Should().Be(updateUserDto.PostCode);
         }
+
+        [Fact]
+        public async Task UpdateUserAsync_ShouldAddNewAddress_WhenUserDoesNotHaveAddress()
+        {
+            // Arrange
+            var userId = "1";
+            var existingUser = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                UserName = "johndoe",
+                PhoneNumber = "123456789",
+                Address = null // User does not have an address
+            };
+
+            var updateUserDto = new UpdateUserDto
+            {
+                FirstName = "UpdatedFirstName",
+                LastName = "UpdatedLastName",
+                Email = "updated.email@example.com",
+                UserName = "updatedusername",
+                PhoneNumber = "987654321",
+                AddressName = "New Address",
+                Street = "New Street",
+                District = "New District",
+                City = "New City",
+                Country = "New Country",
+                PostCode = 54321
+            };
+
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(existingUser);
+
+            // Mock validation to succeed
+            var userValidator = new Mock<IUserValidator<Users>>();
+            userValidator
+                .Setup(v => v.ValidateAsync(_mockUserManager.Object, It.IsAny<Users>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            _mockUserManager.Object.UserValidators.Add(userValidator.Object);
+
+            // Mock UpdateAsync to succeed
+            _mockUserManager.Setup(m => m.UpdateAsync(It.IsAny<Users>())).ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _userService.UpdateUserAsync(userId, updateUserDto);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.FirstName.Should().Be(updateUserDto.FirstName);
+            result.LastName.Should().Be(updateUserDto.LastName);
+            result.Email.Should().Be(updateUserDto.Email);
+            result.UserName.Should().Be(updateUserDto.UserName);
+            result.PhoneNumber.Should().Be(updateUserDto.PhoneNumber);
+
+            // Address assertions
+            result.AddressName.Should().Be(updateUserDto.AddressName);
+            result.Street.Should().Be(updateUserDto.Street);
+            result.District.Should().Be(updateUserDto.District);
+            result.City.Should().Be(updateUserDto.City);
+            result.Country.Should().Be(updateUserDto.Country);
+            result.PostCode.Should().Be(updateUserDto.PostCode);
+
+            // Verify that the address was added
+            _mockUserManager.Verify(m => m.UpdateAsync(It.Is<Users>(u =>
+                u.Address != null &&
+                u.Address.Name == updateUserDto.AddressName &&
+                u.Address.Street == updateUserDto.Street &&
+                u.Address.District.Name == updateUserDto.District &&
+                u.Address.District.City.Name == updateUserDto.City &&
+                u.Address.District.City.Country.Name == updateUserDto.Country &&
+                u.Address.District.PostCode == updateUserDto.PostCode
+            )), Times.Once);
+        }
+
+
 
         [Fact]
         public async Task UpdateUserAsync_ShouldReturnNull_WhenUserDoesNotExist()
@@ -252,6 +357,7 @@ namespace BackEngin.Tests.Services
                 LastName = "UpdatedLastName",
                 Email = "updated.email@example.com",
                 UserName = "updatedusername",
+                PhoneNumber = "9876543210",
                 AddressName = "Updated Address",
                 Street = "Updated Street",
                 District = "Updated District",
@@ -268,6 +374,7 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().BeNull();
         }
+
 
         [Fact]
         public async Task DeleteUserAsync_ShouldReturnTrue_WhenDeletionIsSuccessful()
@@ -351,6 +458,125 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().BeFalse();
             _mockUnitOfWork.Verify(u => u.Users.UnfollowUserAsync(initiatorUserId, targetUserId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedRecipesAsync_ShouldReturnMappedBookmarkRecipesDTO_WhenBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+            var user = new Users { Id = userId, UserName = "john_doe" }; // Mock user
+
+            // Create bookmarked recipes with the correct UserId
+            var bookmarkedRecipes = new List<BookmarkRecipesItemDTO>
+            {
+                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe1", BodyText = "Delicious!" },
+                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe2", BodyText = "Tasty!" }
+            };
+
+            // Create the BookmarkRecipesDTO to be returned
+            var bookmarkRecipesDTO = new BookmarkRecipesDTO
+            {
+                Recipes = bookmarkedRecipes,
+                TotalCount = 2
+            };
+
+            // Mock the repository call to return the BookmarkRecipesDTO
+            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId))
+                .ReturnsAsync(bookmarkRecipesDTO);
+
+            // Act
+            var result = await _userService.GetBookmarkedRecipesAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(bookmarkRecipesDTO);
+            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task GetBookmarkedRecipesAsync_ShouldReturnEmptyList_WhenNoBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            // Mock the service to return an empty BookmarkRecipesDTO
+            var emptyBookmarkRecipesDTO = new BookmarkRecipesDTO
+            {
+                Recipes = new List<BookmarkRecipesItemDTO>(), // Empty list of recipes
+                TotalCount = 0 // Total count is 0
+            };
+
+            // Mock the repository method
+            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId))
+                .ReturnsAsync(emptyBookmarkRecipesDTO);
+
+            // Act
+            var result = await _userService.GetBookmarkedRecipesAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull(); // Ensure the result is not null
+            result.Recipes.Should().BeEmpty(); // Ensure the Recipes list is empty
+            result.TotalCount.Should().Be(0); // Ensure the TotalCount is 0
+            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedBlogsAsync_ShouldReturnBookmarkBlogsDTO_WhenBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            var mockedBlogs = new List<BookmarkBlogsItemDTO>
+            {
+                new BookmarkBlogsItemDTO { UserName = "User1", Header = "Blog 1", BodyText = "Content of Blog 1" },
+                new BookmarkBlogsItemDTO { UserName = "User2", Header = "Blog 2", BodyText = "Content of Blog 2" }
+            };
+
+            var bookmarkBlogsDTO = new BookmarkBlogsDTO
+            {
+                Blogs = mockedBlogs,
+                TotalCount = mockedBlogs.Count
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId))
+                .ReturnsAsync(bookmarkBlogsDTO);
+
+            // Act
+            var result = await _userService.GetBookmarkedBlogsAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Blogs.Should().HaveCount(2);
+            result.TotalCount.Should().Be(2);
+            result.Blogs.Should().ContainSingle(b => b.Header == "Blog 1" && b.UserName == "User1");
+            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedBlogsAsync_ShouldReturnEmptyBookmarkBlogsDTO_WhenNoBookmarksExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            var emptyBookmarkBlogsDTO = new BookmarkBlogsDTO
+            {
+                Blogs = new List<BookmarkBlogsItemDTO>(), // Empty list
+                TotalCount = 0
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId))
+                .ReturnsAsync(emptyBookmarkBlogsDTO);
+
+            // Act
+            var result = await _userService.GetBookmarkedBlogsAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Blogs.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId), Times.Once);
         }
 
     }

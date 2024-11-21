@@ -29,9 +29,31 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Users>> GetAllUsersAsync()
+        public async Task<UserListDTO> GetAllUsersAsync()
         {
-            return await _userManager.Users.Include(u => u.Address).Include(u => u.Role).ToListAsync();
+            var totalCount = await _userManager.Users.CountAsync();
+
+            var users = await _userManager.Users
+                .Include(u => u.Address)
+                .Include(u => u.Role)
+                .Select(u => new UserDTO
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Address = u.Address,
+                    Role = u.Role,
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber
+                })
+                .ToListAsync();
+
+            return new UserListDTO
+            {
+                Users = users,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<GetUserByIdDTO?> GetUserByIdAsync(string id)
@@ -67,7 +89,7 @@ namespace BackEngin.Services
         }
 
 
-        public async Task<Users> UpdateUserAsync(string id, UpdateUserDto userDTO)
+        public async Task<UpdateUserDto> UpdateUserAsync(string id, UpdateUserDto userDTO)
         {
             var existingUser = await _userManager.FindByIdAsync(id);
             if (existingUser == null)
@@ -88,10 +110,29 @@ namespace BackEngin.Services
                 existingUser.Address.District.City.Country.Name = userDTO.Country;
                 existingUser.Address.District.PostCode = userDTO.PostCode;
             }
+            else
+            {
+                existingUser.Address = new Addresses
+                {
+                    Name = userDTO.AddressName != null ? userDTO.AddressName : "AddressName",
+                    Street = userDTO.Street != null ? userDTO.Street : "Street",
+                    District = new Districts
+                    {
+                        Name = userDTO.District != null ? userDTO.District : "District",
+                        City = new Cities
+                        {
+                            Name = userDTO.City != null ? userDTO.City : "City",
+                            Country = new Countries { Name = userDTO.Country != null ? userDTO.Country : "Country" }
+                        },
+                        PostCode = userDTO.PostCode
+                    }
+                };
+            }
             
 
             existingUser.Email = userDTO.Email;
             existingUser.UserName = userDTO.UserName;
+            existingUser.PhoneNumber = userDTO.PhoneNumber;
 
             var validationResult = await _userManager.UserValidators[0].ValidateAsync(_userManager, existingUser);
             if (!validationResult.Succeeded)
@@ -111,7 +152,20 @@ namespace BackEngin.Services
                 return null;
             }
 
-            return existingUser;
+            return new UpdateUserDto 
+            { 
+                FirstName = existingUser.FirstName,
+                LastName = existingUser.LastName,
+                Email = existingUser.Email,
+                UserName = existingUser.UserName,
+                PhoneNumber = existingUser.PhoneNumber,
+                AddressName = existingUser.Address != null ? existingUser.Address.Name : "AddressName",
+                Street = existingUser.Address != null ? existingUser.Address.Street : "Street",
+                District = existingUser.Address != null ? existingUser.Address.District.Name : "District",
+                City = existingUser.Address != null ? existingUser.Address.District.City.Name : "City",
+                Country = existingUser.Address != null ? existingUser.Address.District.City.Country.Name : "Country",
+                PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15
+            };
         }
 
         public async Task<bool> DeleteUserAsync(string id)
@@ -148,6 +202,15 @@ namespace BackEngin.Services
         public async Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId)
         {
             return await _unitOfWork.Users.UnfollowUserAsync(initiatorUserId, targetUserId);
+        }
+        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId)
+        {
+            return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId);
+        }
+
+        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId)
+        {
+            return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId);
         }
     }
 }

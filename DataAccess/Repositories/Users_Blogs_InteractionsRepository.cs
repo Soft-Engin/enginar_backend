@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Models.DTO;
 
 namespace DataAccess.Repositories
 {
@@ -16,6 +18,33 @@ namespace DataAccess.Repositories
         {
             _db = db;
 
+        }
+
+        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId)
+        {
+            var bookmarkInteraction = await _db.Interactions
+                .FirstOrDefaultAsync(i => i.Name == "BookmarkBlog");
+
+            if (bookmarkInteraction == null)
+                throw new Exception("Bookmark interaction not defined in the database.");
+
+            var bookmarkedBlogsQuery = _db.Users_Blogs_Interactions
+                .Where(ubi => ubi.UserId == userId && ubi.InteractionId == bookmarkInteraction.Id)
+                .Select(ubi => new { ubi.Blog.User, ubi.Blog.Header, ubi.Blog.BodyText });
+
+            var blogs = await bookmarkedBlogsQuery.ToListAsync();
+            var totalCount = await bookmarkedBlogsQuery.CountAsync();
+
+            return new BookmarkBlogsDTO
+            {
+                Blogs = blogs.Select(b => new BookmarkBlogsItemDTO
+                {
+                    UserName = b.User.UserName != null ? b.User.UserName : "Unknown",
+                    Header = b.Header,
+                    BodyText = b.BodyText
+                }).ToList(),
+                TotalCount = totalCount
+            };
         }
     }
 }
