@@ -4,6 +4,8 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Http.HttpResults;
+using NuGet.Common;
 
 namespace BackEngin.Controllers
 {
@@ -36,7 +38,11 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
 
             var result = await _allergenService.CreateAllergenAsync(model);
-            return Ok(result);
+            if (result == null)
+            {
+                return BadRequest("Allergen can not be created");
+            }
+            return Ok(new { Id = result, message = "Allergen logged in successfully!" });
         }
 
         // PUT /allergens/{allergenId} - Update an allergen (admin only)
@@ -48,7 +54,15 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
 
             var result = await _allergenService.UpdateAllergenAsync(allergenId, model);
-            return Ok(result);
+            if(result == null)
+            {
+                return BadRequest("Allergen does not exist");
+            }
+            if(result == false)
+            {
+                return BadRequest("Allergen can not be updated");
+            }
+            return Ok(new { message = "Allergen updated successfully!" });
         }
 
         // DELETE /allergens/{allergenId} - Delete an allergen (admin only)
@@ -57,7 +71,15 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> DeleteAllergen(int allergenId)
         {
             var result = await _allergenService.DeleteAllergenAsync(allergenId);
-            return Ok(result);
+            if (result == null)
+            {
+                return BadRequest("Allergen does not exist");
+            }
+            if (result == false)
+            {
+                return BadRequest("Allergen can not be deleted");
+            }
+            return Ok(new { message = "Allergen deleted successfully!" });
         }
     }
 }

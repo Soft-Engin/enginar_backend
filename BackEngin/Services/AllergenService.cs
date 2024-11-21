@@ -4,6 +4,7 @@ using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.DTO;
 
 namespace BackEngin.Services
 {
@@ -16,13 +17,14 @@ namespace BackEngin.Services
             unitOfWork = _unitOfWork;
         }
 
-        public async Task<IEnumerable<AllergenDTO>> GetAllAllergensAsync()
+        public async Task<IEnumerable<AllergenIdDTO>> GetAllAllergensAsync()
         {
             var allergens = await unitOfWork.Preferences.GetAllAsync();
 
             // Map each Allergen to an AllergenDTO
-            var allergenDTOs = allergens.Select(a => new AllergenDTO
+            var allergenDTOs = allergens.Select(a => new AllergenIdDTO
             {
+                Id = a.Id,
                 Name = a.Name,
                 Description = a.Description
             });
@@ -30,7 +32,7 @@ namespace BackEngin.Services
             return allergenDTOs;
         }
 
-        public async Task<IResult> CreateAllergenAsync(AllergenDTO model)
+        public async Task<int?> CreateAllergenAsync(AllergenDTO model)
         {
             try
             {
@@ -48,17 +50,17 @@ namespace BackEngin.Services
                 await unitOfWork.CompleteAsync();
 
                 // Return success message with the new allergen's ID
-                return Results.Ok(new { Id = allergen.Id, message = "Allergen created successfully!" });
+                return allergen.Id;
             }
             catch (Exception ex)
             {
                 // Handle errors
-                return Results.BadRequest(new { errors = ex.Message });
+                return null;
             }
         }
 
 
-        public async Task<IResult> DeleteAllergenAsync(int allergenId)
+        public async Task<bool?> DeleteAllergenAsync(int allergenId)
         {
             try
             {
@@ -68,7 +70,7 @@ namespace BackEngin.Services
                 if (allergen == null)
                 {
                     // Return 404 if allergen not found
-                    return Results.NotFound(new { message = $"Allergen with ID {allergenId} not found." });
+                    return null;
                 }
 
                 // Delete the allergen
@@ -76,17 +78,17 @@ namespace BackEngin.Services
                 await unitOfWork.CompleteAsync();
 
                 // Return success
-                return Results.Ok(new { message = "Allergen deleted successfully." });
+                return true;
             }
             catch (Exception ex)
             {
                 // Handle errors
-                return Results.BadRequest(new { errors = ex.Message });
+                return false;
             }
         }
 
 
-        public async Task<IResult> UpdateAllergenAsync(int allergenId, AllergenDTO model)
+        public async Task<bool?> UpdateAllergenAsync(int allergenId, AllergenDTO model)
         {
             try
             {
@@ -96,7 +98,7 @@ namespace BackEngin.Services
                 if (allergen == null)
                 {
                     // Return 404 if allergen not found
-                    return Results.NotFound(new { message = $"Allergen with ID {allergenId} not found." });
+                    return null;
                 }
 
                 // Update the allergen's properties
@@ -108,12 +110,12 @@ namespace BackEngin.Services
                 await unitOfWork.CompleteAsync();
 
                 // Return success
-                return Results.Ok(new { message = "Allergen updated successfully." });
+                return true;
             }
             catch (Exception ex)
             {
                 // Handle errors
-                return Results.BadRequest(new { errors = ex.Message });
+                return false;
             }
         }
 
