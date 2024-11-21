@@ -74,5 +74,21 @@ namespace BackEngin.Controllers
 
             return Ok(new { message = "Password has been reset successfully." });
         }
+
+        [HttpPost("make-admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> MakeUserAdmin([FromBody] MakeAdminDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.MakeUserAdminAsync(model.UserName);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { message = "User promoted to admin successfully!" });
+        }
+
     }
 }

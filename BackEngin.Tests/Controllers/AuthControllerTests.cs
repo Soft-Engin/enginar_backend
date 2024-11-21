@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Models.DTO;
 using Moq;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 
 namespace BackEngin.Tests.Controllers
@@ -223,7 +225,55 @@ namespace BackEngin.Tests.Controllers
             ((SerializableError)badRequest.Value).ContainsKey("Password").Should().BeTrue();
         }
 
+        [Fact]
+        public async Task MakeUserAdmin_ValidModel_ReturnsOk()
+        {
+            // Arrange
+            var model = new MakeAdminDTO { UserName = "testuser" };
+            _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(200, okResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeUserAdmin_InvalidModel_ReturnsBadRequest()
+        {
+            // Arrange
+            _authController.ModelState.AddModelError("UserName", "Required");
+            var model = new MakeAdminDTO();
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(400, badRequest.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeUserAdmin_ServiceFails_ReturnsBadRequest()
+        {
+            // Arrange
+            var model = new MakeAdminDTO { UserName = "testuser" };
+            var identityErrors = new IdentityError[] { new IdentityError { Description = "User not found." } };
+            _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
+                .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(400, badRequest.StatusCode);
+            Assert.Equal(identityErrors, badRequest.Value);
+        }
+
 
     }
-
 }

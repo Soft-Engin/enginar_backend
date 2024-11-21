@@ -104,5 +104,20 @@ namespace BackEngin.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<IdentityResult> MakeUserAdminAsync(string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+            }
+
+            user.RoleId = 2; // Admin role
+            var result = await _userManager.UpdateAsync(user);
+            return result;
+        }
+
+
     }
 }

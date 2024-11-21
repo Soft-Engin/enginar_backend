@@ -13,5 +13,7 @@ namespace BackEngin.Services.Interfaces
 
         Task<string> SendPasswordResetTokenAsync(string email);  // Return the token for testing
         Task<IdentityResult> ResetPasswordAsync(ResetPasswordDTO model);
+
+        Task<IdentityResult> MakeUserAdminAsync(string userName);
     }
 }
