@@ -281,5 +281,77 @@ namespace BackEngin.Tests.Services
             result.Should().BeTrue();
         }
 
+        [Fact]
+        public async Task GetFollowersAsync_ShouldReturnFollowersDTO()
+        {
+            // Arrange
+            var userId = "user1";
+            var expectedDto = new FollowersDTO
+            {
+                Usernames = new List<string> { "follower1", "follower2" },
+                TotalCount = 2
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users.GetFollowersAsync(userId))
+                .ReturnsAsync(expectedDto);
+
+            // Act
+            var result = await _userService.GetFollowersAsync(userId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedDto);
+            _mockUnitOfWork.Verify(u => u.Users.GetFollowersAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task FollowUserAsync_ShouldReturnTrue_WhenFollowIsSuccessful()
+        {
+            // Arrange
+            var initiatorUserId = "user1";
+            var targetUserId = "user2";
+
+            _mockUnitOfWork.Setup(u => u.Users.FollowUserAsync(initiatorUserId, targetUserId))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _userService.FollowUserAsync(initiatorUserId, targetUserId);
+
+            // Assert
+            result.Should().BeTrue();
+            _mockUnitOfWork.Verify(u => u.Users.FollowUserAsync(initiatorUserId, targetUserId), Times.Once);
+        }
+
+        [Fact]
+        public async Task FollowUserAsync_ShouldThrowInvalidOperationException_WhenUserTriesToFollowSelf()
+        {
+            // Arrange
+            var userId = "user1";
+
+            // Act
+            var act = async () => await _userService.FollowUserAsync(userId, userId);
+
+            // Assert
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("Users cannot follow themselves.");
+        }
+
+        [Fact]
+        public async Task UnfollowUserAsync_ShouldReturnFalse_WhenUnfollowFails()
+        {
+            // Arrange
+            var initiatorUserId = "user1";
+            var targetUserId = "user2";
+
+            _mockUnitOfWork.Setup(u => u.Users.UnfollowUserAsync(initiatorUserId, targetUserId))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _userService.UnfollowUserAsync(initiatorUserId, targetUserId);
+
+            // Assert
+            result.Should().BeFalse();
+            _mockUnitOfWork.Verify(u => u.Users.UnfollowUserAsync(initiatorUserId, targetUserId), Times.Once);
+        }
+
     }
 }

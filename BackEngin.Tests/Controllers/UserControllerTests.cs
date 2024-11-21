@@ -182,6 +182,82 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<NotFoundResult>();
         }
 
+        [Fact]
+        public async Task GetFollowers_ShouldReturnOk_WithFollowersDTO()
+        {
+            // Arrange
+            var userId = "user1";
+            var followersDto = new FollowersDTO
+            {
+                Usernames = new List<string> { "follower1", "follower2" },
+                TotalCount = 2
+            };
+
+            _mockUserService.Setup(s => s.GetFollowersAsync(userId))
+                .ReturnsAsync(followersDto);
+
+            // Act
+            var result = await _userController.GetFollowers(userId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            okResult.Value.Should().BeEquivalentTo(followersDto);
+        }
+
+        [Fact]
+        public async Task FollowUser_ShouldReturnOk_WhenFollowSucceeds()
+        {
+            // Arrange
+            var userId = "user1";
+            var targetUserId = "user2";
+
+            _mockUserService.Setup(s => s.FollowUserAsync(userId, targetUserId))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _userController.FollowUser(userId, targetUserId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            okResult.Value.Should().BeEquivalentTo(new { Message = "Successfully followed user." });
+        }
+
+        [Fact]
+        public async Task FollowUser_ShouldReturnBadRequest_WhenFollowFails()
+        {
+            // Arrange
+            var userId = "user1";
+            var targetUserId = "user2";
+
+            _mockUserService.Setup(s => s.FollowUserAsync(userId, targetUserId))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _userController.FollowUser(userId, targetUserId);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            badRequestResult.Value.Should().Be("Unable to follow user. Perhaps you already follow them.");
+        }
+
+        [Fact]
+        public async Task UnfollowUser_ShouldReturnOk_WhenUnfollowSucceeds()
+        {
+            // Arrange
+            var userId = "user1";
+            var targetUserId = "user2";
+
+            _mockUserService.Setup(s => s.UnfollowUserAsync(userId, targetUserId))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _userController.UnfollowUser(userId, targetUserId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            okResult.Value.Should().BeEquivalentTo(new { Message = "Successfully unfollowed user." });
+        }
+
 
     }
 }
