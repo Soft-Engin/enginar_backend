@@ -4,6 +4,9 @@
 
 This solution consists of one main project, **BackEngin**, and two supporting subprojects: **DataAccess** and **Models**.
 
+### Key Update: 
+* `FindAsync` function: has been added to the base repository in the DataAccess project. This method allows filtering records based on specified conditions, improving flexibility in data querying.
+
 ## Project Structure
 
 ### 1. **BackEngin (Main Project)**
