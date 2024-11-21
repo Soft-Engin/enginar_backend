@@ -77,6 +77,8 @@ builder.Services.AddApiVersioning(options =>
 // Register services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IBlogService, BlogService>();
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>

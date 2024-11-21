@@ -14,8 +14,11 @@ namespace BackEngin.Data
 
         public DbSet<Roles> Roles { get; set; }
         public DbSet<Users> Users { get; set; }
-
-        public DbSet<WeatherForecast> WeatherForecasts { get; set; }
+        public DbSet<Recipes> Recipes { get; set; }
+        public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
+        public DbSet<Ingredients> Ingredients { get; set; }
+        public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Blogs> Blogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +29,10 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role"}
                 );
 
+
+            modelBuilder.Entity<Blogs>().HasData(
+                new Blogs { Id = 1, RecipeId = 1, Header="ENGINAR YOLCULUĞU", BodyText="benimle enginarın sırlarını keşfetmeye yelken açın", UserId= "1" }
+            );
 
         }
     }
