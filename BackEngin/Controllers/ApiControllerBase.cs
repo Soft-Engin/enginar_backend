@@ -19,10 +19,12 @@ namespace BackEngin.Controllers
         public async Task<bool> CanUserAccess(string userId)
         {
             var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            if (userIdFromToken == userId) {
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userIdFromToken == userId || userRole == "Admin") {
                 return true;
             }
+
             return false;
         }
     }
