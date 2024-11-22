@@ -7,6 +7,8 @@ using Models;
 using Models.DTO;
 using BackEngin.Tests.Helpers;
 using DataAccess.Repositories;
+using System.Data;
+using System.Linq.Expressions;
 
 namespace BackEngin.Tests.Services
 {
@@ -38,6 +40,10 @@ namespace BackEngin.Tests.Services
             var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Success);
+            var role = new Roles { Id = 1, Name = "User", Description = "Default user role" };
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { role });
 
             var result = await _authService.RegisterUser(model);
 
@@ -50,6 +56,10 @@ namespace BackEngin.Tests.Services
             var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Error creating user" }));
+            var role = new Roles { Id = 1, Name = "User", Description = "Default user role" };
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { role });
 
             var result = await _authService.RegisterUser(model);
 
@@ -90,7 +100,7 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public void GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
+        public async void GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
         {
             // Arrange
             var user = new Users { UserName = "testuser", Id = "1", RoleId = 2 };
@@ -101,7 +111,7 @@ namespace BackEngin.Tests.Services
                 .ReturnsAsync(role);
 
             // Act
-            var token = _authService.GenerateJwtToken(user);
+            var token = await _authService.GenerateJwtToken(user);
 
             // Assert
             token.Should().NotBeNullOrEmpty();
@@ -199,6 +209,11 @@ namespace BackEngin.Tests.Services
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Username already exists." }));
 
+            var role = new Roles { Id = 1, Name = "User", Description = "Default user role" };
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { role });
+
             // Act
             var result = await _authService.RegisterUser(model);
 
@@ -230,6 +245,11 @@ namespace BackEngin.Tests.Services
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Email already exists." }));
 
+            var role = new Roles { Id = 1, Name = "User", Description = "Default user role"};
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { role });
+
             // Act
             var result = await _authService.RegisterUser(model);
 
@@ -246,6 +266,10 @@ namespace BackEngin.Tests.Services
             var user = new Users { UserName = userName, RoleId = 1 };
             _mockUserManager.Setup(um => um.FindByNameAsync(userName)).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
+            var adminRole = new Roles { Id = 2, Name = "Admin", Description = "Admin role" };
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { adminRole });
 
             // Act
             var result = await _authService.MakeUserAdminAsync(userName);
@@ -277,9 +301,16 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userName = "testuser";
             var user = new Users { UserName = userName, RoleId = 1 };
+            var adminRole = new Roles { Id = 2, Name = "Admin", Description = "Admin role" };
+
             _mockUserManager.Setup(um => um.FindByNameAsync(userName)).ReturnsAsync(user);
-            _mockUserManager.Setup(um => um.UpdateAsync(user))
+            _mockUserManager.Setup(um => um.UpdateAsync(It.Is<Users>(u => u.RoleId == adminRole.Id)))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Update failed." }));
+            _mockUnitOfWork
+                .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
+                .ReturnsAsync(new List<Roles> { adminRole });
+
+
 
             // Act
             var result = await _authService.MakeUserAdminAsync(userName);
@@ -287,6 +318,8 @@ namespace BackEngin.Tests.Services
             // Assert
             Assert.False(result.Succeeded);
             Assert.Contains(result.Errors, e => e.Description == "Update failed.");
+            _mockUserManager.Verify(um => um.UpdateAsync(It.Is<Users>(u => u.RoleId == adminRole.Id)), Times.Once);
         }
+
     }
 }

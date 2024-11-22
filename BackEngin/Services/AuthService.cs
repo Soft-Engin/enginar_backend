@@ -1,15 +1,12 @@
 ﻿using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 using Models.DTO;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BackEngin.Services
 {
@@ -28,21 +25,23 @@ namespace BackEngin.Services
 
         public async Task<IdentityResult> RegisterUser(RegisterRequestDTO model)
         {
-            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = 1 };
+            var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "User");
+            var roleId = role.First().Id;
+            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = roleId };
             return await _userManager.CreateAsync(user, model.Password);
         }
 
-        public async Task<string> LoginUser(LoginRequestDTO model)
+        public async Task<string?> LoginUser(LoginRequestDTO model)
         {
 
             var user = await _userManager.FindByEmailAsync(model.Identifier) ?? await _userManager.FindByNameAsync(model.Identifier);
             if (user == null) return null;
 
             var result = await _userManager.CheckPasswordAsync(user, model.Password);
-            return result ? GenerateJwtToken(user) : null;
+            return result ? await GenerateJwtToken(user) : null;
         }
 
-        public async Task<string> SendPasswordResetTokenAsync(string email)
+        public async Task<string?> SendPasswordResetTokenAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -76,9 +75,9 @@ namespace BackEngin.Services
             return result;
         }
 
-        public string GenerateJwtToken(Users user)
+        public async Task<string> GenerateJwtToken(Users user)
         {
-            var role = _unitOfWork.Roles.GetByIdAsync(user.RoleId);
+            var role = await _unitOfWork.Roles.GetByIdAsync(user.RoleId);
             var expirationTime = DateTime.UtcNow.AddMinutes(30); //time is hard coded bcus I'm tired
             var claims = new[]
             {
@@ -86,7 +85,7 @@ namespace BackEngin.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, role.Result.Name)
+                new Claim(ClaimTypes.Role, role.Name)
             };
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -112,8 +111,8 @@ namespace BackEngin.Services
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User not found." });
             }
-
-            user.RoleId = 2; // Admin role
+            var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "Admin");
+            user.RoleId = role.First().Id; // FindAsync returns a list, select first
             var result = await _userManager.UpdateAsync(user);
             return result;
         }
