@@ -29,11 +29,6 @@ namespace DataAccess.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Func<T, bool> predicate)
-        {
-            return await Task.FromResult(_dbSet.Where(predicate));
-        }
-
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);

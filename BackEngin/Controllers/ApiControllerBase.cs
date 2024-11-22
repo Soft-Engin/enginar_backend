@@ -18,7 +18,7 @@ namespace BackEngin.Controllers
         //give the accessed object's associated userId as parameter.
         protected async Task<bool> CanUserAccess(string userId)
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdFromToken = User.FindAll(ClaimTypes.NameIdentifier).Last()?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userIdFromToken == userId || userRole == "Admin") {
