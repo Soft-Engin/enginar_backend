@@ -100,7 +100,7 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async void GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
+        public async Task GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
         {
             // Arrange
             var user = new Users { UserName = "testuser", Id = "1", RoleId = 2 };
