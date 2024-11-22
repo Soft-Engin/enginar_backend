@@ -1,8 +1,5 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using BackEngin.Services;
-using Models;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
