@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Models.DTO;
 using Moq;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 
 namespace BackEngin.Tests.Controllers
@@ -138,7 +140,140 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
         }
 
+        [Fact]
+        public async Task Register_ShouldReturnBadRequest_WhenUserNameIsMissing()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO { Email = "test@example.com", Password = "Password123" };
+            _authController.ModelState.AddModelError("UserName", "The UserName field is required.");
+
+            // Act
+            var result = await _authController.Register(model);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeOfType<SerializableError>();
+            ((SerializableError)badRequest.Value).ContainsKey("UserName").Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Register_ShouldReturnBadRequest_WhenEmailIsMissing()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO { UserName = "testuser", Password = "Password123" };
+            _authController.ModelState.AddModelError("Email", "The Email field is required.");
+
+            // Act
+            var result = await _authController.Register(model);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeOfType<SerializableError>();
+            ((SerializableError)badRequest.Value).ContainsKey("Email").Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Register_ShouldReturnBadRequest_WhenPasswordIsMissing()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com" };
+            _authController.ModelState.AddModelError("Password", "The Password field is required.");
+
+            // Act
+            var result = await _authController.Register(model);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeOfType<SerializableError>();
+            ((SerializableError)badRequest.Value).ContainsKey("Password").Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Register_ShouldReturnBadRequest_WhenEmailIsInvalid()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "invalid-email", Password = "Password123" };
+            _authController.ModelState.AddModelError("Email", "The Email field is not a valid e-mail address.");
+
+            // Act
+            var result = await _authController.Register(model);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeOfType<SerializableError>();
+            ((SerializableError)badRequest.Value).ContainsKey("Email").Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Register_ShouldReturnBadRequest_WhenPasswordDoesNotMeetComplexity()
+        {
+            // Arrange
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "123" };
+            _authController.ModelState.AddModelError("Password", "The Password does not meet complexity requirements.");
+
+            // Act
+            var result = await _authController.Register(model);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeOfType<SerializableError>();
+            ((SerializableError)badRequest.Value).ContainsKey("Password").Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task MakeUserAdmin_ValidModel_ReturnsOk()
+        {
+            // Arrange
+            var model = new MakeAdminDTO { UserName = "testuser" };
+            _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(200, okResult.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeUserAdmin_InvalidModel_ReturnsBadRequest()
+        {
+            // Arrange
+            _authController.ModelState.AddModelError("UserName", "Required");
+            var model = new MakeAdminDTO();
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(400, badRequest.StatusCode);
+        }
+
+        [Fact]
+        public async Task MakeUserAdmin_ServiceFails_ReturnsBadRequest()
+        {
+            // Arrange
+            var model = new MakeAdminDTO { UserName = "testuser" };
+            var identityErrors = new IdentityError[] { new IdentityError { Description = "User not found." } };
+            _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
+                .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+            // Act
+            var result = await _authController.MakeUserAdmin(model);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(400, badRequest.StatusCode);
+            Assert.Equal(identityErrors, badRequest.Value);
+        }
+
 
     }
-
 }
