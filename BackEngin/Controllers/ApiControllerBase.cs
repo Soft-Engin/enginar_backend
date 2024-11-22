@@ -16,7 +16,7 @@ namespace BackEngin.Controllers
         public ApiControllerBase() { }
 
         //give the accessed object's associated userId as parameter.
-        public async Task<bool> CanUserAccess(string userId)
+        protected async Task<bool> CanUserAccess(string userId)
         {
             var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
