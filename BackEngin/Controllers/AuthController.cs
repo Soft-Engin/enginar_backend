@@ -1,8 +1,5 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using BackEngin.Services;
-using Models;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
@@ -12,11 +9,11 @@ namespace BackEngin.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/auth")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : ApiControllerBase
     {
         private readonly IAuthService _authService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService) : base()
         {
             _authService = authService;
         }
@@ -74,5 +71,21 @@ namespace BackEngin.Controllers
 
             return Ok(new { message = "Password has been reset successfully." });
         }
+
+        [HttpPost("make-admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> MakeUserAdmin([FromBody] MakeAdminDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.MakeUserAdminAsync(model.UserName);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { message = "User promoted to admin successfully!" });
+        }
+
     }
 }
