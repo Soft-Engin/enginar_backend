@@ -15,11 +15,11 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<RecipeDTO>> GetRecipes()
+        public async Task<IEnumerable<RecipeDetailsDTO>> GetRecipes()
         {
             var recipes = await _unitOfWork.Recipes.GetAllAsync();
 
-            return recipes.Select(r => new RecipeDTO
+            return recipes.Select(r => new RecipeDetailsDTO
             {
                 Id = r.Id,
                 Header = r.Header,
@@ -27,7 +27,7 @@ namespace BackEngin.Services
             }).ToList();
         }
 
-        public async Task<RecipeDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
+        public async Task<RecipeDetailsDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
         {
             var newRecipe = new Recipes
             {
@@ -40,7 +40,7 @@ namespace BackEngin.Services
             await _unitOfWork.CompleteAsync();
 
             // Add the recipe ingredients
-            var ingredientDTOs = new List<RecipeIngredientDTO>();
+            var ingredientDTOs = new List<RecipeIngredientDetailsDTO>();
             if (createRecipeDTO.Ingredients != null && createRecipeDTO.Ingredients.Any())
             {
                 foreach (var ingredientDto in createRecipeDTO.Ingredients)
@@ -56,7 +56,7 @@ namespace BackEngin.Services
                     await _unitOfWork.Recipes_Ingredients.AddAsync(recipeIngredient);
 
                     // Add to DTO for returning details
-                    ingredientDTOs.Add(new RecipeIngredientDTO
+                    ingredientDTOs.Add(new RecipeIngredientDetailsDTO
                     {
                         IngredientId = ingredientDto.IngredientId,
                         Quantity = ingredientDto.Quantity,
@@ -68,7 +68,7 @@ namespace BackEngin.Services
             }
 
             // Return the created recipe with ingredients
-            return new RecipeDTO
+            return new RecipeDetailsDTO
             {
                 Id = newRecipe.Id,
                 Header = newRecipe.Header,
@@ -77,7 +77,7 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDTO> GetRecipeDetails(int recipeId)
+        public async Task<RecipeDetailsDTO> GetRecipeDetails(int recipeId)
         {
             // Fetch the recipe with its ingredients
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
@@ -96,7 +96,7 @@ namespace BackEngin.Services
             var ingredientDTOs = recipeIngredients.Select(ri =>
             {
                 var ingredient = ingredients.FirstOrDefault(i => i.Id == ri.IngredientId);
-                return new RecipeIngredientDTO
+                return new RecipeIngredientDetailsDTO
                 {
                     IngredientId = ri.IngredientId,
                     IngredientName = ingredient?.Name,
@@ -105,7 +105,7 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
-            return new RecipeDTO
+            return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,
@@ -114,7 +114,7 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDTO> UpdateRecipe(int recipeId, [FromBody] UpdateRecipeDTO updateRecipeDTO)
+        public async Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDTO)
         {
             // Fetch the existing recipe
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
@@ -176,7 +176,7 @@ namespace BackEngin.Services
             await _unitOfWork.CompleteAsync();
 
             // Return updated recipe details
-            return new RecipeDTO
+            return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,

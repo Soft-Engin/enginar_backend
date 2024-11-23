@@ -47,9 +47,9 @@ namespace BackEngin.Tests.Services
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 UserId = "123",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
         {
-            new RecipeIngredientDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+            new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
         }
             };
 
@@ -111,13 +111,13 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var recipeId = 1;
-            var updateRecipeDto = new UpdateRecipeDTO
+            var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
             var recipe = new Recipes { Id = recipeId, Header = "Old Pancakes", BodyText = "Old description" };

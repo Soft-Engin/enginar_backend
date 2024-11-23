@@ -2,25 +2,26 @@
 
 namespace Models.DTO
 {
-    public class RecipeDTO
+    public class RecipeDetailsDTO
     {
         public int Id { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
 
-        public List<RecipeIngredientDTO> Ingredients { get; set; }
+        public List<RecipeIngredientDetailsDTO> Ingredients { get; set; }
     }
 
     public class CreateRecipeDTO
     {
         public string Header { get; set; }
         public string BodyText { get; set; }
+
         public string UserId { get; set; }
 
-        public List<RecipeIngredientDTO> Ingredients { get; set; }
+        public List<RecipeIngredientDetailsDTO> Ingredients { get; set; }
     }
 
-    public class RecipeIngredientDTO
+    public class RecipeIngredientDetailsDTO
     {
         public int IngredientId { get; set; }
         public string IngredientName { get; set; }
@@ -28,13 +29,13 @@ namespace Models.DTO
         public string Unit { get; set; }
     }
 
-    public class UpdateRecipeDTO
+    public class RecipeRequestDTO
     {
         [Required]
         public string Header { get; set; }
         [Required]
         public string BodyText { get; set; }
-        public List<RecipeIngredientDTO> Ingredients { get; set; }
+        public List<RecipeIngredientDetailsDTO> Ingredients { get; set; }
 
     }
 }

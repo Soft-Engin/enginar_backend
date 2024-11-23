@@ -7,7 +7,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/recipe")]
     [ApiController]
     public class RecipeController : ApiControllerBase
     {
@@ -27,19 +27,25 @@ namespace BackEngin.Controllers
 
         [HttpPost("create-recipe")]
         [Authorize]
-        public async Task<IActionResult> CreateRecipe([FromBody] CreateRecipeDTO createRecipeDto)
+        public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
-            if (createRecipeDto == null) return BadRequest("Invalid recipe data.");
+            if (recipeDto == null) return BadRequest("Invalid recipe data.");
 
-            createRecipeDto.UserId = await GetActiveUserId();
+            var recipe = new CreateRecipeDTO
+            {
+                Header = recipeDto.Header,
+                BodyText = recipeDto.BodyText,
+                UserId = await GetActiveUserId(),
+                Ingredients = recipeDto.Ingredients
+            };
 
-            var createdRecipe = await _recipeService.CreateRecipe(createRecipeDto);
+            var createdRecipe = await _recipeService.CreateRecipe(recipe);
 
             return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
         }
 
 
-        [HttpGet("recipe-details-{recipeId}")]
+        [HttpGet("recipe-details/{recipeId}")]
         public async Task<IActionResult> GetRecipeDetails(int recipeId)
         {
             var recipe = await _recipeService.GetRecipeDetails(recipeId);
@@ -47,9 +53,9 @@ namespace BackEngin.Controllers
             return Ok(recipe);
         }
 
-        [HttpPut("update-recipe-{recipeId}")]
+        [HttpPut("update-recipe/{recipeId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] UpdateRecipeDTO updateRecipeDto)
+        public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDto)
         {
             var recipeOwner = await _recipeService.GetOwner(recipeId);
             if (!await CanUserAccess(recipeOwner))
@@ -61,7 +67,7 @@ namespace BackEngin.Controllers
             return Ok(updatedRecipe);
         }
 
-        [HttpDelete("delete-recipe{recipeId}")]
+        [HttpDelete("delete-recipe/{recipeId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {

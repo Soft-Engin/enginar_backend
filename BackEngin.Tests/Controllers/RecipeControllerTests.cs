@@ -36,10 +36,10 @@ namespace BackEngin.Tests.Controllers
         public async Task GetRecipes_ShouldReturnOk_WithRecipes()
         {
             // Arrange
-            var recipes = new List<RecipeDTO>
+            var recipes = new List<RecipeDetailsDTO>
             {
-                new RecipeDTO { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes recipe" },
-                new RecipeDTO { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette recipe" }
+                new RecipeDetailsDTO { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes recipe" },
+                new RecipeDetailsDTO { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette recipe" }
             };
             _mockRecipeService.Setup(s => s.GetRecipes()).ReturnsAsync(recipes);
 
@@ -56,16 +56,16 @@ namespace BackEngin.Tests.Controllers
         public async Task CreateRecipe_ShouldReturnCreated_WhenRecipeIsValid()
         {
             // Arrange
-            var createRecipeDto = new CreateRecipeDTO
+            var createRecipeDto = new RecipeRequestDTO
             {
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
                 }
             };
-            var createdRecipe = new RecipeDTO
+            var createdRecipe = new RecipeDetailsDTO
             {
                 Id = 1,
                 Header = createRecipeDto.Header,
@@ -94,14 +94,14 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 1;
-            var recipe = new RecipeDTO
+            var recipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, IngredientName = "Flour", Quantity = 2, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, IngredientName = "Flour", Quantity = 2, Unit = "cups" }
                 }
             };
             _mockRecipeService.Setup(s => s.GetRecipeDetails(recipeId)).ReturnsAsync(recipe);
@@ -120,7 +120,7 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 99;
-            _mockRecipeService.Setup(s => s.GetRecipeDetails(recipeId)).ReturnsAsync((RecipeDTO)null);
+            _mockRecipeService.Setup(s => s.GetRecipeDetails(recipeId)).ReturnsAsync((RecipeDetailsDTO)null);
 
             // Act
             var result = await _recipeController.GetRecipeDetails(recipeId);
@@ -134,17 +134,17 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 1;
-            var updateRecipeDto = new UpdateRecipeDTO
+            var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
 
-            var updatedRecipe = new RecipeDTO
+            var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
@@ -180,14 +180,14 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 99;
-            var updateRecipeDto = new UpdateRecipeDTO
+            var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe"
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId"); // Simulate owner retrieval
-            _mockRecipeService.Setup(s => s.UpdateRecipe(recipeId, updateRecipeDto)).ReturnsAsync((RecipeDTO)null);
+            _mockRecipeService.Setup(s => s.UpdateRecipe(recipeId, updateRecipeDto)).ReturnsAsync((RecipeDetailsDTO)null);
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
                      .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
@@ -207,13 +207,13 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 1;
-            var updateRecipeDto = new UpdateRecipeDTO
+            var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
 
@@ -233,16 +233,16 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var recipeId = 1;
-            var updateRecipeDto = new UpdateRecipeDTO
+            var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDTO>
+                Ingredients = new List<RecipeIngredientDetailsDTO>
                 {
-                    new RecipeIngredientDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
-            var updatedRecipe = new RecipeDTO
+            var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
