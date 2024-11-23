@@ -210,5 +210,10 @@ namespace BackEngin.Services
             return true;
         }
 
+        public async Task<string> GetOwner(int recipeId)
+        {
+            var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            return recipe.UserId;
+        }
     }
 }

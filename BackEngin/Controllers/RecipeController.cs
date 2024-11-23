@@ -1,17 +1,19 @@
-﻿using BackEngin.Services.Interfaces;
+﻿using Asp.Versioning;
+using BackEngin.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTO;
 
 namespace BackEngin.Controllers
 {
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    [Route("api/[controller]")]
-    public class RecipeController : ControllerBase
+    public class RecipeController : ApiControllerBase
     {
         private readonly IRecipeService _recipeService;
 
-        public RecipeController(IRecipeService recipeService)
+        public RecipeController(IRecipeService recipeService): base()
         {
             _recipeService = recipeService;
         }
@@ -28,6 +30,8 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> CreateRecipe([FromBody] CreateRecipeDTO createRecipeDto)
         {
             if (createRecipeDto == null) return BadRequest("Invalid recipe data.");
+
+            createRecipeDto.UserId = await GetActiveUserId();
 
             var createdRecipe = await _recipeService.CreateRecipe(createRecipeDto);
 
@@ -47,6 +51,11 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] UpdateRecipeDTO updateRecipeDto)
         {
+            var recipeOwner = await _recipeService.GetOwner(recipeId);
+            if (!await CanUserAccess(recipeOwner))
+            {
+                return Unauthorized();
+            }
             var updatedRecipe = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
             if (updatedRecipe == null) return NotFound();
             return Ok(updatedRecipe);
@@ -56,6 +65,11 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {
+            var recipeOwner = await _recipeService.GetOwner(recipeId);
+            if (!await CanUserAccess(recipeOwner))
+            {
+                return Unauthorized();
+            }
             var result = await _recipeService.DeleteRecipe(recipeId);
             if (!result) return NotFound();
             return NoContent();

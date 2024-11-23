@@ -9,5 +9,6 @@ namespace BackEngin.Services.Interfaces
         Task<RecipeDTO> GetRecipeDetails(int recipeId);
         Task<RecipeDTO> UpdateRecipe(int recipeId, UpdateRecipeDTO updateRecipeDTO);
         Task<bool> DeleteRecipe(int recipeId);
+        Task<string> GetOwner(int recipeId);
     }
 }
