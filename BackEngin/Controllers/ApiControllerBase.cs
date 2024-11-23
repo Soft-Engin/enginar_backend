@@ -26,7 +26,7 @@ namespace BackEngin.Controllers
             var id = User.FindAll(ClaimTypes.NameIdentifier).Last()?.Value;
             if (id == null)
             {
-                throw new Exception("JWT token misconfigured!");
+                throw new Exception("JWT token is missing NameIdentifier claim!");
             }
             return id;
         }
@@ -37,7 +37,7 @@ namespace BackEngin.Controllers
 
             if (role == null)
             {
-                throw new Exception("JWT token misconfigured!");
+                throw new Exception("JWT token is missing Role claim!");
             }
             return role;
         }
