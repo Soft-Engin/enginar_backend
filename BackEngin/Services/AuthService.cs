@@ -112,7 +112,15 @@ namespace BackEngin.Services
                 return IdentityResult.Failed(new IdentityError { Description = "User not found." });
             }
             var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "Admin");
-            user.RoleId = role.First().Id; // FindAsync returns a list, select first
+            var roleId = role.First().Id; // FindAsync returns a list, select first
+
+            if(user.RoleId == roleId)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User is already an Admin." });
+
+            }
+
+            user.RoleId = roleId;
             var result = await _userManager.UpdateAsync(user);
             return result;
         }
