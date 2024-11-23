@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class new_tables : Migration
+    public partial class recipe : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,6 +28,27 @@ namespace DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_IngredientTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Recipes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BodyText = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Recipes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Recipes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,7 +102,7 @@ namespace DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "AddressId", "ConcurrencyStamp", "Discriminator", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RoleId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "1", 0, null, "738173d4-e8c6-4270-9c08-8b7c85ffcd0c", "Users", null, false, "Zeyn", "Kara", false, null, null, null, null, null, false, 1, "6681bb06-59ab-4f9a-a5ff-98f53e5ee788", false, null });
+                values: new object[] { "1", 0, null, "4c37ad7a-61f1-4719-868b-3081d23c6793", "Users", null, false, "Zeyn", "Kara", false, null, null, null, null, null, false, 1, "c8aa291a-c82b-4a79-a01d-b7b6e55106ff", false, null });
 
             migrationBuilder.InsertData(
                 table: "IngredientTypes",
@@ -121,6 +142,11 @@ namespace DataAccess.Migrations
                 column: "TypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Recipes_UserId",
+                table: "Recipes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Recipes_Ingredients_IngredientId",
                 table: "Recipes_Ingredients",
                 column: "IngredientId");
@@ -141,12 +167,10 @@ namespace DataAccess.Migrations
                 name: "Ingredients");
 
             migrationBuilder.DropTable(
-                name: "IngredientTypes");
+                name: "Recipes");
 
-            migrationBuilder.DeleteData(
-                table: "Recipes",
-                keyColumn: "Id",
-                keyValue: 1);
+            migrationBuilder.DropTable(
+                name: "IngredientTypes");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
