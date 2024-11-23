@@ -160,5 +160,50 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Recipes.Delete(recipe), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }
+
+        [Fact]
+        public async Task GetRecipeDetails_ShouldReturnNull_WhenRecipeDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 99;
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync((Recipes)null);
+
+            // Act
+            var result = await _recipeService.GetRecipeDetails(recipeId);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldReturnNull_WhenRecipeDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 99;
+            var updateRecipeDto = new RecipeRequestDTO { /* ... */ };
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync((Recipes)null);
+
+            // Act
+            var result = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_ShouldReturnFalse_WhenRecipeDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 99;
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync((Recipes)null);
+
+            // Act
+            var result = await _recipeService.DeleteRecipe(recipeId);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+
     }
 }

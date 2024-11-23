@@ -29,6 +29,10 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // this probably wont even get triggered
             if (recipeDto == null) return BadRequest("Invalid recipe data.");
 
             var recipe = new CreateRecipeDTO
@@ -57,6 +61,9 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var recipeOwner = await _recipeService.GetOwner(recipeId);
             if (!await CanUserAccess(recipeOwner))
             {

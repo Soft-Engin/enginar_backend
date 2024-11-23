@@ -316,5 +316,30 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundResult>();
         }
+
+        [Fact]
+        public async Task CreateRecipe_ShouldReturnBadRequest_WhenCreateRecipeDtoIsNull()
+        {
+            // Act
+            var result = await _recipeController.CreateRecipe(null);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async Task CreateRecipe_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            var createRecipeDto = new RecipeRequestDTO(); // Missing required fields
+            _recipeController.ModelState.AddModelError("Header", "Required");
+
+            // Act
+            var result = await _recipeController.CreateRecipe(createRecipeDto);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
     }
 }
