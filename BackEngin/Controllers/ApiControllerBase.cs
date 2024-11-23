@@ -1,31 +1,45 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
-using BackEngin.Services;
-using Models;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using BackEngin.Services.Interfaces;
-using Models.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.ComponentModel;
 
 namespace BackEngin.Controllers
 {
-    public class ApiControllerBase: ControllerBase
+    public class ApiControllerBase : ControllerBase
     {
         public ApiControllerBase() { }
 
         //give the accessed object's associated userId as parameter.
         protected async Task<bool> CanUserAccess(string userId)
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var userIdFromToken = await GetActiveUserId();
+            var userRole = await GetActiveUserRole();
 
-            if (userIdFromToken == userId || userRole == "Admin") {
+            if (userIdFromToken == userId || userRole == "Admin")
+            {
                 return true;
             }
 
             return false;
+        }
+
+        protected async Task<string> GetActiveUserId()
+        {
+            var id = User.FindAll(ClaimTypes.NameIdentifier).Last()?.Value;
+            if (id == null)
+            {
+                throw new Exception("JWT token misconfigured!");
+            }
+            return id;
+        }
+
+        protected async Task<string> GetActiveUserRole()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                throw new Exception("JWT token misconfigured!");
+            }
+            return role;
         }
     }
 }
