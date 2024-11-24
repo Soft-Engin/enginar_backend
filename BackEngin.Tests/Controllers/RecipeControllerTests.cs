@@ -18,39 +18,54 @@ namespace BackEngin.Tests.Controllers
         public RecipeControllerTests()
         {
             _mockRecipeService = new Mock<IRecipeService>();
-            _mockUser = new Mock<ClaimsPrincipal>();
 
+            // Mock user context
+            _mockUser = new Mock<ClaimsPrincipal>();
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
+
+            // Setup controller with mock user
             _recipeController = new RecipeController(_mockRecipeService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = new DefaultHttpContext
-                    {
-                        User = _mockUser.Object
-                    }
+                    HttpContext = new DefaultHttpContext { User = _mockUser.Object }
                 }
             };
         }
 
+
         [Fact]
-        public async Task GetRecipes_ShouldReturnOk_WithRecipes()
+        public async Task GetRecipes_ShouldReturnOk_WithPaginatedRecipes()
         {
             // Arrange
-            var recipes = new List<RecipeDetailsDTO>
+            var pageNumber = 1;
+            var pageSize = 2;
+            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
             {
-                new RecipeDetailsDTO { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes recipe" },
-                new RecipeDetailsDTO { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette recipe" }
+                Items = new List<RecipeDTO>
+                {
+                    new RecipeDTO { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes recipe" },
+                    new RecipeDTO { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette recipe" }
+                },
+                TotalCount = 5,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
-            _mockRecipeService.Setup(s => s.GetRecipes()).ReturnsAsync(recipes);
+
+            _mockRecipeService.Setup(s => s.GetRecipes(pageNumber, pageSize)).ReturnsAsync(paginatedResponse);
 
             // Act
-            var result = await _recipeController.GetRecipes();
+            var result = await _recipeController.GetRecipes(pageNumber, pageSize);
 
             // Assert
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
-            okResult.Value.Should().BeEquivalentTo(recipes);
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
         }
+
 
         [Fact]
         public async Task CreateRecipe_ShouldReturnCreated_WhenRecipeIsValid()

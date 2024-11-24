@@ -13,15 +13,15 @@ namespace BackEngin.Controllers
     {
         private readonly IRecipeService _recipeService;
 
-        public RecipeController(IRecipeService recipeService): base()
+        public RecipeController(IRecipeService recipeService) : base()
         {
             _recipeService = recipeService;
         }
 
         [HttpGet("recipes")]
-        public async Task<IActionResult> GetRecipes()
+        public async Task<IActionResult> GetRecipes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var recipes = await _recipeService.GetRecipes();
+            var recipes = await _recipeService.GetRecipes(pageNumber, pageSize);
             return Ok(recipes);
         }
 
@@ -79,13 +79,17 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {
             var recipeOwner = await _recipeService.GetOwner(recipeId);
+            if(recipeOwner == null)
+            {
+                return NotFound();
+            }
             if (!await CanUserAccess(recipeOwner))
             {
                 return Unauthorized();
             }
             var result = await _recipeService.DeleteRecipe(recipeId);
             if (!result) return NotFound();
-            return NoContent();
+            return NoContent(); 
         }
     }
 }

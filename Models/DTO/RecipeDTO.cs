@@ -2,6 +2,13 @@
 
 namespace Models.DTO
 {
+    public class RecipeDTO
+    {
+        public int Id { get; set; }
+        public string Header { get; set; }
+        public string BodyText { get; set; }
+    }
+
     public class RecipeDetailsDTO
     {
         public int Id { get; set; }

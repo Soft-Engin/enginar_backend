@@ -15,16 +15,28 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<RecipeDetailsDTO>> GetRecipes()
+        public async Task<PaginatedResponseDTO<RecipeDTO>> GetRecipes(int pageNumber, int pageSize)
         {
-            var recipes = await _unitOfWork.Recipes.GetAllAsync();
+            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedAsync(
+                filter: null, // No specific filter for now
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
 
-            return recipes.Select(r => new RecipeDetailsDTO
+            var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
                 Header = r.Header,
                 BodyText = r.BodyText
             }).ToList();
+
+            return new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = recipeDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<RecipeDetailsDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
@@ -210,9 +222,11 @@ namespace BackEngin.Services
             return true;
         }
 
-        public async Task<string> GetOwner(int recipeId)
+        public async Task<string?> GetOwner(int recipeId)
         {
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            if (recipe == null)
+                return null;
             return recipe.UserId;
         }
     }

@@ -20,23 +20,34 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async Task GetRecipes_ShouldReturnAllRecipes()
+        public async Task GetRecipes_ShouldReturnPaginatedRecipes()
         {
             // Arrange
             var recipes = new List<Recipes>
             {
                 new Recipes { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes" },
-                new Recipes { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette" }
+                new Recipes { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette" },
+                new Recipes { Id = 3, Header = "Waffles", BodyText = "Crispy waffles" }
             };
-            _mockUnitOfWork.Setup(u => u.Recipes.GetAllAsync()).ReturnsAsync(recipes);
+
+            var pageNumber = 1;
+            var pageSize = 2;
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedAsync(null, pageNumber, pageSize))
+                           .ReturnsAsync((recipes.Take(pageSize), recipes.Count));
 
             // Act
-            var result = await _recipeService.GetRecipes();
+            var result = await _recipeService.GetRecipes(pageNumber, pageSize);
 
             // Assert
             result.Should().NotBeNull();
-            result.Count().Should().Be(2);
+            result.Items.Count().Should().Be(pageSize); // Check the page size
+            result.TotalCount.Should().Be(3); // Verify total count of recipes
+            result.PageNumber.Should().Be(pageNumber); // Verify current page
+            result.PageSize.Should().Be(pageSize); // Verify page size
+            result.Items.First().Header.Should().Be("Pancakes"); // Verify first recipe
         }
+
 
         [Fact]
         public async Task CreateRecipe_ShouldReturnCreatedRecipe()
