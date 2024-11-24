@@ -54,11 +54,11 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
 
             var result = await _allergenService.UpdateAllergenAsync(allergenId, model);
-            if(result == null)
+            if (result == null)
             {
                 return BadRequest("Allergen does not exist");
             }
-            if(result == false)
+            if (result == false)
             {
                 return BadRequest("Allergen can not be updated");
             }
