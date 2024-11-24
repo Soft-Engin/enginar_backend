@@ -126,7 +126,7 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDTO)
+        public async Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, RecipeRequestDTO updateRecipeDTO)
         {
             // Fetch the existing recipe
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
