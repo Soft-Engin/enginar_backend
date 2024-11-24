@@ -30,7 +30,6 @@ jobs:
     
   build:
     name: Build Enginar Backend
-    needs: sonar_analysis
     runs-on: self-hosted
     steps:
       # Checkout the repository
