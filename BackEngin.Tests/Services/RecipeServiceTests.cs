@@ -178,36 +178,126 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async Task UpdateRecipe_ShouldUpdateRecipeAndIngredients()
+        public async Task UpdateRecipe_ShouldReturnUpdatedRecipe()
         {
             // Arrange
             var recipeId = 1;
             var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
-                BodyText = "Updated delicious pancakes",
+                BodyText = "Updated delicious pancakes recipe",
                 Ingredients = new List<RecipeIngredientDetailsDTO>
-                {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
-                }
-            };
-            var recipe = new Recipes { Id = recipeId, Header = "Old Pancakes", BodyText = "Old description" };
-            var existingIngredients = new List<Recipes_Ingredients>
-            {
-                new Recipes_Ingredients { RecipeId = recipeId, IngredientId = 1, Quantity = 2, Unit = "cups" }
+        {
+            new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+        }
             };
 
-            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(recipe);
-            _mockUnitOfWork.Setup(u => u.Recipes_Ingredients.FindAsync(It.IsAny<Func<Recipes_Ingredients, bool>>())).ReturnsAsync(existingIngredients);
+            var existingRecipe = new Recipes
+            {
+                Id = recipeId,
+                Header = "Old Pancakes",
+                BodyText = "Old pancakes recipe",
+                UserId = "123"
+            };
+
+            var updatedRecipe = new RecipeDetailsDTO
+            {
+                Id = recipeId,
+                Header = updateRecipeDto.Header,
+                BodyText = updateRecipeDto.BodyText,
+                Ingredients = updateRecipeDto.Ingredients
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(existingRecipe);
+            _mockUnitOfWork.Setup(u => u.Recipes_Ingredients.FindAsync(It.IsAny<Func<Recipes_Ingredients, bool>>()))
+                           .ReturnsAsync(new List<Recipes_Ingredients>
+                           {
+                       new Recipes_Ingredients { RecipeId = recipeId, IngredientId = 1, Quantity = 2, Unit = "cups" }
+                           });
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(new List<Ingredients>
+                           {
+                       new Ingredients { Id = 1, Name = "Flour" }
+                           });
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
             // Act
             var result = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
 
             // Assert
             result.Should().NotBeNull();
+            result.Id.Should().Be(recipeId);
             result.Header.Should().Be(updateRecipeDto.Header);
             result.BodyText.Should().Be(updateRecipeDto.BodyText);
+            result.Ingredients.Should().BeEquivalentTo(updateRecipeDto.Ingredients);
         }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldThrowArgumentException_WhenNoIngredientsProvided()
+        {
+            // Arrange
+            var recipeId = 1;
+            var updateRecipeDto = new RecipeRequestDTO
+            {
+                Header = "Updated Pancakes",
+                BodyText = "Updated delicious pancakes recipe",
+                Ingredients = null // No ingredients provided
+            };
+
+            var existingRecipe = new Recipes
+            {
+                Id = recipeId,
+                Header = "Old Pancakes",
+                BodyText = "Old pancakes recipe",
+                UserId = "123"
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(existingRecipe);
+
+            // Act
+            Func<Task> action = async () => await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
+
+            // Assert
+            await action.Should().ThrowAsync<ArgumentException>()
+                        .WithMessage("A recipe must have at least one ingredient.");
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldThrowArgumentException_WhenInvalidIngredientIdsProvided()
+        {
+            // Arrange
+            var recipeId = 1;
+            var updateRecipeDto = new RecipeRequestDTO
+            {
+                Header = "Updated Pancakes",
+                BodyText = "Updated delicious pancakes recipe",
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+        {
+            new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+        }
+            };
+
+            var existingRecipe = new Recipes
+            {
+                Id = recipeId,
+                Header = "Old Pancakes",
+                BodyText = "Old pancakes recipe",
+                UserId = "123"
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(existingRecipe);
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(new List<Ingredients>()); // No matching ingredients found
+
+            // Act
+            Func<Task> action = async () => await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
+
+            // Assert
+            await action.Should().ThrowAsync<ArgumentException>()
+                        .WithMessage("One or more ingredient IDs are invalid.");
+        }
+
+
 
         [Fact]
         public async Task DeleteRecipe_ShouldRemoveRecipeAndIngredients()

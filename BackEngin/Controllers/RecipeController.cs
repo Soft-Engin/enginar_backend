@@ -35,19 +35,30 @@ namespace BackEngin.Controllers
             // this probably wont even get triggered
             if (recipeDto == null) return BadRequest("Invalid recipe data.");
 
-            var recipe = new CreateRecipeDTO
+            try
             {
-                Header = recipeDto.Header,
-                BodyText = recipeDto.BodyText,
-                UserId = await GetActiveUserId(),
-                Ingredients = recipeDto.Ingredients
-            };
+                var recipe = new CreateRecipeDTO
+                {
+                    Header = recipeDto.Header,
+                    BodyText = recipeDto.BodyText,
+                    UserId = await GetActiveUserId(),
+                    Ingredients = recipeDto.Ingredients
+                };
 
-            var createdRecipe = await _recipeService.CreateRecipe(recipe);
+                var createdRecipe = await _recipeService.CreateRecipe(recipe);
+                if (createdRecipe == null) return BadRequest("Invalid recipe data.");
 
-            if (createdRecipe == null) return BadRequest("Invalid recipe data.");
-
-            return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
+                return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details if necessary
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
 
@@ -67,13 +78,34 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
 
             var recipeOwner = await _recipeService.GetOwner(recipeId);
+            // Return NotFound if the recipe doesn't exist
+            if (recipeOwner == null)
+            {
+                return NotFound();
+            }
             if (!await CanUserAccess(recipeOwner))
             {
                 return Unauthorized();
             }
-            var updatedRecipe = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
-            if (updatedRecipe == null) return NotFound();
-            return Ok(updatedRecipe);
+            try
+            {
+                var updatedRecipe = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
+                if (updatedRecipe == null) // Double-check if the update failed
+                {
+                    return NotFound();
+                }
+                return Ok(updatedRecipe);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details if necessary
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            
         }
 
         [HttpDelete("delete-recipe/{recipeId}")]

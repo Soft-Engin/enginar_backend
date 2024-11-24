@@ -41,20 +41,8 @@ namespace BackEngin.Services
 
         public async Task<RecipeDetailsDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
         {
-            // Check if ingredients are provided
-            if (createRecipeDTO.Ingredients == null || !createRecipeDTO.Ingredients.Any())
-            {
-                return null;
-            }
-
-            // Validate each ingredient ID
-            var ingredientIds = createRecipeDTO.Ingredients.Select(i => i.IngredientId).ToList();
-            var existingIngredients = (await _unitOfWork.Ingredients.FindAsync(i => ingredientIds.Contains(i.Id))).ToList();
-
-            if (existingIngredients.Count != ingredientIds.Count)
-            {
-                return null;
-            }
+            // Check if ingredients are provided and valid
+            await IngredientCheck(createRecipeDTO.Ingredients);
 
             var newRecipe = new Recipes
             {
@@ -84,6 +72,7 @@ namespace BackEngin.Services
                 ingredientDTOs.Add(new RecipeIngredientDetailsDTO
                 {
                     IngredientId = ingredientDto.IngredientId,
+                    IngredientName = ingredientDto.IngredientName,
                     Quantity = ingredientDto.Quantity,
                     Unit = ingredientDto.Unit
                 });
@@ -144,6 +133,9 @@ namespace BackEngin.Services
             // Fetch the existing recipe
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
             if (recipe == null) return null;
+
+            // Check if ingredients are provided and valid
+            await IngredientCheck(updateRecipeDTO.Ingredients);
 
             // Update the recipe details
             recipe.Header = updateRecipeDTO.Header;
@@ -241,6 +233,25 @@ namespace BackEngin.Services
             if (recipe == null)
                 return null;
             return recipe.UserId;
+        }
+
+        private async Task<bool> IngredientCheck(List<RecipeIngredientDetailsDTO> Ingredients)
+        {
+            // Check if ingredients are provided
+            if (Ingredients == null || !Ingredients.Any())
+            {
+                throw new ArgumentException("A recipe must have at least one ingredient.");
+            }
+
+            // Validate each ingredient ID
+            var ingredientIds = Ingredients.Select(i => i.IngredientId).ToList();
+            var existingIngredients = (await _unitOfWork.Ingredients.FindAsync(i => ingredientIds.Contains(i.Id))).ToList();
+
+            if (existingIngredients.Count != ingredientIds.Count)
+            {
+                throw new ArgumentException("One or more ingredient IDs are invalid.");
+            }
+            return true; // Validation passed successfully
         }
     }
 }

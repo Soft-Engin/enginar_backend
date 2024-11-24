@@ -145,6 +145,40 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
+        public async Task UpdateRecipe_ShouldReturnBadRequest_WhenInvalidIngredientsProvided()
+        {
+            // Arrange
+            var recipeId = 1;
+            var updateRecipeDto = new RecipeRequestDTO
+            {
+                Header = "Updated Pancakes",
+                BodyText = "Updated delicious pancakes recipe",
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+            {
+                new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+            }
+            };
+
+            _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");
+            _mockRecipeService.Setup(s => s.UpdateRecipe(recipeId, updateRecipeDto))
+                              .ThrowsAsync(new ArgumentException("One or more ingredient IDs are invalid."));
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
+
+            // Act
+            var result = await _recipeController.UpdateRecipe(recipeId, updateRecipeDto);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be("One or more ingredient IDs are invalid.");
+        }
+
+
+
+        [Fact]
         public async Task UpdateRecipe_ShouldReturnOk_WithUpdatedRecipe()
         {
             // Arrange
@@ -170,12 +204,6 @@ namespace BackEngin.Tests.Controllers
             // Mock the Recipe Owner
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");
 
-            // Mock ClaimsPrincipal to simulate authenticated user
-            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
-                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
-            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
-                     .Returns(new Claim(ClaimTypes.Role, "User"));
-
             // Mock the UpdateRecipe method
             _mockRecipeService.Setup(s => s.UpdateRecipe(recipeId, updateRecipeDto)).ReturnsAsync(updatedRecipe);
 
@@ -189,19 +217,21 @@ namespace BackEngin.Tests.Controllers
         }
 
 
-
         [Fact]
         public async Task UpdateRecipe_ShouldReturnNotFound_WhenRecipeDoesNotExist()
         {
             // Arrange
-            var recipeId = 99;
+            var recipeId = 99; // Non-existent recipe ID
             var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe"
             };
 
-            _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId"); // Simulate owner retrieval
+            // Simulate `GetOwner` returning null (recipe not found)
+            _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync((string)null);
+
+            // Ensure `UpdateRecipe` is not called since `GetOwner` returns null
             _mockRecipeService.Setup(s => s.UpdateRecipe(recipeId, updateRecipeDto)).ReturnsAsync((RecipeDetailsDTO)null);
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
@@ -214,7 +244,10 @@ namespace BackEngin.Tests.Controllers
 
             // Assert
             result.Should().BeOfType<NotFoundResult>();
+            _mockRecipeService.Verify(s => s.GetOwner(recipeId), Times.Once);
+            _mockRecipeService.Verify(s => s.UpdateRecipe(It.IsAny<int>(), It.IsAny<RecipeRequestDTO>()), Times.Never);
         }
+
 
 
         [Fact]
