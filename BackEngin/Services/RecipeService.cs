@@ -44,7 +44,7 @@ namespace BackEngin.Services
             // Check if ingredients are provided
             if (createRecipeDTO.Ingredients == null || !createRecipeDTO.Ingredients.Any())
             {
-                throw new ArgumentException("A recipe must have at least one ingredient.");
+                return null;
             }
 
             // Validate each ingredient ID
@@ -53,7 +53,7 @@ namespace BackEngin.Services
 
             if (existingIngredients.Count != ingredientIds.Count)
             {
-                throw new ArgumentException("One or more ingredient IDs are invalid.");
+                return null;
             }
 
             var newRecipe = new Recipes

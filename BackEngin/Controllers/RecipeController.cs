@@ -45,6 +45,8 @@ namespace BackEngin.Controllers
 
             var createdRecipe = await _recipeService.CreateRecipe(recipe);
 
+            if (createdRecipe == null) return BadRequest("Invalid recipe data.");
+
             return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
         }
 
