@@ -50,7 +50,27 @@ namespace BackEngin.Tests.Services
 
 
         [Fact]
-        public async Task CreateRecipe_ShouldReturnCreatedRecipe()
+        public async Task CreateRecipe_ShouldThrowException_WhenNoIngredientsProvided()
+        {
+            // Arrange
+            var createRecipeDto = new CreateRecipeDTO
+            {
+                Header = "Pancakes",
+                BodyText = "Delicious pancakes recipe",
+                UserId = "123",
+                Ingredients = new List<RecipeIngredientDetailsDTO>() // Empty ingredients
+            };
+
+            // Act
+            Func<Task> act = async () => await _recipeService.CreateRecipe(createRecipeDto);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage("A recipe must have at least one ingredient.");
+        }
+
+        [Fact]
+        public async Task CreateRecipe_ShouldThrowException_WhenIngredientIdsAreInvalid()
         {
             // Arrange
             var createRecipeDto = new CreateRecipeDTO
@@ -59,9 +79,36 @@ namespace BackEngin.Tests.Services
                 BodyText = "Delicious pancakes recipe",
                 UserId = "123",
                 Ingredients = new List<RecipeIngredientDetailsDTO>
-        {
-            new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                {
+                    new RecipeIngredientDetailsDTO { IngredientId = 999, Quantity = 2, Unit = "cups" } // Invalid ID
+                }
+            };
+
+            // Mock to simulate invalid ingredient IDs
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                .ReturnsAsync(new List<Ingredients>()); // Empty result
+
+            // Act
+            Func<Task> act = async () => await _recipeService.CreateRecipe(createRecipeDto);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage("One or more ingredient IDs are invalid.");
         }
+
+        [Fact]
+        public async Task CreateRecipe_ShouldReturnCreatedRecipe_WhenValidIngredientsProvided()
+        {
+            // Arrange
+            var createRecipeDto = new CreateRecipeDTO
+            {
+                Header = "Pancakes",
+                BodyText = "Delicious pancakes recipe",
+                UserId = "123",
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+                {
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                }
             };
 
             var createdRecipe = new Recipes
@@ -71,6 +118,15 @@ namespace BackEngin.Tests.Services
                 BodyText = createRecipeDto.BodyText,
                 UserId = createRecipeDto.UserId
             };
+
+            var validIngredients = new List<Ingredients>
+            {
+                new Ingredients { Id = 1, Name = "Flour" }
+            };
+
+            // Mock valid ingredients
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                .ReturnsAsync(validIngredients);
 
             _mockUnitOfWork.Setup(u => u.Recipes.AddAsync(It.IsAny<Recipes>())).Verifiable();
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
@@ -83,10 +139,14 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Header.Should().Be("Pancakes");
             result.BodyText.Should().Be("Delicious pancakes recipe");
+            result.Ingredients.Count.Should().Be(1);
+            result.Ingredients.First().IngredientId.Should().Be(1);
+
             _mockUnitOfWork.Verify(u => u.Recipes.AddAsync(It.IsAny<Recipes>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.AtLeastOnce);
             _mockUnitOfWork.Verify(u => u.Recipes_Ingredients.AddAsync(It.IsAny<Recipes_Ingredients>()), Times.Once);
         }
+
 
 
         [Fact]

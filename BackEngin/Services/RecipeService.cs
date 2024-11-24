@@ -41,6 +41,21 @@ namespace BackEngin.Services
 
         public async Task<RecipeDetailsDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
         {
+            // Check if ingredients are provided
+            if (createRecipeDTO.Ingredients == null || !createRecipeDTO.Ingredients.Any())
+            {
+                throw new ArgumentException("A recipe must have at least one ingredient.");
+            }
+
+            // Validate each ingredient ID
+            var ingredientIds = createRecipeDTO.Ingredients.Select(i => i.IngredientId).ToList();
+            var existingIngredients = (await _unitOfWork.Ingredients.FindAsync(i => ingredientIds.Contains(i.Id))).ToList();
+
+            if (existingIngredients.Count != ingredientIds.Count)
+            {
+                throw new ArgumentException("One or more ingredient IDs are invalid.");
+            }
+
             var newRecipe = new Recipes
             {
                 Header = createRecipeDTO.Header,
@@ -53,31 +68,28 @@ namespace BackEngin.Services
 
             // Add the recipe ingredients
             var ingredientDTOs = new List<RecipeIngredientDetailsDTO>();
-            if (createRecipeDTO.Ingredients != null && createRecipeDTO.Ingredients.Any())
+            foreach (var ingredientDto in createRecipeDTO.Ingredients)
             {
-                foreach (var ingredientDto in createRecipeDTO.Ingredients)
+                var recipeIngredient = new Recipes_Ingredients
                 {
-                    var recipeIngredient = new Recipes_Ingredients
-                    {
-                        RecipeId = newRecipe.Id,
-                        IngredientId = ingredientDto.IngredientId,
-                        Quantity = ingredientDto.Quantity,
-                        Unit = ingredientDto.Unit
-                    };
+                    RecipeId = newRecipe.Id,
+                    IngredientId = ingredientDto.IngredientId,
+                    Quantity = ingredientDto.Quantity,
+                    Unit = ingredientDto.Unit
+                };
 
-                    await _unitOfWork.Recipes_Ingredients.AddAsync(recipeIngredient);
+                await _unitOfWork.Recipes_Ingredients.AddAsync(recipeIngredient);
 
-                    // Add to DTO for returning details
-                    ingredientDTOs.Add(new RecipeIngredientDetailsDTO
-                    {
-                        IngredientId = ingredientDto.IngredientId,
-                        Quantity = ingredientDto.Quantity,
-                        Unit = ingredientDto.Unit
-                    });
-                }
-
-                await _unitOfWork.CompleteAsync();
+                // Add to DTO for returning details
+                ingredientDTOs.Add(new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = ingredientDto.IngredientId,
+                    Quantity = ingredientDto.Quantity,
+                    Unit = ingredientDto.Unit
+                });
             }
+
+            await _unitOfWork.CompleteAsync();
 
             // Return the created recipe with ingredients
             return new RecipeDetailsDTO
@@ -88,6 +100,7 @@ namespace BackEngin.Services
                 Ingredients = ingredientDTOs
             };
         }
+
 
         public async Task<RecipeDetailsDTO> GetRecipeDetails(int recipeId)
         {
@@ -126,7 +139,7 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDTO)
+        public async Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, RecipeRequestDTO updateRecipeDTO)
         {
             // Fetch the existing recipe
             var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
