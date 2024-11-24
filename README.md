@@ -4,6 +4,14 @@
 
 This solution consists of one main project, **BackEngin**, and two supporting subprojects: **DataAccess** and **Models**.
 
+## Setup
+
+To work with collaboratively without accidents this command should be run in the repository folder before start to work on this project. It enables custom hooks to prevent accidents and has improvements to maintain code quality.
+
+```sh
+git config core.hooksPath .githooks
+```
+
 ## Project Structure
 
 ### 1. **BackEngin (Main Project)**
