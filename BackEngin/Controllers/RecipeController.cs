@@ -123,7 +123,7 @@ namespace BackEngin.Controllers
             }
             var result = await _recipeService.DeleteRecipe(recipeId);
             if (!result) return NotFound();
-            return NoContent(); 
+            return Ok(new { message = "Recipe deleted successfully!" });
         }
     }
 }
