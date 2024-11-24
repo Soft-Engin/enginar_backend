@@ -1,0 +1,56 @@
+name: SonarQube Analysis and Build Enginar Backend
+
+on:
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+      - 'feature/**'
+      - 'bugfix/**'
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  sonar_analysis:
+    name: Sonar Analysis
+    runs-on: self-hosted
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensures full clone for accurate analysis
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@v4.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}   
+    
+  build:
+    name: Build Enginar Backend
+    needs: sonar_analysis
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup .NET 8.0 SDK
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      # Restore dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # Build the project
+      - name: Build Project
+        run: dotnet build --configuration Release --no-restore
+
+      # Run tests (optional, remove if not applicable)
+      - name: Run Tests
+        run: dotnet test --configuration Release --no-build
