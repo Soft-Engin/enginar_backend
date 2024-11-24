@@ -1,4 +1,4 @@
-name: SonarQube Analysis and Build Enginar Backend
+name: SonarQube Analysis and Build Project
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}   
     
   build:
-    name: Build Enginar Backend
+    name: Build Project
     runs-on: self-hosted
     steps:
       # Checkout the repository
