@@ -6,6 +6,8 @@ This solution consists of one main project, **BackEngin**, and two supporting su
 
 ### Key Update: 
 * `FindAsync` function: has been added to the base repository in the DataAccess project. This method allows filtering records based on specified conditions, improving flexibility in data querying.
+* `GetPaginatedAsync` function: Added to the base repository in the DataAccess project. This method facilitates paginated data retrieval by accepting `page number` and `size` as parameters and returning the relevant data subset efficiently.
+* `Pagination DTO`: Introduced the `PaginatedResponseDTO<T>` class to standardize paginated responses. This DTO includes properties such as `Items`, `TotalCount`, `PageNumber`, and `PageSize` to provide detailed pagination metadata alongside the data.
 
 ## Project Structure
 
