@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Users: IdentityUser
+    public class Users : IdentityUser
     {
         [Required]
         public string FirstName { get; set; }

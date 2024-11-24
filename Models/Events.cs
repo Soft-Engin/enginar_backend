@@ -32,6 +32,6 @@ namespace Models
         [Required]
         public string BodyText { get; set; }
 
-        
+
     }
 }

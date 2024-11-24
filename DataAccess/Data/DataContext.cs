@@ -30,10 +30,6 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
             );
 
-            modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Zeyn", LastName = "Kara", RoleId = 1 }
-            );
-
             modelBuilder.Entity<Recipes>().HasData(
                 new Recipes { Id = 1, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
             );
