@@ -344,7 +344,7 @@ namespace BackEngin.Tests.Controllers
             var result = await _recipeController.DeleteRecipe(recipeId);
 
             // Assert
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().BeOfType<OkObjectResult>();
         }
 
         [Fact]
