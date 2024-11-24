@@ -59,7 +59,7 @@ namespace DataAccess.Repositories
             Roles = new RolesRepository(_db);
             Users_Blogs_Interactions = new Users_Blogs_InteractionsRepository(_db);
             Users_Interactions = new Users_InteractionsRepository(_db);
-            Users_Recipes_Interactions  = new Users_Recipes_InteractionsRepository(_db);
+            Users_Recipes_Interactions = new Users_Recipes_InteractionsRepository(_db);
             Users = new UsersRepository(_db);
 
 

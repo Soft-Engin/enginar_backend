@@ -245,7 +245,7 @@ namespace BackEngin.Tests.Services
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Email already exists." }));
 
-            var role = new Roles { Id = 1, Name = "User", Description = "Default user role"};
+            var role = new Roles { Id = 1, Name = "User", Description = "Default user role" };
             _mockUnitOfWork
                 .Setup(uow => uow.Roles.FindAsync(It.IsAny<Func<Roles, bool>>()))
                 .ReturnsAsync(new List<Roles> { role });

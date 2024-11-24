@@ -10,7 +10,7 @@ namespace BackEngin.Data
 {
     public class DataContext : IdentityDbContext<IdentityUser>
     {
-        public DataContext(DbContextOptions<DataContext> options) : base (options) 
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
 
@@ -25,8 +25,8 @@ namespace BackEngin.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Roles>().HasData(
-                new Roles { Id = 1, Name = "User", Description = "Default user role"},
-                new Roles { Id = 2, Name = "Admin", Description = "Admin role"}
+                new Roles { Id = 1, Name = "User", Description = "Default user role" },
+                new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
                 );
 
             PopulatePreferences(modelBuilder);

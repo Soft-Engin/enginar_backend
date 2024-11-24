@@ -17,6 +17,6 @@ namespace DataAccess.Repositories
         {
             _db = db;
 
-        }     
+        }
     }
 }

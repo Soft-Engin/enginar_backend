@@ -114,7 +114,7 @@ namespace BackEngin.Services
             var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "Admin");
             var roleId = role.First().Id; // FindAsync returns a list, select first
 
-            if(user.RoleId == roleId)
+            if (user.RoleId == roleId)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User is already an Admin." });
 
