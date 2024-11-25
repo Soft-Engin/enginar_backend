@@ -4,6 +4,7 @@ using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241119210205_Allergens")]
+    partial class Allergens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,28 @@ namespace DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BackEngin.Models.WeatherForecast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TemperatureC")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeatherForecasts");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -319,77 +344,6 @@ namespace DataAccess.Migrations
                     b.ToTable("Districts");
                 });
 
-            modelBuilder.Entity("Models.IngredientTypes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IngredientTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Fresh vegetables",
-                            Name = "Vegetable"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Cooking oils",
-                            Name = "Oil"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TypeId");
-
-                    b.ToTable("Ingredients");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Enginar",
-                            TypeId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Zeytinyağı",
-                            TypeId = 2
-                        });
-                });
-
             modelBuilder.Entity("Models.Preferences", b =>
                 {
                     b.Property<int>("Id")
@@ -533,90 +487,6 @@ namespace DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Header")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Recipes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
-                            Header = "Enginar Şöleni",
-                            UserId = "1"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Quantity")
-                        .HasColumnType("float");
-
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IngredientId");
-
-                    b.HasIndex("RecipeId");
-
-                    b.ToTable("Recipes_Ingredients");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IngredientId = 1,
-                            Quantity = 2.0,
-                            RecipeId = 1,
-                            Unit = "adet"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IngredientId = 2,
-                            Quantity = 3.0,
-                            RecipeId = 1,
-                            Unit = "yemek kaşığı"
-                        });
-                });
-
             modelBuilder.Entity("Models.Roles", b =>
                 {
                     b.Property<int>("Id")
@@ -675,22 +545,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.HasDiscriminator().HasValue("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "4c37ad7a-61f1-4719-868b-3081d23c6793",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "c8aa291a-c82b-4a79-a01d-b7b6e55106ff",
-                            TwoFactorEnabled = false,
-                            FirstName = "Zeyn",
-                            LastName = "Kara",
-                            RoleId = 1
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -777,47 +631,6 @@ namespace DataAccess.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.HasOne("Models.IngredientTypes", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Type");
-                });
-
-            modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
-                {
-                    b.HasOne("Models.Ingredients", "Ingredient")
-                        .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany("Recipes_Ingredients")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ingredient");
-
-                    b.Navigation("Recipe");
-                });
-
             modelBuilder.Entity("Models.Users", b =>
                 {
                     b.HasOne("Models.Addresses", "Address")
@@ -833,11 +646,6 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.Navigation("Recipes_Ingredients");
                 });
 #pragma warning restore 612, 618
         }

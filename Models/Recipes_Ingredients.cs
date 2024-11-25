@@ -22,5 +22,8 @@ namespace Models
         public int RecipeId { get; set; }
         [ForeignKey("RecipeId")]
         public Recipes Recipe { get; set; }
+
+        public double Quantity { get; set; }
+        public string Unit {  get; set; }
     }
 }

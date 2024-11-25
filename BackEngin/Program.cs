@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]))
         };
-});
+    });
 
 // Configure IdentityCore with Entity Framework and Role support
 builder.Services.AddIdentityCore<Users>(options =>
@@ -77,6 +77,7 @@ builder.Services.AddApiVersioning(options =>
 // Register services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAllergenService, AllergenService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 

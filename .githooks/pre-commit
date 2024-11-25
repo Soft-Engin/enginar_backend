@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Pre-commit hook to format staged C# files using `dotnet format`
+
+# Ensure consistent behavior across systems
+LC_ALL=C
+
+# Find the solution file (assuming one solution in the repo)
+SOLUTION_FILE=$(find . -name "*.sln" | head -n 1)
+
+if [ -z "$SOLUTION_FILE" ]; then
+    echo "ERROR: No solution (.sln) file found. Aborting pre-commit hook."
+    exit 1
+fi
+
+# Select only staged `.cs` files to format
+FILES=$(git diff --cached --name-only --diff-filter=ACM "*.cs")
+
+# Exit early if no C# files are staged
+[ -z "$FILES" ] && exit 0
+
+echo "Running dotnet format on staged files..."
+
+# Format the selected files using the solution context
+dotnet format "$SOLUTION_FILE" --include $(echo "$FILES" | tr '\n' ',' | sed 's/,$//')
+
+# Check if `dotnet format` modified the files
+if ! git diff --quiet; then
+    echo "Formatting changes detected. Re-adding files to staging..."
+    # Re-add the modified files to the staging area
+    echo "$FILES" | xargs git add
+fi
+
+echo "Formatting completed successfully."
+exit 0

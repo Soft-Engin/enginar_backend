@@ -14,14 +14,14 @@ namespace Models
         public int Id { get; set; }
 
         [Required]
-        public int InitiatorUserId { get; set; }  
+        public int InitiatorUserId { get; set; }
         [ForeignKey("InitiatorUserId")]
-        public Users InitiatorUser { get; set; } 
+        public Users InitiatorUser { get; set; }
 
         [Required]
-        public int TargetUserId { get; set; }  
-        [ForeignKey("TargetUserId")]  
-        public Users TargetUser { get; set; } 
+        public int TargetUserId { get; set; }
+        [ForeignKey("TargetUserId")]
+        public Users TargetUser { get; set; }
 
         [Required]
         public int InteractionId { get; set; }
