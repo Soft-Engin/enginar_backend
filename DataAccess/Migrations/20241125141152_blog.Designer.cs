@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241121134657_FirstBlog")]
-    partial class FirstBlog
+    [Migration("20241125141152_blog")]
+    partial class blog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -295,8 +295,8 @@ namespace DataAccess.Migrations
                             Id = 1,
                             BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
                             Header = "ENGINAR YOLCULUĞU",
-                            RecipeId = 1,
-                            UserId = "1"
+                            RecipeId = 2,
+                            UserId = "3"
                         });
                 });
 
@@ -423,15 +423,158 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 3,
                             Name = "Enginar",
                             TypeId = 1
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 4,
                             Name = "Zeytinyağı",
                             TypeId = 2
+                        });
+                });
+
+            modelBuilder.Entity("Models.Preferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Preferences");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "A type of protein commonly found in wheat, barley, and rye.",
+                            Name = "Gluten"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Milk and products derived from milk, such as cheese and yogurt.",
+                            Name = "Dairy"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Tree nuts including almonds, cashews, and walnuts; excludes peanuts.",
+                            Name = "Nuts"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "A type of legume that is a common allergen, distinct from tree nuts.",
+                            Name = "Peanuts"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "A legume used in products like tofu, soy milk, and many processed foods.",
+                            Name = "Soy"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "A common ingredient in baking and cooking derived from chicken eggs.",
+                            Name = "Eggs"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Seafood including cod, salmon, and tuna.",
+                            Name = "Fish"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Crustaceans and mollusks like shrimp, crab, and clams.",
+                            Name = "Shellfish"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Seeds and oils derived from sesame plants, found in many cuisines.",
+                            Name = "Sesame"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "A diet that excludes all animal products, including meat, dairy, and honey.",
+                            Name = "Vegan"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "A diet that excludes meat and fish but may include dairy and eggs.",
+                            Name = "Vegetarian"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Avoidance of dairy products due to difficulty digesting lactose.",
+                            Name = "Lactose Intolerant"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "A diet that includes fish but excludes other forms of meat.",
+                            Name = "Pescatarian"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Dietary requirements based on Islamic law, including avoidance of pork and alcohol.",
+                            Name = "Halal"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Food prepared in compliance with Jewish dietary laws, avoiding non-kosher animals and mixing meat with dairy.",
+                            Name = "Kosher"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "A diet that limits fermentable oligosaccharides, disaccharides, monosaccharides, and polyols to manage digestive symptoms.",
+                            Name = "Low FODMAP"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Avoidance of all nuts, including peanuts and tree nuts.",
+                            Name = "Nut-Free"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "A diet primarily focused on consuming plant-derived foods, minimizing or excluding animal products.",
+                            Name = "Plant-Based"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "A low-carb, high-fat diet focused on inducing ketosis for energy.",
+                            Name = "Keto"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods.",
+                            Name = "Paleo"
                         });
                 });
 
@@ -464,10 +607,10 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 2,
                             BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
                             Header = "Enginar Şöleni",
-                            UserId = "1"
+                            UserId = "3"
                         });
                 });
 
@@ -503,18 +646,18 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            IngredientId = 1,
+                            Id = 3,
+                            IngredientId = 3,
                             Quantity = 2.0,
-                            RecipeId = 1,
+                            RecipeId = 2,
                             Unit = "adet"
                         },
                         new
                         {
-                            Id = 2,
-                            IngredientId = 2,
+                            Id = 4,
+                            IngredientId = 4,
                             Quantity = 3.0,
-                            RecipeId = 1,
+                            RecipeId = 2,
                             Unit = "yemek kaşığı"
                         });
                 });
@@ -581,16 +724,17 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1",
+                            Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "85536c31-679e-49a8-858f-ceb0378c9e22",
+                            ConcurrencyStamp = "33157474-c8cd-4c1a-8b0e-eae7756dc77c",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8d8bfc52-ae6c-4989-a84e-e3f656e3df89",
+                            SecurityStamp = "c88b2936-1e6e-49d3-ab03-36c1185a36e2",
                             TwoFactorEnabled = false,
-                            FirstName = "Zeyn",
-                            LastName = "Kara",
+                            UserName = "zeynep",
+                            FirstName = "zeynep",
+                            LastName = "kara",
                             RoleId = 1
                         });
                 });

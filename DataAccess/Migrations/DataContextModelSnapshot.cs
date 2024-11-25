@@ -255,6 +255,48 @@ namespace DataAccess.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("Models.Blogs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BodyText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Blogs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
+                            Header = "ENGINAR YOLCULUĞU",
+                            RecipeId = 2,
+                            UserId = "3"
+                        });
+                });
+
             modelBuilder.Entity("Models.Cities", b =>
                 {
                     b.Property<int>("Id")
@@ -378,13 +420,13 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 3,
                             Name = "Enginar",
                             TypeId = 1
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 4,
                             Name = "Zeytinyağı",
                             TypeId = 2
                         });
@@ -562,10 +604,10 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 2,
                             BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
                             Header = "Enginar Şöleni",
-                            UserId = "1"
+                            UserId = "3"
                         });
                 });
 
@@ -601,18 +643,18 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            IngredientId = 1,
+                            Id = 3,
+                            IngredientId = 3,
                             Quantity = 2.0,
-                            RecipeId = 1,
+                            RecipeId = 2,
                             Unit = "adet"
                         },
                         new
                         {
-                            Id = 2,
-                            IngredientId = 2,
+                            Id = 4,
+                            IngredientId = 4,
                             Quantity = 3.0,
-                            RecipeId = 1,
+                            RecipeId = 2,
                             Unit = "yemek kaşığı"
                         });
                 });
@@ -679,16 +721,17 @@ namespace DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1",
+                            Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4c37ad7a-61f1-4719-868b-3081d23c6793",
+                            ConcurrencyStamp = "33157474-c8cd-4c1a-8b0e-eae7756dc77c",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c8aa291a-c82b-4a79-a01d-b7b6e55106ff",
+                            SecurityStamp = "c88b2936-1e6e-49d3-ab03-36c1185a36e2",
                             TwoFactorEnabled = false,
-                            FirstName = "Zeyn",
-                            LastName = "Kara",
+                            UserName = "zeynep",
+                            FirstName = "zeynep",
+                            LastName = "kara",
                             RoleId = 1
                         });
                 });
@@ -753,6 +796,23 @@ namespace DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("District");
+                });
+
+            modelBuilder.Entity("Models.Blogs", b =>
+                {
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId");
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Cities", b =>
