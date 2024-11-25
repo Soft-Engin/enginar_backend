@@ -16,11 +16,15 @@ namespace BackEngin.Services
             _recipeService = recipeService;
         }
 
-        public async Task<IEnumerable<BlogDTO>> GetBlogs()
+        public async Task<PaginatedResponseDTO<BlogDTO>> GetBlogs(int pageNumber, int pageSize)
         {
-            var blogs = await _unitOfWork.Blogs.GetAllAsync();
+            var (blogs, totalCount) = await _unitOfWork.Blogs.GetPaginatedAsync(
+                filter: null, // No specific filter for now
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
 
-            return blogs.Select(b => new BlogDTO
+            var blogDtos = blogs.Select(b => new BlogDTO
             {
                 Id = b.Id,
                 Header = b.Header,
@@ -28,34 +32,44 @@ namespace BackEngin.Services
                 UserId = b.UserId,
                 RecipeId = b.RecipeId
             }).ToList();
+
+            return new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = blogDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
+
 
         public async Task<BlogDTO> CreateBlog(CreateBlogDTO createBlogDTO)
         {
             int? recipeId = createBlogDTO.RecipeId;
 
-            // If a recipe DTO is provided, create the recipe
+            // Check if a new recipe needs to be created
             if (createBlogDTO.Recipe != null)
             {
+                // Create a new recipe
                 var createRecipeDTO = new CreateRecipeDTO
                 {
                     Header = createBlogDTO.Recipe.Header,
                     BodyText = createBlogDTO.Recipe.BodyText,
-                    UserId = createBlogDTO.UserId, // Pass the user ID
+                    UserId = createBlogDTO.UserId, // Associate the recipe with the same user
                     Ingredients = createBlogDTO.Recipe.Ingredients
                 };
 
                 var createdRecipe = await _recipeService.CreateRecipe(createRecipeDTO);
-                recipeId = createdRecipe.Id; // Use the newly created recipe ID
+                recipeId = createdRecipe.Id; // Link the new recipe to the blog
             }
 
-            // Create the new blog with or without a recipe
+            // Create the new blog
             var newBlog = new Blogs
             {
                 Header = createBlogDTO.Header,
                 BodyText = createBlogDTO.BodyText,
                 UserId = createBlogDTO.UserId,
-                RecipeId = recipeId // Use the recipe ID if available
+                RecipeId = recipeId // This will be null if no recipe is provided
             };
 
             await _unitOfWork.Blogs.AddAsync(newBlog);
@@ -68,7 +82,7 @@ namespace BackEngin.Services
                 Header = newBlog.Header,
                 BodyText = newBlog.BodyText,
                 UserId = newBlog.UserId,
-                RecipeId = newBlog.RecipeId
+                RecipeId = newBlog.RecipeId // This will be null if no recipe was linked
             };
         }
 
@@ -134,7 +148,7 @@ namespace BackEngin.Services
             if (blog == null) return null;
 
             // Fetch recipe details if associated
-            RecipeDTO recipeDetails = await GetRecipeOfBlog(blogId);
+            RecipeDetailsDTO recipeDetails = await GetRecipeOfBlog(blogId);
 
             // Map and return the blog details along with recipe details
             return new BlogDetailDTO
@@ -149,11 +163,12 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDTO> GetRecipeOfBlog(int blogId)
+        public async Task<RecipeDetailsDTO> GetRecipeOfBlog(int blogId)
         {
             // Fetch the blog and ensure it has an associated recipe
             var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
-            if (blog?.RecipeId == null) return null;
+            if (blog == null) return null;
+            if (blog.RecipeId == null) return null;
 
             // Use RecipeService to fetch recipe details
             return await _recipeService.GetRecipeDetails(blog.RecipeId.Value);
@@ -175,6 +190,14 @@ namespace BackEngin.Services
             await _unitOfWork.CompleteAsync();
 
             return true;
+        }
+
+        public async Task<string?> GetOwner(int blogId)
+        {
+            var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
+            if (blog == null)
+                return null;
+            return blog.UserId;
         }
     }
 }

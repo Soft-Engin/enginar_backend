@@ -23,7 +23,7 @@ namespace Models.DTO
         public string UserId { get; set; }
         public int? RecipeId { get; set; }
         public string RecipeHeader { get; set; }
-        public RecipeDTO Recipe { get; set; } // Full recipe details
+        public RecipeDetailsDTO Recipe { get; set; } // Full recipe details
     }
 
 
@@ -33,7 +33,7 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public string UserId { get; set; } // ID of the user creating the blog
         public int? RecipeId { get; set; } // Optional: Associate an existing recipe
-        public CreateRecipeDTO Recipe { get; set; } // Optional: Create a new recipe
+        public CreateRecipeDTO? Recipe { get; set; } // Optional: Create a new recipe
     }
 
 
@@ -42,7 +42,7 @@ namespace Models.DTO
         public string Header { get; set; }
         public string BodyText { get; set; }
         public int? RecipeId { get; set; } // To associate or disassociate a recipe
-        public UpdateRecipeDTO Recipe { get; set; } // For updating or creating a recipe
+        public RecipeRequestDTO Recipe { get; set; } // For updating or creating a recipe
     }
 
 }
