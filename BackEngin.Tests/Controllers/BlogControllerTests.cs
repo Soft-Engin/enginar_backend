@@ -1,257 +1,230 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using BackEngin.Controllers;
+﻿using BackEngin.Controllers;
 using BackEngin.Services.Interfaces;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTO;
 using Moq;
-using Xunit;
+using FluentAssertions;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
-public class BlogControllerTests
+namespace BackEngin.Tests.Controllers
 {
-    private readonly Mock<IBlogService> _mockBlogService;
-    private readonly BlogController _blogController;
-
-    public BlogControllerTests()
+    public class BlogControllerTests
     {
-        _mockBlogService = new Mock<IBlogService>();
-        _blogController = new BlogController(_mockBlogService.Object);
-    }
+        private readonly Mock<IBlogService> _mockBlogService;
+        private readonly Mock<ClaimsPrincipal> _mockUser;
+        private readonly BlogController _blogController;
 
-    [Fact]
-    public async Task GetBlogs_ShouldReturnOkWithBlogs()
-    {
-        // Arrange
-        var blogs = new List<BlogDTO>
+        public BlogControllerTests()
         {
-            new BlogDTO { Id = 1, Header = "Blog 1", BodyText = "Content 1", UserId = "1" },
-            new BlogDTO { Id = 2, Header = "Blog 2", BodyText = "Content 2", UserId = "2" }
-        };
-        _mockBlogService.Setup(s => s.GetBlogs()).ReturnsAsync(blogs);
+            _mockBlogService = new Mock<IBlogService>();
 
-        // Act
-        var result = await _blogController.GetBlogs();
+            // Mock user context
+            _mockUser = new Mock<ClaimsPrincipal>();
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult.StatusCode.Should().Be(200);
-        okResult.Value.Should().BeEquivalentTo(blogs);
-    }
-
-    [Fact]
-    public async Task CreateBlog_ShouldReturnCreatedWithBlog()
-    {
-        // Arrange
-        var createBlogDto = new CreateBlogDTO
-        {
-            Header = "New Blog",
-            BodyText = "Blog Content",
-            UserId = "123"
-        };
-
-        var createdBlog = new BlogDTO
-        {
-            Id = 1,
-            Header = "New Blog",
-            BodyText = "Blog Content",
-            UserId = "123"
-        };
-
-        _mockBlogService.Setup(s => s.CreateBlog(createBlogDto)).ReturnsAsync(createdBlog);
-
-        // Act
-        var result = await _blogController.CreateBlog(createBlogDto);
-
-        // Assert
-        var createdResult = result as CreatedAtActionResult;
-        createdResult.Should().NotBeNull();
-        createdResult.StatusCode.Should().Be(201);
-        createdResult.Value.Should().BeEquivalentTo(createdBlog);
-    }
-
-    [Fact]
-    public async Task CreateBlog_ShouldReturnBadRequest_WhenDtoIsNull()
-    {
-        // Act
-        var result = await _blogController.CreateBlog(null);
-
-        // Assert
-        var badRequestResult = result as BadRequestObjectResult;
-        badRequestResult.Should().NotBeNull();
-        badRequestResult.StatusCode.Should().Be(400);
-        badRequestResult.Value.Should().Be("Invalid blog data.");
-    }
-
-    [Fact]
-    public async Task GetBlogById_ShouldReturnOkWithBlog()
-    {
-        // Arrange
-        var blogId = 1;
-        var blog = new BlogDetailDTO
-        {
-            Id = blogId,
-            Header = "Blog",
-            BodyText = "Content",
-            UserId = "1"
-        };
-
-        _mockBlogService.Setup(s => s.GetBlogById(blogId)).ReturnsAsync(blog);
-
-        // Act
-        var result = await _blogController.GetBlogById(blogId);
-
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult.StatusCode.Should().Be(200);
-        okResult.Value.Should().BeEquivalentTo(blog);
-    }
-
-    [Fact]
-    public async Task GetBlogById_ShouldReturnNotFound_WhenBlogDoesNotExist()
-    {
-        // Arrange
-        var blogId = 1;
-        _mockBlogService.Setup(s => s.GetBlogById(blogId)).ReturnsAsync((BlogDetailDTO)null);
-
-        // Act
-        var result = await _blogController.GetBlogById(blogId);
-
-        // Assert
-        var notFoundResult = result as NotFoundResult;
-        notFoundResult.Should().NotBeNull();
-        notFoundResult.StatusCode.Should().Be(404);
-    }
-
-    [Fact]
-    public async Task UpdateBlog_ShouldReturnOkWithUpdatedBlog()
-    {
-        // Arrange
-        var blogId = 1;
-        var updateBlogDto = new UpdateBlogDTO
-        {
-            Header = "Updated Blog",
-            BodyText = "Updated Content"
-        };
-
-        var updatedBlog = new BlogDTO
-        {
-            Id = blogId,
-            Header = "Updated Blog",
-            BodyText = "Updated Content",
-            UserId = "1"
-        };
-
-        _mockBlogService.Setup(s => s.UpdateBlog(blogId, updateBlogDto)).ReturnsAsync(updatedBlog);
-
-        // Act
-        var result = await _blogController.UpdateBlog(blogId, updateBlogDto);
-
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult.StatusCode.Should().Be(200);
-        okResult.Value.Should().BeEquivalentTo(updatedBlog);
-    }
-
-    [Fact]
-    public async Task UpdateBlog_ShouldReturnNotFound_WhenBlogDoesNotExist()
-    {
-        // Arrange
-        var blogId = 1;
-        var updateBlogDto = new UpdateBlogDTO
-        {
-            Header = "Updated Blog",
-            BodyText = "Updated Content"
-        };
-
-        _mockBlogService.Setup(s => s.UpdateBlog(blogId, updateBlogDto)).ReturnsAsync((BlogDTO)null);
-
-        // Act
-        var result = await _blogController.UpdateBlog(blogId, updateBlogDto);
-
-        // Assert
-        var notFoundResult = result as NotFoundResult;
-        notFoundResult.Should().NotBeNull();
-        notFoundResult.StatusCode.Should().Be(404);
-    }
-
-    [Fact]
-    public async Task DeleteBlog_ShouldReturnNoContent_WhenDeletedSuccessfully()
-    {
-        // Arrange
-        var blogId = 1;
-        _mockBlogService.Setup(s => s.DeleteBlog(blogId)).ReturnsAsync(true);
-
-        // Act
-        var result = await _blogController.DeleteBlog(blogId);
-
-        // Assert
-        var noContentResult = result as NoContentResult;
-        noContentResult.Should().NotBeNull();
-        noContentResult.StatusCode.Should().Be(204);
-    }
-
-    [Fact]
-    public async Task DeleteBlog_ShouldReturnNotFound_WhenBlogDoesNotExist()
-    {
-        // Arrange
-        var blogId = 1;
-        _mockBlogService.Setup(s => s.DeleteBlog(blogId)).ReturnsAsync(false);
-
-        // Act
-        var result = await _blogController.DeleteBlog(blogId);
-
-        // Assert
-        var notFoundResult = result as NotFoundResult;
-        notFoundResult.Should().NotBeNull();
-        notFoundResult.StatusCode.Should().Be(404);
-    }
-
-    [Fact]
-    public async Task GetRecipeOfBlog_ShouldReturnOkWithRecipe()
-    {
-        // Arrange
-        var blogId = 1;
-        var recipe = new RecipeDTO
-        {
-            Id = 1,
-            Header = "Recipe",
-            BodyText = "Recipe Content",
-            Ingredients = new List<RecipeIngredientDTO>
+            // Setup controller with mock user
+            _blogController = new BlogController(_mockBlogService.Object)
             {
-                new RecipeIngredientDTO { IngredientId = 1, IngredientName = "Flour", Quantity = 2, Unit = "cups" }
-            }
-        };
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext { User = _mockUser.Object }
+                }
+            };
+        }
 
-        _mockBlogService.Setup(s => s.GetRecipeOfBlog(blogId)).ReturnsAsync(recipe);
+        [Fact]
+        public async Task GetBlogs_ShouldReturnOk_WithPaginatedBlogs()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 2;
+            var paginatedResponse = new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = new List<BlogDTO>
+                {
+                    new BlogDTO { Id = 1, Header = "Blog 1", BodyText = "Content 1" },
+                    new BlogDTO { Id = 2, Header = "Blog 2", BodyText = "Content 2" }
+                },
+                TotalCount = 5,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
 
-        // Act
-        var result = await _blogController.GetRecipeOfBlog(blogId);
+            _mockBlogService.Setup(s => s.GetBlogs(pageNumber, pageSize)).ReturnsAsync(paginatedResponse);
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult.StatusCode.Should().Be(200);
-        okResult.Value.Should().BeEquivalentTo(recipe);
-    }
+            // Act
+            var result = await _blogController.GetBlogs(pageNumber, pageSize);
 
-    [Fact]
-    public async Task GetRecipeOfBlog_ShouldReturnNotFound_WhenNoRecipeExists()
-    {
-        // Arrange
-        var blogId = 1;
-        _mockBlogService.Setup(s => s.GetRecipeOfBlog(blogId)).ReturnsAsync((RecipeDTO)null);
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
+        }
 
-        // Act
-        var result = await _blogController.GetRecipeOfBlog(blogId);
+        [Fact]
+        public async Task CreateBlog_ShouldReturnCreated_WhenBlogIsValid()
+        {
+            // Arrange
+            var createBlogDto = new CreateBlogDTO
+            {
+                Header = "New Blog",
+                BodyText = "Blog Content",
+                UserId = "currentUserId"
+            };
+            var createdBlog = new BlogDTO
+            {
+                Id = 1,
+                Header = createBlogDto.Header,
+                BodyText = createBlogDto.BodyText
+            };
 
-        // Assert
-        var notFoundResult = result as NotFoundObjectResult;
-        notFoundResult.Should().NotBeNull();
-        notFoundResult.StatusCode.Should().Be(404);
-        notFoundResult.Value.Should().Be("No recipe associated with this blog.");
+            _mockBlogService.Setup(s => s.CreateBlog(createBlogDto)).ReturnsAsync(createdBlog);
+
+            // Act
+            var result = await _blogController.CreateBlog(createBlogDto);
+
+            // Assert
+            result.Should().BeOfType<CreatedAtActionResult>();
+            var createdResult = result as CreatedAtActionResult;
+            createdResult.Value.Should().BeEquivalentTo(createdBlog);
+        }
+
+        [Fact]
+        public async Task GetBlogById_ShouldReturnOk_WithBlogDetails()
+        {
+            // Arrange
+            var blogId = 1;
+            var blog = new BlogDetailDTO
+            {
+                Id = blogId,
+                Header = "Blog 1",
+                BodyText = "Content 1",
+                Recipe = new RecipeDetailsDTO
+                {
+                    Id = 1,
+                    Header = "Recipe 1",
+                    BodyText = "Recipe Content"
+                }
+            };
+
+            _mockBlogService.Setup(s => s.GetBlogById(blogId)).ReturnsAsync(blog);
+
+            // Act
+            var result = await _blogController.GetBlogById(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(blog);
+        }
+
+        [Fact]
+        public async Task UpdateBlog_ShouldReturnOk_WithUpdatedBlog()
+        {
+            // Arrange
+            var blogId = 1;
+            var updateBlogDto = new UpdateBlogDTO
+            {
+                Header = "Updated Blog",
+                BodyText = "Updated Content"
+            };
+            var updatedBlog = new BlogDTO
+            {
+                Id = blogId,
+                Header = updateBlogDto.Header,
+                BodyText = updateBlogDto.BodyText
+            };
+
+            _mockBlogService.Setup(s => s.GetOwner(blogId)).ReturnsAsync("currentUserId");
+            _mockBlogService.Setup(s => s.UpdateBlog(blogId, updateBlogDto)).ReturnsAsync(updatedBlog);
+
+            // Act
+            var result = await _blogController.UpdateBlog(blogId, updateBlogDto);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(updatedBlog);
+        }
+
+        [Fact]
+        public async Task DeleteBlog_ShouldReturnOk_WhenDeletedSuccessfully()
+        {
+            // Arrange
+            var blogId = 1;
+
+            _mockBlogService.Setup(s => s.GetOwner(blogId)).ReturnsAsync("currentUserId");
+            _mockBlogService.Setup(s => s.DeleteBlog(blogId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _blogController.DeleteBlog(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Blog deleted successfully!" });
+        }
+
+        [Fact]
+        public async Task GetRecipeOfBlog_ShouldReturnOk_WithRecipeDetails()
+        {
+            // Arrange
+            var blogId = 1;
+            var recipeDetails = new RecipeDetailsDTO
+            {
+                Id = 1,
+                Header = "Recipe 1",
+                BodyText = "Recipe Content"
+            };
+
+            _mockBlogService.Setup(s => s.GetRecipeOfBlog(blogId)).ReturnsAsync(recipeDetails);
+
+            // Act
+            var result = await _blogController.GetRecipeOfBlog(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(recipeDetails);
+        }
+
+        [Fact]
+        public async Task UpdateBlog_ShouldReturnUnauthorized_WhenUserNotOwnerOrAdmin()
+        {
+            // Arrange
+            var blogId = 1;
+            var updateBlogDto = new UpdateBlogDTO
+            {
+                Header = "Updated Blog",
+                BodyText = "Updated Content"
+            };
+
+            _mockBlogService.Setup(s => s.GetOwner(blogId)).ReturnsAsync("otherUserId");
+
+            // Act
+            var result = await _blogController.UpdateBlog(blogId, updateBlogDto);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
+
+        [Fact]
+        public async Task DeleteBlog_ShouldReturnUnauthorized_WhenUserNotOwnerOrAdmin()
+        {
+            // Arrange
+            var blogId = 1;
+
+            _mockBlogService.Setup(s => s.GetOwner(blogId)).ReturnsAsync("otherUserId");
+
+            // Act
+            var result = await _blogController.DeleteBlog(blogId);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedResult>();
+        }
     }
 }
