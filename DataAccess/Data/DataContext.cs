@@ -16,10 +16,12 @@ namespace BackEngin.Data
         public DbSet<Roles> Roles { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Preferences> Preferences { get; set; }
+
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,11 +36,6 @@ namespace BackEngin.Data
                 new Recipes { Id = 1, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
             );
 
-            modelBuilder.Entity<IngredientTypes>().HasData(
-               new IngredientTypes { Id = 1, Name = "Vegetable", Description = "Fresh vegetables" },
-               new IngredientTypes { Id = 2, Name = "Oil", Description = "Cooking oils" }
-           );
-
             modelBuilder.Entity<Ingredients>().HasData(
                 new Ingredients { Id = 1, Name = "Enginar", TypeId = 1 },
                 new Ingredients { Id = 2, Name = "Zeytinyağı", TypeId = 2 }
@@ -49,6 +46,7 @@ namespace BackEngin.Data
                 new Recipes_Ingredients { Id = 2, RecipeId = 1, IngredientId = 2, Quantity = 3, Unit = "yemek kaşığı" }
             );
             PopulatePreferences(modelBuilder);
+            PopulateIngredientTypes(modelBuilder);
         }
 
         private void PopulatePreferences(ModelBuilder modelBuilder)
@@ -81,7 +79,28 @@ namespace BackEngin.Data
                 new Preferences { Id = 19, Name = "Keto", Description = "A low-carb, high-fat diet focused on inducing ketosis for energy." },
                 new Preferences { Id = 20, Name = "Paleo", Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods." }
            );
+        }
 
+        private void PopulateIngredientTypes(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IngredientTypes>(entity =>
+            {
+                entity.HasKey(it => it.Id); // Primary key
+                entity.Property(it => it.Id).ValueGeneratedOnAdd(); // Auto-increment
+            });
+
+            modelBuilder.Entity<IngredientTypes>().HasData(
+                new IngredientTypes { Id = 1, Name = "Vegetable", Description = "Edible plants or their parts, intended for cooking or eating raw." },
+                new IngredientTypes { Id = 2, Name = "Fruit", Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food." },
+                new IngredientTypes { Id = 3, Name = "Meat", Description = "Animal flesh that is eaten as food." },
+                new IngredientTypes { Id = 4, Name = "Dairy", Description = "Food produced from or containing the milk of mammals." },
+                new IngredientTypes { Id = 5, Name = "Grain", Description = "Small, hard, dry seeds harvested for human or animal consumption." },
+                new IngredientTypes { Id = 6, Name = "Seafood", Description = "Sea life regarded as food by humans, includes fish and shellfish." },
+                new IngredientTypes { Id = 7, Name = "Spice", Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark." },
+                new IngredientTypes { Id = 8, Name = "Herb", Description = "Plants with savory or aromatic properties used for flavoring and garnishing food." },
+                new IngredientTypes { Id = 9, Name = "Nuts & Seeds", Description = "Dry, edible fruits or seeds that usually have a high fat content." },
+                new IngredientTypes { Id = 10, Name = "Beverage", Description = "Drinkable liquids other than water, may be hot or cold." }
+            );
         }
     }
 
