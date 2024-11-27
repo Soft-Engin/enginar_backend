@@ -8,7 +8,7 @@ using Asp.Versioning;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/ingredienttypes")]
+    [Route("api/v{version:apiVersion}/ingredient-types")]
     [ApiController]
     public class IngredientTypesController : ControllerBase
     {
