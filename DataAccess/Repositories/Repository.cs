@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BackEngin.Models;
 using System.Linq.Expressions;
 
 namespace DataAccess.Repositories
@@ -45,7 +44,6 @@ namespace DataAccess.Repositories
             return (items, totalCount);
         }
 
-
         public async Task<IEnumerable<T>> FindAsync(Func<T, bool> predicate)
         {
             return await Task.FromResult(_dbSet.Where(predicate));
@@ -69,6 +67,11 @@ namespace DataAccess.Repositories
         public void Delete(T entity)
         {
             _dbSet.Remove(entity);
+        }
+
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
         }
     }
 }

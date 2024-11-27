@@ -45,6 +45,18 @@ namespace BackEngin.Data
                 new Recipes_Ingredients { Id = 1, RecipeId = 1, IngredientId = 1, Quantity = 2, Unit = "adet" },
                 new Recipes_Ingredients { Id = 2, RecipeId = 1, IngredientId = 2, Quantity = 3, Unit = "yemek kaşığı" }
             );
+
+            // Configure many-to-many relationship between Ingredients and Preferences
+            modelBuilder.Entity<Ingredients_Preferences>()
+                .HasOne(ip => ip.Ingredient)
+                .WithMany(i => i.Ingredients_Preferences)
+                .HasForeignKey(ip => ip.IngredientId);
+
+            modelBuilder.Entity<Ingredients_Preferences>()
+                .HasOne(ip => ip.Preference)
+                .WithMany(p => p.Ingredients_Preferences)
+                .HasForeignKey(ip => ip.PreferenceId);
+
             PopulatePreferences(modelBuilder);
             PopulateIngredientTypes(modelBuilder);
         }
