@@ -19,12 +19,29 @@ namespace BackEngin.Controllers
             _ingredientTypesService = ingredientTypesService;
         }
 
-        // GET /ingredienttypes - List all ingredient types
+        // GET /ingredient-types - Get paginated list of ingredient types
         [HttpGet]
-        public async Task<IActionResult> GetAllIngredientTypes()
+        public async Task<IActionResult> GetPaginatedIngredientTypes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var ingredientTypes = await _ingredientTypesService.GetAllIngredientTypesAsync();
-            return Ok(ingredientTypes);
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var paginatedIngredientTypes = await _ingredientTypesService.GetIngredientTypesPaginatedAsync(pageNumber, pageSize);
+            return Ok(paginatedIngredientTypes);
+        }
+
+        // GET /ingredient-types/{ingredientTypeId} - Get ingredient type by ID
+        [HttpGet("{ingredientTypeId}")]
+        public async Task<IActionResult> GetIngredientTypeById(int ingredientTypeId)
+        {
+            var ingredientType = await _ingredientTypesService.GetIngredientTypeByIdAsync(ingredientTypeId);
+
+            if (ingredientType == null)
+            {
+                return NotFound(new { message = "Ingredient type not found" });
+            }
+
+            return Ok(ingredientType);
         }
 
         // POST /ingredienttypes - Create a new ingredient type (admin only)

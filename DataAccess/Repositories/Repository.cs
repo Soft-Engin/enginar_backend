@@ -21,7 +21,7 @@ namespace DataAccess.Repositories
         }
 
         // GetAllAsync with includeProperties
-        public async Task<IEnumerable<T>> GetAllAsync(string includeProperties = "")
+        public async Task<IEnumerable<T>> GetAllAsync(string includeProperties)
         {
             IQueryable<T> query = _dbSet;
 
@@ -62,10 +62,11 @@ namespace DataAccess.Repositories
         }
 
         public async Task<(IEnumerable<T> Items, int TotalCount)> GetPaginatedAsync(
+            string includeProperties,
             Expression<Func<T, bool>> filter = null,
             int pageNumber = 1,
-            int pageSize = 10,
-            string includeProperties = "")
+            int pageSize = 10
+            )
         {
             IQueryable<T> query = _dbSet;
 

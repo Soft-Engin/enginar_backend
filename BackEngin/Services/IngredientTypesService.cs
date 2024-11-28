@@ -18,18 +18,45 @@ namespace BackEngin.Services
             unitOfWork = _unitOfWork;
         }
 
-        public async Task<IEnumerable<IngredientTypeIdDTO>> GetAllIngredientTypesAsync()
+        public async Task<IngredientTypeIdDTO> GetIngredientTypeByIdAsync(int ingredientTypeId)
         {
-            var ingredientTypes = await unitOfWork.IngredientTypes.GetAllAsync();
+            var ingredientType = await unitOfWork.IngredientTypes.GetByIdAsync(ingredientTypeId);
+
+            if (ingredientType == null)
+            {
+                return null; // IngredientType not found
+            }
+
+            var ingredientTypeDTO = new IngredientTypeIdDTO
+            {
+                Id = ingredientType.Id,
+                Name = ingredientType.Name,
+                Description = ingredientType.Description
+            };
+
+            return ingredientTypeDTO;
+        }
+
+        public async Task<PaginatedResponseDTO<IngredientTypeIdDTO>> GetIngredientTypesPaginatedAsync(int pageNumber, int pageSize)
+        {
+            var (ingredientTypes, totalCount) = await unitOfWork.IngredientTypes.GetPaginatedAsync(
+                pageNumber: pageNumber,
+                pageSize: pageSize);
 
             var ingredientTypeDTOs = ingredientTypes.Select(it => new IngredientTypeIdDTO
             {
                 Id = it.Id,
                 Name = it.Name,
                 Description = it.Description
-            });
+            }).ToList();
 
-            return ingredientTypeDTOs;
+            return new PaginatedResponseDTO<IngredientTypeIdDTO>
+            {
+                Items = ingredientTypeDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<int?> CreateIngredientTypeAsync(IngredientTypeDTO model)
