@@ -16,7 +16,7 @@ namespace Models
         [Required]
         public string InitiatorUserId { get; set; }  
         [ForeignKey("InitiatorUserId")]
-        public Users InitiatorUser { get; set; } 
+        public Users InitiatorUser { get; set; }
 
         [Required]
         public string TargetUserId { get; set; }  

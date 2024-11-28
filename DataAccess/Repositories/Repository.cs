@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BackEngin.Models;
+using System.Linq.Expressions;
 
 namespace DataAccess.Repositories
 {
@@ -19,14 +20,40 @@ namespace DataAccess.Repositories
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetPaginatedAsync(
+                    Expression<Func<T, bool>> filter = null,
+                    int pageNumber = 1,
+                    int pageSize = 10)
         {
-            return await _dbSet.FindAsync(id);
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
+
 
         public async Task<IEnumerable<T>> FindAsync(Func<T, bool> predicate)
         {
             return await Task.FromResult(_dbSet.Where(predicate));
+        }
+
+        public async Task<T> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
         }
 
         public async Task AddAsync(T entity)

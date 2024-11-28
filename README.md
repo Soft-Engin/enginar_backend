@@ -4,6 +4,20 @@
 
 This solution consists of one main project, **BackEngin**, and two supporting subprojects: **DataAccess** and **Models**.
 
+## Setup
+
+To work with collaboratively without accidents this command should be run in the repository folder before start to work on this project. It enables custom hooks to prevent accidents and has improvements to maintain code quality.
+
+```sh
+git config core.hooksPath .githooks
+```
+
+### Key Update: 
+* `FindAsync` function: has been added to the base repository in the DataAccess project. This method allows filtering records based on specified conditions, improving flexibility in data querying.
+* `GetPaginatedAsync` function: Added to the base repository in the DataAccess project. This method facilitates paginated data retrieval by accepting `page number` and `size` as parameters and returning the relevant data subset efficiently.
+* `Pagination DTO`: Introduced the `PaginatedResponseDTO<T>` class to standardize paginated responses. This DTO includes properties such as `Items`, `TotalCount`, `PageNumber`, and `PageSize` to provide detailed pagination metadata alongside the data.
+
+
 ## Project Structure
 
 ### 1. **BackEngin (Main Project)**
