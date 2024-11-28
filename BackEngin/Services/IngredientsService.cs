@@ -21,13 +21,22 @@ namespace BackEngin.Services
         public async Task<IEnumerable<IngredientIdDTO>> GetAllIngredientsAsync()
         {
             var ingredients = await unitOfWork.Ingredients.GetAllAsync(
-                includeProperties: "Ingredients_Preferences.Preference");
+                includeProperties: "Ingredients_Preferences.Preference,Type");
 
             var ingredientDTOs = ingredients.Select(i => new IngredientIdDTO
             {
                 Id = i.Id,
                 Name = i.Name,
-                TypeId = i.TypeId,
+
+                // Map IngredientType information
+                Type = new IngredientTypeIdDTO
+                {
+                    Id = i.Type.Id,
+                    Name = i.Type.Name,
+                    Description = i.Type.Description
+                },
+
+                // Map allergens
                 Allergens = i.Ingredients_Preferences.Select(ip => new AllergenIdDTO
                 {
                     Id = ip.Preference.Id,

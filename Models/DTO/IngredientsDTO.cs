@@ -7,11 +7,14 @@ namespace Models.DTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int TypeId { get; set; }
+
+        // IngredientType information
+        public IngredientTypeIdDTO Type { get; set; }
 
         // List of allergens (preferences) associated with the ingredient
         public List<AllergenIdDTO> Allergens { get; set; }
     }
+
     public class IngredientDTO
     {
         [Required]
