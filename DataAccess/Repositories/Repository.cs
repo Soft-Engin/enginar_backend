@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using System.Linq.Expressions;
 
 namespace DataAccess.Repositories
@@ -19,6 +20,22 @@ namespace DataAccess.Repositories
             return await _dbSet.ToListAsync();
         }
 
+        // GetAllAsync with includeProperties
+        public async Task<IEnumerable<T>> GetAllAsync(string includeProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task<(IEnumerable<T> Items, int TotalCount)> GetPaginatedAsync(
                     Expression<Func<T, bool>> filter = null,
                     int pageNumber = 1,
@@ -32,6 +49,38 @@ namespace DataAccess.Repositories
             if (filter != null)
             {
                 query = query.Where(filter);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetPaginatedAsync(
+            Expression<Func<T, bool>> filter = null,
+            int pageNumber = 1,
+            int pageSize = 10,
+            string includeProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            // Add eager loading for included properties
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
             }
 
             var totalCount = await query.CountAsync();
