@@ -18,9 +18,11 @@ namespace BackEngin.Services
             unitOfWork = _unitOfWork;
         }
 
-        public async Task<IEnumerable<IngredientIdDTO>> GetAllIngredientsAsync()
+        public async Task<PaginatedResponseDTO<IngredientIdDTO>> GetIngredientsPaginatedAsync(int pageNumber, int pageSize)
         {
-            var ingredients = await unitOfWork.Ingredients.GetAllAsync(
+            var (ingredients, totalCount) = await unitOfWork.Ingredients.GetPaginatedAsync(
+                pageNumber: pageNumber,
+                pageSize: pageSize,
                 includeProperties: "Ingredients_Preferences.Preference,Type");
 
             var ingredientDTOs = ingredients.Select(i => new IngredientIdDTO
@@ -43,10 +45,55 @@ namespace BackEngin.Services
                     Name = ip.Preference.Name,
                     Description = ip.Preference.Description
                 }).ToList()
-            });
+            }).ToList();
 
-            return ingredientDTOs;
+            return new PaginatedResponseDTO<IngredientIdDTO>
+            {
+                Items = ingredientDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
+
+        public async Task<IngredientIdDTO> GetIngredientByIdAsync(int ingredientId)
+        {
+            // Fetch the ingredient with related entities
+            var ingredient = (await unitOfWork.Ingredients.GetAllAsync(
+                includeProperties: "Ingredients_Preferences.Preference,Type"))
+                .FirstOrDefault(i => i.Id == ingredientId);
+
+            if (ingredient == null)
+            {
+                return null; // Ingredient not found
+            }
+
+            // Map to DTO
+            var ingredientDTO = new IngredientIdDTO
+            {
+                Id = ingredient.Id,
+                Name = ingredient.Name,
+
+                // Map IngredientType information
+                Type = new IngredientTypeIdDTO
+                {
+                    Id = ingredient.Type.Id,
+                    Name = ingredient.Type.Name,
+                    Description = ingredient.Type.Description
+                },
+
+                // Map allergens
+                Allergens = ingredient.Ingredients_Preferences.Select(ip => new AllergenIdDTO
+                {
+                    Id = ip.Preference.Id,
+                    Name = ip.Preference.Name,
+                    Description = ip.Preference.Description
+                }).ToList()
+            };
+
+            return ingredientDTO;
+        }
+
 
         public async Task<int?> CreateIngredientAsync(IngredientDTO model)
         {

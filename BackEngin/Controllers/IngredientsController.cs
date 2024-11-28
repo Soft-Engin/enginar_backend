@@ -19,13 +19,31 @@ namespace BackEngin.Controllers
             _ingredientsService = ingredientsService;
         }
 
-        // GET /ingredients - List all ingredients
+        // GET /ingredients - Get paginated list of ingredients
         [HttpGet]
-        public async Task<IActionResult> GetAllIngredients()
+        public async Task<IActionResult> GetPaginatedIngredients([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var ingredients = await _ingredientsService.GetAllIngredientsAsync();
-            return Ok(ingredients);
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var paginatedIngredients = await _ingredientsService.GetIngredientsPaginatedAsync(pageNumber, pageSize);
+            return Ok(paginatedIngredients);
         }
+
+        // GET /ingredients/{ingredientId} - Get ingredient by ID
+        [HttpGet("{ingredientId}")]
+        public async Task<IActionResult> GetIngredientById(int ingredientId)
+        {
+            var ingredient = await _ingredientsService.GetIngredientByIdAsync(ingredientId);
+
+            if (ingredient == null)
+            {
+                return NotFound(new { message = "Ingredient not found" });
+            }
+
+            return Ok(ingredient);
+        }
+
 
         // POST /ingredients - Create a new ingredient (admin only)
         [HttpPost]
