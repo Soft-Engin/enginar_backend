@@ -7,11 +7,25 @@
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddUsersBlogsInteractionsAndUsersRecipesInteractions : Migration
+    public partial class UserInteraction : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Interactions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Interactions", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Recipes",
                 columns: table => new
@@ -31,6 +45,39 @@ namespace DataAccess.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users_Interactions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InitiatorUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TargetUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    InteractionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users_Interactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Interactions_AspNetUsers_InitiatorUserId",
+                        column: x => x.InitiatorUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Users_Interactions_AspNetUsers_TargetUserId",
+                        column: x => x.TargetUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Users_Interactions_Interactions_InteractionId",
+                        column: x => x.InteractionId,
+                        principalTable: "Interactions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,18 +173,17 @@ namespace DataAccess.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.UpdateData(
+            migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                keyColumn: "Id",
-                keyValue: "1",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "2b0650bb-1bf1-417e-9a84-ae69a6fef2d0", "81a10ca3-2076-4ccb-a954-19ffa78a6505" });
+                columns: new[] { "Id", "AccessFailedCount", "AddressId", "ConcurrencyStamp", "Discriminator", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RoleId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "1", 0, null, "b03d9fa2-1680-4d2d-88aa-d99f24fc9c7b", "Users", null, false, "Berker ", "Bayar", false, null, null, null, null, null, false, 1, "03e8db90-6c70-4cb8-969d-db4a6a6e9d89", false, null });
 
             migrationBuilder.InsertData(
                 table: "Interactions",
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
+                    { 1, "User follows another user", "Follow" },
                     { 2, "User bookmarks a recipe", "BookmarkRecipe" },
                     { 3, "User bookmarks a blog", "BookmarkBlog" }
                 });
@@ -173,6 +219,21 @@ namespace DataAccess.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Interactions_InitiatorUserId",
+                table: "Users_Interactions",
+                column: "InitiatorUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Interactions_InteractionId",
+                table: "Users_Interactions",
+                column: "InteractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Interactions_TargetUserId",
+                table: "Users_Interactions",
+                column: "TargetUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Recipes_Interactions_InteractionId",
                 table: "Users_Recipes_Interactions",
                 column: "InteractionId");
@@ -195,30 +256,24 @@ namespace DataAccess.Migrations
                 name: "Users_Blogs_Interactions");
 
             migrationBuilder.DropTable(
+                name: "Users_Interactions");
+
+            migrationBuilder.DropTable(
                 name: "Users_Recipes_Interactions");
 
             migrationBuilder.DropTable(
                 name: "Blogs");
 
             migrationBuilder.DropTable(
+                name: "Interactions");
+
+            migrationBuilder.DropTable(
                 name: "Recipes");
 
             migrationBuilder.DeleteData(
-                table: "Interactions",
-                keyColumn: "Id",
-                keyValue: 2);
-
-            migrationBuilder.DeleteData(
-                table: "Interactions",
-                keyColumn: "Id",
-                keyValue: 3);
-
-            migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "1",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "a0f62981-ee86-4e9b-b9ff-84523b899833", "df618a45-aeb9-46e1-bb52-dd68ab3ab8db" });
+                keyValue: "1");
         }
     }
 }

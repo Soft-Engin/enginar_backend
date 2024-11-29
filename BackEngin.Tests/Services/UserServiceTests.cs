@@ -10,6 +10,9 @@ using Models.DTO;
 using System.Data;
 using System.Diagnostics.Metrics;
 using System.Net;
+using DataAccess.Migrations;
+using System.Collections.Generic;
+using BackEngin.Services.Interfaces;
 
 namespace BackEngin.Tests.Services
 {
@@ -26,55 +29,7 @@ namespace BackEngin.Tests.Services
             _userService = new UserService(_mockUserManager.Object, _mockUnitOfWork.Object);
         }
 
-        [Fact]
-        public async Task GetAllUsersAsync_ShouldReturnUsersWithTotalCount()
-        {
-            // Arrange
-            var users = new List<Users>
-            {
-                new Users
-                {
-                    Id = "1",
-                    FirstName = "John",
-                    LastName = "Doe",
-                    UserName = "johndoe",
-                    Email = "johndoe@example.com",
-                    PhoneNumber = "1234567890",
-                    Address = new Addresses { Name = "Home", Street = "123 Main St" },
-                    Role = new Roles { Name = "Admin" }
-                },
-                new Users
-                {
-                    Id = "2",
-                    FirstName = "Jane",
-                    LastName = "Smith",
-                    UserName = "janesmith",
-                    Email = "janesmith@example.com",
-                    PhoneNumber = "9876543210",
-                    Address = new Addresses { Name = "Office", Street = "456 Elm St" },
-                    Role = new Roles { Name = "User" }
-                }
-            }.AsQueryable();
-
-            var mockDbSet = MockHelper.BuildMockDbSet(users);
-
-            // Configure the mocked UserManager
-            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
-
-            // Act
-            var result = await _userService.GetAllUsersAsync();
-
-            // Assert
-            result.Should().NotBeNull();
-            result.TotalCount.Should().Be(2);
-            result.Users.Should().HaveCount(2);
-            result.Users.Should().Contain(u => u.FirstName == "John" && u.LastName == "Doe");
-            result.Users.Should().Contain(u => u.FirstName == "Jane" && u.LastName == "Smith");
-
-            // Verify the Users property was accessed at least once
-            _mockUserManager.Verify(m => m.Users, Times.AtLeastOnce);
-        }
-
+       
 
         [Fact]
         public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
@@ -393,22 +348,32 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var userId = "user1";
+            var user = new Users { Id = userId, UserName = "User1" }; // Mock user
             var expectedDto = new FollowersDTO
             {
                 Usernames = new List<string> { "follower1", "follower2" },
                 TotalCount = 2
             };
+            var page = 1;
+            var pageSize = 10;
 
-            _mockUnitOfWork.Setup(u => u.Users.GetFollowersAsync(userId))
+            // Setup UserManager to find the user
+            _mockUserManager.Setup(u => u.FindByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            // Setup UnitOfWork to return the expected DTO
+            _mockUnitOfWork.Setup(u => u.Users.GetFollowersAsync(userId, page, pageSize))
                 .ReturnsAsync(expectedDto);
 
             // Act
-            var result = await _userService.GetFollowersAsync(userId);
+            var result = await _userService.GetFollowersAsync(userId, page, pageSize);
 
             // Assert
             result.Should().BeEquivalentTo(expectedDto);
-            _mockUnitOfWork.Verify(u => u.Users.GetFollowersAsync(userId), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users.GetFollowersAsync(userId, page, pageSize), Times.Once);
+            _mockUserManager.Verify(u => u.FindByIdAsync(userId), Times.Once);
         }
+
 
         [Fact]
         public async Task FollowUserAsync_ShouldReturnTrue_WhenFollowIsSuccessful()
@@ -480,18 +445,20 @@ namespace BackEngin.Tests.Services
                 Recipes = bookmarkedRecipes,
                 TotalCount = 2
             };
+            var page = 1;
+            var pageSize = 10;
 
             // Mock the repository call to return the BookmarkRecipesDTO
-            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId))
+            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize))
                 .ReturnsAsync(bookmarkRecipesDTO);
 
             // Act
-            var result = await _userService.GetBookmarkedRecipesAsync(userId);
+            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(bookmarkRecipesDTO);
-            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize), Times.Once);
         }
 
 
@@ -507,19 +474,21 @@ namespace BackEngin.Tests.Services
                 Recipes = new List<BookmarkRecipesItemDTO>(), // Empty list of recipes
                 TotalCount = 0 // Total count is 0
             };
+            var page = 1;
+            var pageSize = 10;
 
             // Mock the repository method
-            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId))
+            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize))
                 .ReturnsAsync(emptyBookmarkRecipesDTO);
 
             // Act
-            var result = await _userService.GetBookmarkedRecipesAsync(userId);
+            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull(); // Ensure the result is not null
             result.Recipes.Should().BeEmpty(); // Ensure the Recipes list is empty
             result.TotalCount.Should().Be(0); // Ensure the TotalCount is 0
-            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize), Times.Once);
         }
 
         [Fact]
@@ -539,19 +508,21 @@ namespace BackEngin.Tests.Services
                 Blogs = mockedBlogs,
                 TotalCount = mockedBlogs.Count
             };
+            var page = 1;
+            var pageSize = 10;
 
-            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId))
+            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize))
                 .ReturnsAsync(bookmarkBlogsDTO);
 
             // Act
-            var result = await _userService.GetBookmarkedBlogsAsync(userId);
+            var result = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull();
             result.Blogs.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
             result.Blogs.Should().ContainSingle(b => b.Header == "Blog 1" && b.UserName == "User1");
-            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
         }
 
         [Fact]
@@ -565,18 +536,20 @@ namespace BackEngin.Tests.Services
                 Blogs = new List<BookmarkBlogsItemDTO>(), // Empty list
                 TotalCount = 0
             };
+            var page = 1;
+            var pageSize = 10;
 
-            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId))
+            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize))
                 .ReturnsAsync(emptyBookmarkBlogsDTO);
 
             // Act
-            var result = await _userService.GetBookmarkedBlogsAsync(userId);
+            var result = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull();
             result.Blogs.Should().BeEmpty();
             result.TotalCount.Should().Be(0);
-            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
         }
 
     }

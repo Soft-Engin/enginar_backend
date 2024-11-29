@@ -20,7 +20,7 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId)
+        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
         {
             var bookmarkInteraction = await _db.Interactions
                 .FirstOrDefaultAsync(i => i.Name == "BookmarkRecipe");
@@ -28,12 +28,16 @@ namespace DataAccess.Repositories
             if (bookmarkInteraction == null)
                 throw new Exception("Bookmark interaction not defined in the database.");
 
-            var bookmarkedRecipesQuery =  _db.Users_Recipes_Interactions
+            var bookmarkedRecipesQuery = _db.Users_Recipes_Interactions
                 .Where(uri => uri.UserId == userId && uri.InteractionId == bookmarkInteraction.Id)
                 .Select(uri => new { uri.Recipe.User, uri.Recipe.Header, uri.Recipe.BodyText });
 
             var totalCount = await bookmarkedRecipesQuery.CountAsync();
-            var recipes = await bookmarkedRecipesQuery.ToListAsync();
+
+            var recipes = await bookmarkedRecipesQuery
+                .Skip((page - 1) * pageSize) // Skip the records of previous pages
+                .Take(pageSize)             // Take the records for the current page
+                .ToListAsync();
 
             return new BookmarkRecipesDTO
             {
@@ -43,8 +47,11 @@ namespace DataAccess.Repositories
                     Header = r.Header,
                     BodyText = r.BodyText
                 }).ToList(),
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
             };
         }
+
     }
 }

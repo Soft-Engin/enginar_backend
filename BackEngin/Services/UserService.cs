@@ -29,7 +29,7 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserListDTO> GetAllUsersAsync()
+        public async Task<UserListDTO> GetAllUsersAsync(int page, int pageSize)
         {
             var totalCount = await _userManager.Users.CountAsync();
 
@@ -47,12 +47,16 @@ namespace BackEngin.Services
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber
                 })
+                .Skip((page - 1) * pageSize)  // Skip the records of previous pages
+                .Take(pageSize)               // Take the records for the current page
                 .ToListAsync();
 
             return new UserListDTO
             {
                 Users = users,
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
             };
         }
 
@@ -181,15 +185,30 @@ namespace BackEngin.Services
             return result.Succeeded;
         }
 
-        public async Task<FollowersDTO> GetFollowersAsync(string userId)
+        public async Task<FollowersDTO> GetFollowersAsync(string userId, int page, int pageSize)
         {
-            return await _unitOfWork.Users.GetFollowersAsync(userId);
+            var User = await _userManager.FindByIdAsync(userId);
+
+            if (User == null)
+            {
+                throw new InvalidOperationException("User does not exist.");
+            }
+
+            return await _unitOfWork.Users.GetFollowersAsync(userId, page, pageSize);
         }
 
-        public async Task<FollowedUsersDTO> GetFollowingAsync(string userId)
+        public async Task<FollowedUsersDTO> GetFollowingAsync(string userId, int page, int pageSize)
         {
-            return await _unitOfWork.Users.GetFollowingAsync(userId);
+            var User = await _userManager.FindByIdAsync(userId);
+
+            if (User == null)
+            {
+                throw new InvalidOperationException("User does not exist.");
+            }
+
+            return await _unitOfWork.Users.GetFollowingAsync(userId, page, pageSize);
         }
+
 
         public async Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId)
         {
@@ -203,14 +222,15 @@ namespace BackEngin.Services
         {
             return await _unitOfWork.Users.UnfollowUserAsync(initiatorUserId, targetUserId);
         }
-        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId)
+        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
         {
-            return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId);
+            return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize);
         }
 
-        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId)
+
+        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
-            return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId);
+            return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize);
         }
     }
 }

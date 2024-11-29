@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
+using DataAccess.Migrations;
+using Humanizer;
 
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : ApiControllerBase
     {
         private readonly IUserService _userService;
 
@@ -23,14 +25,20 @@ namespace BackEngin.Controllers
 
         // Get all users
         [HttpGet("GetAllUsers")]
-        public async Task<IActionResult> GetUsers()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await _userService.GetAllUsersAsync();
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            var users = await _userService.GetAllUsersAsync(page, pageSize);
             return Ok(users);
         }
 
         // Get a user by ID
-        [HttpGet("GetUser{id}")]
+        [HttpGet("GetUser/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -42,12 +50,18 @@ namespace BackEngin.Controllers
         }
 
         // Update an existing user
-        [HttpPut("UpdateUser{id}")]
+        [HttpPut("UpdateUser/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (!await CanUserAccess(id)) 
+            { 
+                return Unauthorized();
             }
 
             var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
@@ -60,73 +74,131 @@ namespace BackEngin.Controllers
         }
 
         // Delete a user
-        [HttpDelete("DeleteUser{id}")]
-        [Authorize(Roles = "Admin")]
+        [HttpDelete("DeleteUser/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
+            if (!await CanUserAccess(id))
+            {
+                return Unauthorized();
+            }
+
             var result = await _userService.DeleteUserAsync(id);
             if (!result)
             {
                 return NotFound();
             }
 
-            return NoContent();
+            return Ok(result);
         }
 
-        [HttpGet("{userId}/followers")]
-        public async Task<IActionResult> GetFollowers(string userId)
+        [HttpGet("followers")]
+        public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var followers = await _userService.GetFollowersAsync(userId);
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            var followers = await _userService.GetFollowersAsync(userId, page, pageSize);
             return Ok(followers);
         }
 
-        [HttpGet("{userId}/following")]
-        public async Task<IActionResult> GetFollowing(string userId)
+        [HttpGet("following")]
+        public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var following = await _userService.GetFollowingAsync(userId);
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            var following = await _userService.GetFollowingAsync(userId, page, pageSize);
             return Ok(following);
         }
 
-        [HttpPost("{userId}/follow")]
-        public async Task<IActionResult> FollowUser(string userId, [FromBody] string targetUserId)
+
+        [HttpPost("follow")]
+        [Authorize]
+        public async Task<IActionResult> FollowUser([FromQuery] string targetUserId)
         {
+            var userId = await GetActiveUserId();
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
             var result = await _userService.FollowUserAsync(userId, targetUserId);
             if (!result)
-                return BadRequest("Unable to follow user. Perhaps you already follow them.");
+                return BadRequest(new { Message = "Unable to follow user. Perhaps you already follow them." });
 
             return Ok(new { Message = "Successfully followed user." });
         }
 
-        [HttpDelete("{userId}/unfollow")]
-        public async Task<IActionResult> UnfollowUser(string userId, [FromBody] string targetUserId)
+        [HttpDelete("unfollow")]
+        [Authorize]
+        public async Task<IActionResult> UnfollowUser([FromQuery] string targetUserId)
         {
+            var userId = await GetActiveUserId();
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
             var result = await _userService.UnfollowUserAsync(userId, targetUserId);
             if (!result)
-                return BadRequest("Unable to unfollow user. Perhaps you don't follow them.");
+                return BadRequest(new { Message = "Unable to unfollow user.Perhaps you don't follow them." });
 
             return Ok(new { Message = "Successfully unfollowed user." });
         }
 
         [HttpGet("{userId}/bookmarks/recipes")]
-        public async Task<IActionResult> GetBookmarkedRecipes(string userId)
+        [Authorize]
+        public async Task<IActionResult> GetBookmarkedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId);
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
 
-            if (bookmarks == null)
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+            if (bookmarks == null || !bookmarks.Recipes.Any())
+            {
                 return NotFound("No bookmarked recipes found for this user.");
+            }
 
             return Ok(bookmarks);
         }
 
-        [HttpGet("{userId}/bookmarks/blogs")]
-        public async Task<IActionResult> GetBookmarkedBlogs(string userId)
-        {
-            var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId);
 
-            if (bookmarkedBlogs == null)
+        [HttpGet("{userId}/bookmarks/blogs")]
+        [Authorize]
+        public async Task<IActionResult> GetBookmarkedBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
+
+            if (bookmarkedBlogs == null || !bookmarkedBlogs.Blogs.Any())
+            {
                 return NotFound("No bookmarked blogs found for this user.");
+            }
 
             return Ok(bookmarkedBlogs);
         }
+
     }
 }

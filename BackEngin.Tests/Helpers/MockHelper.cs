@@ -36,7 +36,7 @@ namespace BackEngin.Tests.Helpers
             var mockDbSet = new Mock<DbSet<T>>();
 
             // Set up IQueryable properties
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(source.Provider);
+            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(new TestAsyncQueryProvider<T>(source.Provider));
             mockDbSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(source.Expression);
             mockDbSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(source.ElementType);
             mockDbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(source.GetEnumerator());
@@ -45,9 +45,6 @@ namespace BackEngin.Tests.Helpers
             mockDbSet.As<IAsyncEnumerable<T>>()
                 .Setup(m => m.GetAsyncEnumerator(It.IsAny<System.Threading.CancellationToken>()))
                 .Returns(new TestAsyncEnumerator<T>(source.GetEnumerator()));
-
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider)
-                .Returns(new TestAsyncQueryProvider<T>(source.Provider));
 
             return mockDbSet;
         }
@@ -94,24 +91,27 @@ namespace BackEngin.Tests.Helpers
 
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            // Extract the actual type that TResult is wrapping (e.g., Task<Users> -> Users)
-            var expectedResultType = typeof(TResult).GetGenericArguments().FirstOrDefault();
+            // Execute the expression synchronously
+            var executionResult = Execute(expression);
 
-            if (expectedResultType != null)
+            // Check if TResult is a Task
+            if (typeof(TResult).IsGenericType && typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
             {
-                // Execute the query synchronously
-                var result = _inner.Execute(expression);
+                // Get the result type of the Task (e.g., Task<UserDTO> -> UserDTO)
+                var resultType = typeof(TResult).GetGenericArguments()[0];
 
-                // Wrap the result in Task and cast it to the correct TResult type
+                // Create a Task of the appropriate type
                 var taskResult = typeof(Task).GetMethod(nameof(Task.FromResult))
-                                              .MakeGenericMethod(expectedResultType)
-                                              .Invoke(null, new[] { result });
+                    .MakeGenericMethod(resultType)
+                    .Invoke(null, new[] { executionResult });
 
-                return (TResult)taskResult;
+                return (TResult)taskResult; // Cast the Task<object> to Task<TResult>
             }
 
-            throw new InvalidOperationException("Unexpected result type for async execution.");
+            // If TResult is not a Task, directly return the result
+            return (TResult)executionResult;
         }
+
     }
 
     public class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>

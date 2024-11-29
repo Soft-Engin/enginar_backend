@@ -20,7 +20,7 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId)
+        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
             var bookmarkInteraction = await _db.Interactions
                 .FirstOrDefaultAsync(i => i.Name == "BookmarkBlog");
@@ -32,8 +32,12 @@ namespace DataAccess.Repositories
                 .Where(ubi => ubi.UserId == userId && ubi.InteractionId == bookmarkInteraction.Id)
                 .Select(ubi => new { ubi.Blog.User, ubi.Blog.Header, ubi.Blog.BodyText });
 
-            var blogs = await bookmarkedBlogsQuery.ToListAsync();
             var totalCount = await bookmarkedBlogsQuery.CountAsync();
+
+            var blogs = await bookmarkedBlogsQuery
+                .Skip((page - 1) * pageSize) // Skip records of previous pages
+                .Take(pageSize)             // Take the records for the current page
+                .ToListAsync();
 
             return new BookmarkBlogsDTO
             {
@@ -43,7 +47,9 @@ namespace DataAccess.Repositories
                     Header = b.Header,
                     BodyText = b.BodyText
                 }).ToList(),
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
             };
         }
     }
