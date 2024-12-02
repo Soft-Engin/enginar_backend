@@ -79,6 +79,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAllergenService, AllergenService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IIngredientsService, IngredientsService>();
+builder.Services.AddScoped<IIngredientTypesService, IngredientTypesService>();
+
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>

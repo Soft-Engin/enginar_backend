@@ -4,6 +4,7 @@ using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241127201422_addIngredientType")]
+    partial class addIngredientType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -846,13 +849,13 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Models.Ingredients_Preferences", b =>
                 {
                     b.HasOne("Models.Ingredients", "Ingredient")
-                        .WithMany("Ingredients_Preferences")
+                        .WithMany()
                         .HasForeignKey("IngredientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Models.Preferences", "Preference")
-                        .WithMany("Ingredients_Preferences")
+                        .WithMany()
                         .HasForeignKey("PreferenceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -907,16 +910,6 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.Navigation("Ingredients_Preferences");
-                });
-
-            modelBuilder.Entity("Models.Preferences", b =>
-                {
-                    b.Navigation("Ingredients_Preferences");
                 });
 
             modelBuilder.Entity("Models.Recipes", b =>
