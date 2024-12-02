@@ -72,8 +72,7 @@ namespace BackEngin.Tests.Controllers
             var createBlogDto = new CreateBlogDTO
             {
                 Header = "New Blog",
-                BodyText = "Blog Content",
-                UserId = "currentUserId"
+                BodyText = "Blog Content"
             };
             var createdBlog = new BlogDTO
             {
@@ -82,7 +81,8 @@ namespace BackEngin.Tests.Controllers
                 BodyText = createBlogDto.BodyText
             };
 
-            _mockBlogService.Setup(s => s.CreateBlog(createBlogDto)).ReturnsAsync(createdBlog);
+            _mockBlogService.Setup(s => s.CreateBlog(It.IsAny<string>(), createBlogDto))
+                            .ReturnsAsync(createdBlog);
 
             // Act
             var result = await _blogController.CreateBlog(createBlogDto);

@@ -58,7 +58,7 @@ namespace BackEngin.Tests.Services
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 UserId = "123",
-                Ingredients = new List<RecipeIngredientDetailsDTO>() // Empty ingredients
+                Ingredients = new List<RecipeIngredientRequestDTO>() // Empty ingredients
             };
 
             // Act
@@ -78,9 +78,9 @@ namespace BackEngin.Tests.Services
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 UserId = "123",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 999, Quantity = 2, Unit = "cups" } // Invalid ID
+                    new RecipeIngredientRequestDTO { IngredientId = 999, Quantity = 2, Unit = "cups" } // Invalid ID
                 }
             };
 
@@ -105,9 +105,9 @@ namespace BackEngin.Tests.Services
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 UserId = "123",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
                 }
             };
 
@@ -186,10 +186,10 @@ namespace BackEngin.Tests.Services
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-        {
-            new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
-        }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+                {
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                }
             };
 
             var existingRecipe = new Recipes
@@ -200,12 +200,21 @@ namespace BackEngin.Tests.Services
                 UserId = "123"
             };
 
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
+
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(existingRecipe);
@@ -271,10 +280,10 @@ namespace BackEngin.Tests.Services
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-        {
-            new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
-        }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+                {
+                    new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+                }
             };
 
             var existingRecipe = new Recipes

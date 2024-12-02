@@ -29,12 +29,23 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> CreateBlog([FromBody] CreateBlogDTO createBlogDto)
         {
-            if (createBlogDto == null) return BadRequest("Invalid blog data.");
+            if (createBlogDto == null) return BadRequest(new { message = "Invalid blog data." });
+            try
+            {
+                var userId = await GetActiveUserId();
+                var createdBlog = await _blogService.CreateBlog(userId, createBlogDto);
 
-            createBlogDto.UserId = await GetActiveUserId();
-            var createdBlog = await _blogService.CreateBlog(createBlogDto);
-
-            return CreatedAtAction(nameof(GetBlogById), new { blogId = createdBlog.Id }, createdBlog);
+                return CreatedAtAction(nameof(GetBlogById), new { blogId = createdBlog.Id }, createdBlog);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details if necessary
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpGet("blog-details/{blogId}")]
@@ -75,7 +86,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

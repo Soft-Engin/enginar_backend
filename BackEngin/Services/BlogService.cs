@@ -43,32 +43,45 @@ namespace BackEngin.Services
         }
 
 
-        public async Task<BlogDTO> CreateBlog(CreateBlogDTO createBlogDTO)
+        public async Task<BlogDTO> CreateBlog(string userId, CreateBlogDTO createBlogDTO)
         {
             int? recipeId = createBlogDTO.RecipeId;
 
-            // Check if a new recipe needs to be created
-            if (createBlogDTO.Recipe != null)
+            // Check if a valid RecipeId is provided
+            if (recipeId.HasValue)
             {
-                // Create a new recipe
-                var createRecipeDTO = new CreateRecipeDTO
+                // Validate if the recipe exists
+                var existingRecipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId.Value);
+                if (existingRecipe == null)
                 {
-                    Header = createBlogDTO.Recipe.Header,
-                    BodyText = createBlogDTO.Recipe.BodyText,
-                    UserId = createBlogDTO.UserId, // Associate the recipe with the same user
-                    Ingredients = createBlogDTO.Recipe.Ingredients
-                };
-
-                var createdRecipe = await _recipeService.CreateRecipe(createRecipeDTO);
-                recipeId = createdRecipe.Id; // Link the new recipe to the blog
+                    throw new ArgumentException("The provided RecipeId does not exist.");
+                }
             }
+            else
+            {
+                // Check if a new recipe needs to be created
+                if (createBlogDTO.Recipe != null)
+                {
+                    // Create a new recipe
+                    var createRecipeDTO = new CreateRecipeDTO
+                    {
+                        Header = createBlogDTO.Recipe.Header,
+                        BodyText = createBlogDTO.Recipe.BodyText,
+                        UserId = userId, // Associate the recipe with the same user
+                        Ingredients = createBlogDTO.Recipe.Ingredients
+                    };
+
+                    var createdRecipe = await _recipeService.CreateRecipe(createRecipeDTO);
+                    recipeId = createdRecipe.Id; // Link the new recipe to the blog
+                }
+            }            
 
             // Create the new blog
             var newBlog = new Blogs
             {
                 Header = createBlogDTO.Header,
                 BodyText = createBlogDTO.BodyText,
-                UserId = createBlogDTO.UserId,
+                UserId = userId,
                 RecipeId = recipeId // This will be null if no recipe is provided
             };
 

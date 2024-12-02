@@ -75,17 +75,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = createRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
+
             var createdRecipe = new RecipeDetailsDTO
             {
                 Id = 1,
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
-                Ingredients = createRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
@@ -153,9 +163,9 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
             {
-                new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+                new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
             }
             };
 
@@ -173,7 +183,10 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("One or more ingredient IDs are invalid.");
+
+            // Assert the actual response object structure
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "One or more ingredient IDs are invalid." });
+
         }
 
 
@@ -187,18 +200,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
 
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             // Mock the Recipe Owner
@@ -259,9 +281,9 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
 
@@ -285,17 +307,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
+
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");

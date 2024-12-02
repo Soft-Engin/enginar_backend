@@ -30,10 +30,10 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = ModelState });
 
             // this probably wont even get triggered
-            if (recipeDto == null) return BadRequest("Invalid recipe data.");
+            if (recipeDto == null) return BadRequest(new { message = "Invalid recipe data." });
 
             try
             {
@@ -46,13 +46,13 @@ namespace BackEngin.Controllers
                 };
 
                 var createdRecipe = await _recipeService.CreateRecipe(recipe);
-                if (createdRecipe == null) return BadRequest("Invalid recipe data.");
+                if (createdRecipe == null) return BadRequest(new { message = "Invalid recipe data." });
 
                 return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

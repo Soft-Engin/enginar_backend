@@ -31,11 +31,9 @@ namespace Models.DTO
     {
         public string Header { get; set; }
         public string BodyText { get; set; }
-        public string UserId { get; set; } // ID of the user creating the blog
         public int? RecipeId { get; set; } // Optional: Associate an existing recipe
         public CreateRecipeDTO? Recipe { get; set; } // Optional: Create a new recipe
     }
-
 
     public class UpdateBlogDTO
     {
