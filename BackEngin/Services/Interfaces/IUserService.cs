@@ -8,16 +8,16 @@ namespace BackEngin.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserListDTO> GetAllUsersAsync(int page, int pageSize);
+        Task<PaginatedResponseDTO<UserDTO>> GetAllUsersAsync(int page, int pageSize);
         Task<GetUserByIdDTO?> GetUserByIdAsync(string id);
         Task<UpdateUserDto> UpdateUserAsync(string id, UpdateUserDto userDTO);
         Task<bool> DeleteUserAsync(string id);
 
-        Task<FollowersDTO> GetFollowersAsync(string userId, int page, int pageSize);
-        Task<FollowedUsersDTO> GetFollowingAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize);
         Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId);
         Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
-        Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId, int page, int pageSize);
-        Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize);
     }
 }

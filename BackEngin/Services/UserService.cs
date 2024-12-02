@@ -29,7 +29,7 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserListDTO> GetAllUsersAsync(int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserDTO>> GetAllUsersAsync(int page, int pageSize)
         {
             var totalCount = await _userManager.Users.CountAsync();
 
@@ -51,11 +51,11 @@ namespace BackEngin.Services
                 .Take(pageSize)               // Take the records for the current page
                 .ToListAsync();
 
-            return new UserListDTO
+            return new PaginatedResponseDTO<UserDTO>
             {
-                Users = users,
+                Items = users,
                 TotalCount = totalCount,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize
             };
         }
@@ -185,7 +185,7 @@ namespace BackEngin.Services
             return result.Succeeded;
         }
 
-        public async Task<FollowersDTO> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -197,7 +197,7 @@ namespace BackEngin.Services
             return await _unitOfWork.Users.GetFollowersAsync(userId, page, pageSize);
         }
 
-        public async Task<FollowedUsersDTO> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -222,13 +222,13 @@ namespace BackEngin.Services
         {
             return await _unitOfWork.Users.UnfollowUserAsync(initiatorUserId, targetUserId);
         }
-        public async Task<BookmarkRecipesDTO> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
         {
             return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize);
         }
 
 
-        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
             return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize);
         }

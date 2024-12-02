@@ -44,10 +44,10 @@ namespace BackEngin.Tests.Controllers
         public async Task GetUsers_ShouldReturnOk_WithUserListDTO()
         {
             // Arrange
-            var userListDto = new UserListDTO
+            var userListDto = new PaginatedResponseDTO<UserDTO>
             {
                 TotalCount = 2,
-                Users = new List<UserDTO>
+                Items = new List<UserDTO>
                 {
                     new UserDTO
                     {
@@ -196,7 +196,7 @@ namespace BackEngin.Tests.Controllers
             var result = await _userController.UpdateUser(userId, updateUserDto);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace BackEngin.Tests.Controllers
             var result = await _userController.DeleteUser(userId);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -274,9 +274,9 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var userId = "user1";
-            var followersDto = new FollowersDTO
+            var followersDto = new PaginatedResponseDTO<string>
             {
-                Usernames = new List<string> { "follower1", "follower2" },
+                Items = new List<string> { "follower1", "follower2" },
                 TotalCount = 2
             };
 
@@ -360,9 +360,9 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var userId = "currentUserId";
-            var bookmarkedRecipes = new BookmarkRecipesDTO
+            var bookmarkedRecipes = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
             {
-                Recipes = new List<BookmarkRecipesItemDTO>
+                Items = new List<BookmarkRecipesItemDTO>
                 {
                     new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe1", BodyText = "Delicious!" },
                     new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe2", BodyText = "Tasty!" }
@@ -390,7 +390,7 @@ namespace BackEngin.Tests.Controllers
             var userId = "currentUserId";
 
             _mockUserService.Setup(s => s.GetBookmarkedRecipesAsync(userId, 1, 10))
-                .ReturnsAsync((BookmarkRecipesDTO)null);
+                .ReturnsAsync((PaginatedResponseDTO<BookmarkRecipesItemDTO>)null);
 
             // Act
             var result = await _userController.GetBookmarkedRecipes(userId, 1, 10);

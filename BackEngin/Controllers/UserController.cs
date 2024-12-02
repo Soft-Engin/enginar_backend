@@ -67,7 +67,7 @@ namespace BackEngin.Controllers
             var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
             if (updatedUser == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Update failed! Credentials are either not valid or already in use by another user." });
             }
 
             return Ok(updatedUser);
@@ -86,10 +86,10 @@ namespace BackEngin.Controllers
             var result = await _userService.DeleteUserAsync(id);
             if (!result)
             {
-                return NotFound();
+                return NotFound(new { Message = "User not found." });
             }
 
-            return Ok(result);
+            return Ok(new { Message = "User successfully deleted." });
         }
 
         [HttpGet("followers")]
@@ -100,8 +100,19 @@ namespace BackEngin.Controllers
                 return BadRequest("Page and pageSize must be positive integers.");
             }
 
-            var followers = await _userService.GetFollowersAsync(userId, page, pageSize);
-            return Ok(followers);
+            try
+            {
+                var followers = await _userService.GetFollowersAsync(userId, page, pageSize);
+                return Ok(followers);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+            }
         }
 
         [HttpGet("following")]
@@ -112,8 +123,19 @@ namespace BackEngin.Controllers
                 return BadRequest("Page and pageSize must be positive integers.");
             }
 
-            var following = await _userService.GetFollowingAsync(userId, page, pageSize);
-            return Ok(following);
+            try
+            {
+                var following = await _userService.GetFollowingAsync(userId, page, pageSize);
+                return Ok(following);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+            }
         }
 
 
@@ -121,18 +143,33 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> FollowUser([FromQuery] string targetUserId)
         {
-            var userId = await GetActiveUserId();
-            if (!await CanUserAccess(userId))
+            try
             {
-                return Unauthorized();
+                var userId = await GetActiveUserId();
+                if (!await CanUserAccess(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _userService.FollowUserAsync(userId, targetUserId);
+
+                if (!result)
+                {
+                    return BadRequest(new { Message = "Unable to follow user. Perhaps you already follow them." });
+                }
+
+                return Ok(new { Message = "Successfully followed user." });
             }
-
-            var result = await _userService.FollowUserAsync(userId, targetUserId);
-            if (!result)
-                return BadRequest(new { Message = "Unable to follow user. Perhaps you already follow them." });
-
-            return Ok(new { Message = "Successfully followed user." });
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+            }
         }
+
 
         [HttpDelete("unfollow")]
         [Authorize]
@@ -167,9 +204,9 @@ namespace BackEngin.Controllers
 
             var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
 
-            if (bookmarks == null || !bookmarks.Recipes.Any())
+            if (bookmarks == null)
             {
-                return NotFound("No bookmarked recipes found for this user.");
+                return NotFound("No bookmarked recipes found for this user. The user might not exist");
             }
 
             return Ok(bookmarks);
@@ -192,9 +229,9 @@ namespace BackEngin.Controllers
 
             var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
 
-            if (bookmarkedBlogs == null || !bookmarkedBlogs.Blogs.Any())
+            if (bookmarkedBlogs == null)
             {
-                return NotFound("No bookmarked blogs found for this user.");
+                return NotFound("No bookmarked blogs found for this user. The user might not exist");
             }
 
             return Ok(bookmarkedBlogs);

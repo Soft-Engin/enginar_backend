@@ -20,7 +20,7 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<BookmarkBlogsDTO> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
             var bookmarkInteraction = await _db.Interactions
                 .FirstOrDefaultAsync(i => i.Name == "BookmarkBlog");
@@ -39,16 +39,16 @@ namespace DataAccess.Repositories
                 .Take(pageSize)             // Take the records for the current page
                 .ToListAsync();
 
-            return new BookmarkBlogsDTO
+            return new PaginatedResponseDTO<BookmarkBlogsItemDTO>
             {
-                Blogs = blogs.Select(b => new BookmarkBlogsItemDTO
+                Items = blogs.Select(b => new BookmarkBlogsItemDTO
                 {
                     UserName = b.User.UserName != null ? b.User.UserName : "Unknown",
                     Header = b.Header,
                     BodyText = b.BodyText
                 }).ToList(),
                 TotalCount = totalCount,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize
             };
         }

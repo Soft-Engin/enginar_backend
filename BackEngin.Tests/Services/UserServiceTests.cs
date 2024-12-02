@@ -349,9 +349,9 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user1";
             var user = new Users { Id = userId, UserName = "User1" }; // Mock user
-            var expectedDto = new FollowersDTO
+            var expectedDto = new PaginatedResponseDTO<string>
             {
-                Usernames = new List<string> { "follower1", "follower2" },
+                Items = new List<string> { "follower1", "follower2" },
                 TotalCount = 2
             };
             var page = 1;
@@ -440,9 +440,9 @@ namespace BackEngin.Tests.Services
             };
 
             // Create the BookmarkRecipesDTO to be returned
-            var bookmarkRecipesDTO = new BookmarkRecipesDTO
+            var bookmarkRecipesDTO = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
             {
-                Recipes = bookmarkedRecipes,
+                Items = bookmarkedRecipes,
                 TotalCount = 2
             };
             var page = 1;
@@ -469,9 +469,9 @@ namespace BackEngin.Tests.Services
             var userId = "1";
 
             // Mock the service to return an empty BookmarkRecipesDTO
-            var emptyBookmarkRecipesDTO = new BookmarkRecipesDTO
+            var emptyBookmarkRecipesDTO = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
             {
-                Recipes = new List<BookmarkRecipesItemDTO>(), // Empty list of recipes
+                Items = new List<BookmarkRecipesItemDTO>(), // Empty list of recipes
                 TotalCount = 0 // Total count is 0
             };
             var page = 1;
@@ -486,7 +486,7 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull(); // Ensure the result is not null
-            result.Recipes.Should().BeEmpty(); // Ensure the Recipes list is empty
+            result.Items.Should().BeEmpty(); // Ensure the Recipes list is empty
             result.TotalCount.Should().Be(0); // Ensure the TotalCount is 0
             _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize), Times.Once);
         }
@@ -503,9 +503,9 @@ namespace BackEngin.Tests.Services
                 new BookmarkBlogsItemDTO { UserName = "User2", Header = "Blog 2", BodyText = "Content of Blog 2" }
             };
 
-            var bookmarkBlogsDTO = new BookmarkBlogsDTO
+            var bookmarkBlogsDTO = new PaginatedResponseDTO<BookmarkBlogsItemDTO>
             {
-                Blogs = mockedBlogs,
+                Items = mockedBlogs,
                 TotalCount = mockedBlogs.Count
             };
             var page = 1;
@@ -519,9 +519,9 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
-            result.Blogs.Should().HaveCount(2);
+            result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
-            result.Blogs.Should().ContainSingle(b => b.Header == "Blog 1" && b.UserName == "User1");
+            result.Items.Should().ContainSingle(b => b.Header == "Blog 1" && b.UserName == "User1");
             _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
         }
 
@@ -531,9 +531,9 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "1";
 
-            var emptyBookmarkBlogsDTO = new BookmarkBlogsDTO
+            var emptyBookmarkBlogsDTO = new PaginatedResponseDTO<BookmarkBlogsItemDTO>
             {
-                Blogs = new List<BookmarkBlogsItemDTO>(), // Empty list
+                Items = new List<BookmarkBlogsItemDTO>(), // Empty list
                 TotalCount = 0
             };
             var page = 1;
@@ -547,7 +547,7 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
-            result.Blogs.Should().BeEmpty();
+            result.Items.Should().BeEmpty();
             result.TotalCount.Should().Be(0);
             _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
         }

@@ -21,7 +21,7 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<FollowersDTO> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var followersQuery = _db.Users_Interactions
                 .Where(ui => ui.TargetUserId == userId && ui.Interaction.Name == "Follow")
@@ -34,16 +34,16 @@ namespace DataAccess.Repositories
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new FollowersDTO
+            return new PaginatedResponseDTO<string>
             {
-                Usernames = usernames,
+                Items = usernames,
                 TotalCount = totalCount,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize
             };
         }
 
-        public async Task<FollowedUsersDTO> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var followingsQuery = _db.Users_Interactions
                 .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
@@ -56,11 +56,11 @@ namespace DataAccess.Repositories
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new FollowedUsersDTO
+            return new PaginatedResponseDTO<string>
             {
-                Usernames = usernames,
+                Items = usernames,
                 TotalCount = totalCount,
-                Page = page,
+                PageNumber = page,
                 PageSize = pageSize
             };
         }
