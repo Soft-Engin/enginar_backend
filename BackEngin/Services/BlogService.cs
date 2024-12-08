@@ -134,8 +134,12 @@ namespace BackEngin.Services
             else if (updateBlogDTO.RecipeId == null && blog.RecipeId.HasValue)
             {
                 // If RecipeId is null, remove the existing recipe and its ingredients
-                await _recipeService.DeleteRecipe(blog.RecipeId.Value);
-                blog.RecipeId = null;
+                var otherBlogswihtSameReciipe = _unitOfWork.Blogs.FindAsync(b => b.RecipeId == blog.RecipeId);
+                if(otherBlogswihtSameReciipe == null)
+                {
+                    await _recipeService.DeleteRecipe(blog.RecipeId.Value);
+                    blog.RecipeId = null;
+                }                
             }
 
             // Update the blog
