@@ -18,14 +18,14 @@ namespace BackEngin.Controllers
             _blogService = blogService;
         }
 
-        [HttpGet("blogs")]
+        [HttpGet]
         public async Task<IActionResult> GetBlogs([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var blogs = await _blogService.GetBlogs(pageNumber, pageSize);
             return Ok(blogs);
         }
 
-        [HttpPost("create-blog")]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateBlog([FromBody] CreateBlogDTO createBlogDto)
         {
@@ -48,7 +48,7 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpGet("blog-details/{blogId}")]
+        [HttpGet("{blogId}")]
         public async Task<IActionResult> GetBlogById(int blogId)
         {
             var blog = await _blogService.GetBlogById(blogId);
@@ -56,7 +56,7 @@ namespace BackEngin.Controllers
             return Ok(blog);
         }
 
-        [HttpPut("update-blog/{blogId}")]
+        [HttpPut("{blogId}")]
         [Authorize]
         public async Task<IActionResult> UpdateBlog(int blogId, [FromBody] UpdateBlogDTO updateBlogDto)
         {
@@ -96,7 +96,7 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpDelete("delete-blog/{blogId}")]
+        [HttpDelete("{blogId}")]
         [Authorize]
         public async Task<IActionResult> DeleteBlog(int blogId)
         {
@@ -121,7 +121,7 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpGet("blog-recipe/{blogId}")]
+        [HttpGet("{blogId}/recipe")]
         public async Task<IActionResult> GetRecipeOfBlog(int blogId)
         {
             var recipe = await _blogService.GetRecipeOfBlog(blogId);
