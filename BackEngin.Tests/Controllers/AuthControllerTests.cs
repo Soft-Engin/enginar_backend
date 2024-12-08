@@ -153,8 +153,17 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            badRequest.Value.Should().BeOfType<SerializableError>();
-            ((SerializableError)badRequest.Value).ContainsKey("UserName").Should().BeTrue();
+
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid request data.",
+                errors = new Dictionary<string, string[]>
+                {
+                    { "UserName", new[] { "The UserName field is required." } }
+                }
+            });
         }
 
         [Fact]
@@ -170,9 +179,19 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            badRequest.Value.Should().BeOfType<SerializableError>();
-            ((SerializableError)badRequest.Value).ContainsKey("Email").Should().BeTrue();
+
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid request data.",
+                errors = new Dictionary<string, string[]>
+                {
+                    { "Email", new[] { "The Email field is required." } }
+                }
+            });
         }
+
 
         [Fact]
         public async Task Register_ShouldReturnBadRequest_WhenPasswordIsMissing()
@@ -187,8 +206,17 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            badRequest.Value.Should().BeOfType<SerializableError>();
-            ((SerializableError)badRequest.Value).ContainsKey("Password").Should().BeTrue();
+
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid request data.",
+                errors = new Dictionary<string, string[]>
+                {
+                    { "Password", new[] { "The Password field is required." } }
+                }
+            });
         }
 
         [Fact]
@@ -204,8 +232,17 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            badRequest.Value.Should().BeOfType<SerializableError>();
-            ((SerializableError)badRequest.Value).ContainsKey("Email").Should().BeTrue();
+
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid request data.",
+                errors = new Dictionary<string, string[]>
+                {
+                    { "Email", new[] { "The Email field is not a valid e-mail address." } }
+                }
+            });
         }
 
         [Fact]
@@ -221,8 +258,17 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            badRequest.Value.Should().BeOfType<SerializableError>();
-            ((SerializableError)badRequest.Value).ContainsKey("Password").Should().BeTrue();
+
+            badRequest.Should().NotBeNull();
+            badRequest.StatusCode.Should().Be(400);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid request data.",
+                errors = new Dictionary<string, string[]>
+                {
+                    { "Password", new[] { "The Password does not meet complexity requirements." } }
+                }
+            });
         }
 
         [Fact]
@@ -271,7 +317,11 @@ namespace BackEngin.Tests.Controllers
             // Assert
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal(400, badRequest.StatusCode);
-            Assert.Equal(identityErrors, badRequest.Value);
+            badRequest.Value.Should().BeEquivalentTo(new
+            {
+                message = "Failed to promote user to admin.",
+                errors = identityErrors
+            });
         }
 
 

@@ -23,25 +23,38 @@ namespace BackEngin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPaginatedIngredients([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            if (pageNumber <= 0) pageNumber = 1;
-            if (pageSize <= 0) pageSize = 10;
+            try
+            {
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
 
-            var paginatedIngredients = await _ingredientsService.GetIngredientsPaginatedAsync(pageNumber, pageSize);
-            return Ok(paginatedIngredients);
+                var paginatedIngredients = await _ingredientsService.GetIngredientsPaginatedAsync(pageNumber, pageSize);
+                return Ok(paginatedIngredients);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        // GET /ingredients/{ingredientId} - Get ingredient by ID
         [HttpGet("{ingredientId}")]
         public async Task<IActionResult> GetIngredientById(int ingredientId)
         {
-            var ingredient = await _ingredientsService.GetIngredientByIdAsync(ingredientId);
-
-            if (ingredient == null)
+            try
             {
-                return NotFound(new { message = "Ingredient not found" });
-            }
+                var ingredient = await _ingredientsService.GetIngredientByIdAsync(ingredientId);
 
-            return Ok(ingredient);
+                if (ingredient == null)
+                {
+                    return NotFound(new { message = "Ingredient not found." });
+                }
+
+                return Ok(ingredient);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
 
@@ -51,14 +64,21 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> CreateIngredient([FromBody] IngredientDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _ingredientsService.CreateIngredientAsync(model);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient cannot be created");
+                var result = await _ingredientsService.CreateIngredientAsync(model);
+                if (result == null)
+                {
+                    return BadRequest(new { message = "Ingredient cannot be created." });
+                }
+                return Ok(new { Id = result, message = "Ingredient created successfully!" });
             }
-            return Ok(new { Id = result, message = "Ingredient created successfully!" });
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // PUT /ingredients/{ingredientId} - Update an ingredient (admin only)
@@ -67,18 +87,25 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> UpdateIngredient(int ingredientId, [FromBody] IngredientDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _ingredientsService.UpdateIngredientAsync(ingredientId, model);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient does not exist");
+                var result = await _ingredientsService.UpdateIngredientAsync(ingredientId, model);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Ingredient does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Ingredient cannot be updated." });
+                }
+                return Ok(new { message = "Ingredient updated successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Ingredient cannot be updated");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Ingredient updated successfully!" });
         }
 
         // DELETE /ingredients/{ingredientId} - Delete an ingredient (admin only)
@@ -86,16 +113,23 @@ namespace BackEngin.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteIngredient(int ingredientId)
         {
-            var result = await _ingredientsService.DeleteIngredientAsync(ingredientId);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient does not exist");
+                var result = await _ingredientsService.DeleteIngredientAsync(ingredientId);
+                if (result == null)
+                {
+                    return BadRequest(new { message = "Ingredient does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Ingredient cannot be deleted." });
+                }
+                return Ok(new { message = "Ingredient deleted successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Ingredient cannot be deleted");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Ingredient deleted successfully!" });
         }
     }
 }

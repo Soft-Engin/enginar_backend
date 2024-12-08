@@ -23,78 +23,113 @@ namespace BackEngin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPaginatedIngredientTypes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            if (pageNumber <= 0) pageNumber = 1;
-            if (pageSize <= 0) pageSize = 10;
+            try
+            {
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
 
-            var paginatedIngredientTypes = await _ingredientTypesService.GetIngredientTypesPaginatedAsync(pageNumber, pageSize);
-            return Ok(paginatedIngredientTypes);
+                var paginatedIngredientTypes = await _ingredientTypesService.GetIngredientTypesPaginatedAsync(pageNumber, pageSize);
+                return Ok(paginatedIngredientTypes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // GET /ingredient-types/{ingredientTypeId} - Get ingredient type by ID
         [HttpGet("{ingredientTypeId}")]
         public async Task<IActionResult> GetIngredientTypeById(int ingredientTypeId)
         {
-            var ingredientType = await _ingredientTypesService.GetIngredientTypeByIdAsync(ingredientTypeId);
-
-            if (ingredientType == null)
+            try
             {
-                return NotFound(new { message = "Ingredient type not found" });
-            }
+                var ingredientType = await _ingredientTypesService.GetIngredientTypeByIdAsync(ingredientTypeId);
 
-            return Ok(ingredientType);
+                if (ingredientType == null)
+                {
+                    return NotFound(new { message = "Ingredient type not found." });
+                }
+
+                return Ok(ingredientType);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        // POST /ingredienttypes - Create a new ingredient type (admin only)
+        // POST /ingredient-types - Create a new ingredient type (admin only)
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateIngredientType([FromBody] IngredientTypeDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _ingredientTypesService.CreateIngredientTypeAsync(model);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient type cannot be created");
+                var result = await _ingredientTypesService.CreateIngredientTypeAsync(model);
+                if (result == null)
+                {
+                    return BadRequest(new { message = "Ingredient type cannot be created." });
+                }
+                return Ok(new { Id = result, message = "Ingredient type created successfully!" });
             }
-            return Ok(new { Id = result, message = "Ingredient type created successfully!" });
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        // PUT /ingredienttypes/{ingredientTypeId} - Update an ingredient type (admin only)
+        // PUT /ingredient-types/{ingredientTypeId} - Update an ingredient type (admin only)
         [HttpPut("{ingredientTypeId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateIngredientType(int ingredientTypeId, [FromBody] IngredientTypeDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _ingredientTypesService.UpdateIngredientTypeAsync(ingredientTypeId, model);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient type does not exist");
+                var result = await _ingredientTypesService.UpdateIngredientTypeAsync(ingredientTypeId, model);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Ingredient type does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Ingredient type cannot be updated." });
+                }
+                return Ok(new { message = "Ingredient type updated successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Ingredient type cannot be updated");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Ingredient type updated successfully!" });
         }
 
-        // DELETE /ingredienttypes/{ingredientTypeId} - Delete an ingredient type (admin only)
+        // DELETE /ingredient-types/{ingredientTypeId} - Delete an ingredient type (admin only)
         [HttpDelete("{ingredientTypeId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteIngredientType(int ingredientTypeId)
         {
-            var result = await _ingredientTypesService.DeleteIngredientTypeAsync(ingredientTypeId);
-            if (result == null)
+            try
             {
-                return BadRequest("Ingredient type does not exist");
+                var result = await _ingredientTypesService.DeleteIngredientTypeAsync(ingredientTypeId);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Ingredient type does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Ingredient type cannot be deleted." });
+                }
+                return Ok(new { message = "Ingredient type deleted successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Ingredient type cannot be deleted");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Ingredient type deleted successfully!" });
         }
     }
 }
