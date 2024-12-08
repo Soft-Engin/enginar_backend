@@ -17,5 +17,8 @@ namespace Models
 
         [Required]
         public string Description { get; set; }
+
+        // Navigation property for many-to-many relationship with Ingredients
+        public ICollection<Ingredients_Preferences> Ingredients_Preferences { get; set; }
     }
 }

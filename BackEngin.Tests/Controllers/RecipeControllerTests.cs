@@ -330,7 +330,7 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteRecipe_ShouldReturnNoContent_WhenUserIsOwner()
+        public async Task DeleteRecipe_ShouldReturnOk_WhenUserIsOwner()
         {
             // Arrange
             var recipeId = 1;
