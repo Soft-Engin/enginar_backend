@@ -170,9 +170,9 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+                    new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
                 }
             };
 
