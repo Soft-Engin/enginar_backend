@@ -29,7 +29,7 @@ namespace BackEngin.Tests.Services
             _userService = new UserService(_mockUserManager.Object, _mockUnitOfWork.Object);
         }
 
-       
+
 
         [Fact]
         public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
@@ -382,6 +382,22 @@ namespace BackEngin.Tests.Services
             var initiatorUserId = "user1";
             var targetUserId = "user2";
 
+            // Create mock users for initiator and target
+            var initiatorUser = new Users { Id = initiatorUserId, UserName = "InitiatorUser" };
+            var targetUser = new Users { Id = targetUserId, UserName = "TargetUser" };
+
+            // Mock the FindByIdAsync method to return the appropriate user based on the userId
+            _mockUserManager.Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .ReturnsAsync((string userId) =>
+                {
+                    if (userId == initiatorUserId)
+                        return initiatorUser;
+                    else if (userId == targetUserId)
+                        return targetUser;
+                    else
+                        return null;
+                });
+
             _mockUnitOfWork.Setup(u => u.Users.FollowUserAsync(initiatorUserId, targetUserId))
                 .ReturnsAsync(true);
 
@@ -432,6 +448,10 @@ namespace BackEngin.Tests.Services
             var userId = "1";
             var user = new Users { Id = userId, UserName = "john_doe" }; // Mock user
 
+            // Mock the user to be returned by _userManager
+            var mockUser = new Users { Id = userId, UserName = "TestUser" };
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
+
             // Create bookmarked recipes with the correct UserId
             var bookmarkedRecipes = new List<BookmarkRecipesItemDTO>
             {
@@ -468,6 +488,10 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "1";
 
+            // Mock the user to be returned by _userManager
+            var mockUser = new Users { Id = userId, UserName = "TestUser" };
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
+
             // Mock the service to return an empty BookmarkRecipesDTO
             var emptyBookmarkRecipesDTO = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
             {
@@ -496,6 +520,10 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var userId = "1";
+
+            // Mock the user to be returned by _userManager
+            var mockUser = new Users { Id = userId, UserName = "TestUser" };
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
 
             var mockedBlogs = new List<BookmarkBlogsItemDTO>
             {
@@ -530,6 +558,10 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var userId = "1";
+
+            // Mock the user to be returned by _userManager
+            var mockUser = new Users { Id = userId, UserName = "TestUser" };
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
 
             var emptyBookmarkBlogsDTO = new PaginatedResponseDTO<BookmarkBlogsItemDTO>
             {
