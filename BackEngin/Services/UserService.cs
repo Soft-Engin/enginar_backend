@@ -106,7 +106,8 @@ namespace BackEngin.Services
             existingUser.FirstName = userDTO.FirstName;
             existingUser.LastName = userDTO.LastName;
 
-            if (existingUser.Address != null) {
+            if (existingUser.Address != null)
+            {
                 existingUser.Address.Name = userDTO.AddressName;
                 existingUser.Address.Street = userDTO.Street;
                 existingUser.Address.District.Name = userDTO.District;
@@ -132,7 +133,7 @@ namespace BackEngin.Services
                     }
                 };
             }
-            
+
 
             existingUser.Email = userDTO.Email;
             existingUser.UserName = userDTO.UserName;
@@ -156,8 +157,8 @@ namespace BackEngin.Services
                 return null;
             }
 
-            return new UpdateUserDto 
-            { 
+            return new UpdateUserDto
+            {
                 FirstName = existingUser.FirstName,
                 LastName = existingUser.LastName,
                 Email = existingUser.Email,
@@ -214,6 +215,15 @@ namespace BackEngin.Services
         {
             if (initiatorUserId == targetUserId)
                 throw new InvalidOperationException("Users cannot follow themselves.");
+
+            // Probably not most efficient way to validate targetUserId
+            // but i dont care
+            var targetUser = await _userManager.FindByIdAsync(targetUserId);
+
+            if (targetUser == null)
+            {
+                throw new InvalidOperationException("User does not exist.");
+            }
 
             return await _unitOfWork.Users.FollowUserAsync(initiatorUserId, targetUserId);
         }
