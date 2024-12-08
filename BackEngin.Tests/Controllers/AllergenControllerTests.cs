@@ -54,7 +54,7 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(200);
-            result.Value.Should().BeEquivalentTo(new { Id = allergenId, message = "Allergen logged in successfully!" });
+            result.Value.Should().BeEquivalentTo(new { Id = allergenId, message = "Allergen created successfully!" });
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().Be("Allergen can not be created");
+            badRequestResult!.Value.Should().BeEquivalentTo(new { message = "Allergen could not be created." });
         }
 
         [Fact]
@@ -103,10 +103,10 @@ namespace BackEngin.Tests.Controllers
             var result = await _allergenController.UpdateAllergen(allergenId, allergen);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().Be("Allergen does not exist");
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Should().NotBeNull();
+            notFoundResult!.Value.Should().BeEquivalentTo(new { message = "Allergen does not exist." });
         }
 
         [Fact]
@@ -136,10 +136,10 @@ namespace BackEngin.Tests.Controllers
             var result = await _allergenController.DeleteAllergen(allergenId);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().Be("Allergen does not exist");
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Should().NotBeNull();
+            notFoundResult!.Value.Should().BeEquivalentTo(new { message = "Allergen does not exist." });
         }
     }
 }

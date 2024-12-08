@@ -106,7 +106,14 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundObjectResult>();
             var notFoundResult = result as NotFoundObjectResult;
-            notFoundResult.Value.Should().BeEquivalentTo(new { message = "Ingredient type not found" });
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient type not found."
+            });
+
         }
 
         [Fact]
@@ -165,7 +172,13 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient type cannot be created");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient type cannot be created."
+            });
         }
 
         [Fact]
@@ -209,9 +222,15 @@ namespace BackEngin.Tests.Controllers
             var result = await _ingredientTypesController.UpdateIngredientType(ingredientTypeId, ingredientTypeDto);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient type does not exist");
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient type does not exist."
+            });
         }
 
         [Fact]
@@ -234,7 +253,14 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient type cannot be updated");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient type cannot be updated."
+            });
+
         }
 
         [Fact]
@@ -255,7 +281,7 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteIngredientType_ShouldReturnBadRequest_WhenIngredientTypeDoesNotExist()
+        public async Task DeleteIngredientType_ShouldReturnNotFound_WhenIngredientTypeDoesNotExist()
         {
             // Arrange
             var ingredientTypeId = 99;
@@ -266,9 +292,15 @@ namespace BackEngin.Tests.Controllers
             var result = await _ingredientTypesController.DeleteIngredientType(ingredientTypeId);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient type does not exist");
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient type does not exist."
+            });
         }
 
     }

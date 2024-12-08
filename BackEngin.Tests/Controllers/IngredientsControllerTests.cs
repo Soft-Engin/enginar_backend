@@ -122,7 +122,10 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundObjectResult>();
             var notFoundResult = result as NotFoundObjectResult;
-            notFoundResult.Value.Should().BeEquivalentTo(new { message = "Ingredient not found" });
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "Ingredient not found." });
         }
 
         [Fact]
@@ -183,7 +186,12 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient cannot be created");
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient cannot be created."
+            });
         }
 
         [Fact]
@@ -211,7 +219,7 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task UpdateIngredient_ShouldReturnBadRequest_WhenIngredientDoesNotExist()
+        public async Task UpdateIngredient_ShouldReturnNotFound_WhenIngredientDoesNotExist()
         {
             // Arrange
             var ingredientId = 99;
@@ -229,9 +237,15 @@ namespace BackEngin.Tests.Controllers
             var result = await _ingredientsController.UpdateIngredient(ingredientId, ingredientDto);
 
             // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient does not exist");
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient does not exist."
+            });
         }
 
         [Fact]
@@ -255,7 +269,14 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient cannot be updated");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient cannot be updated."
+            });
+
         }
 
         [Fact]
@@ -289,7 +310,13 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient does not exist");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient does not exist."
+            });
         }
 
         [Fact]
@@ -304,9 +331,17 @@ namespace BackEngin.Tests.Controllers
             var result = await _ingredientsController.DeleteIngredient(ingredientId);
 
             // Assert
+            // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("Ingredient cannot be deleted");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Ingredient cannot be deleted."
+            });
+
         }
 
     }

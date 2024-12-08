@@ -22,54 +22,88 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Invalid request data.",
+                    errors = ModelState.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    )
+                });
 
-            var result = await _authService.RegisterUser(model);
+            try
+            {
+                var result = await _authService.RegisterUser(model);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                if (!result.Succeeded)
+                    return BadRequest(new { message = "Registration failed.", errors = result.Errors });
 
-            return Ok(new { message = "User registered successfully!" });
+                return Ok(new { message = "User registered successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            var token = await _authService.LoginUser(model);
+            try
+            {
+                var token = await _authService.LoginUser(model);
 
-            if (token == null)
-                return Unauthorized("Invalid login attempt");
+                if (token == null)
+                    return Unauthorized(new { message = "Invalid login attempt." });
 
-            return Ok(new { Token = token, message = "User logged in successfully!" });
+                return Ok(new { Token = token, message = "User logged in successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var token = await _authService.SendPasswordResetTokenAsync(model.Email);
+            try
+            {
+                var token = await _authService.SendPasswordResetTokenAsync(model.Email);
 
-            if (token == null)
-                return Ok(new { message = "If an account with that email exists, a password reset token has been generated." });
+                if (token == null)
+                    return Ok(new { message = "If an account with that email exists, a password reset token has been generated." });
 
-            // Return the token directly (for testing purposes)
-            return Ok(new { Token = token, message = "Password reset token generated successfully." });
+                return Ok(new { Token = token, message = "Password reset token generated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _authService.ResetPasswordAsync(model);
+            try
+            {
+                var result = await _authService.ResetPasswordAsync(model);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                if (!result.Succeeded)
+                    return BadRequest(new { message = "Password reset failed.", errors = result.Errors });
 
-            return Ok(new { message = "Password has been reset successfully." });
+                return Ok(new { message = "Password has been reset successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPost("make-admin")]
@@ -77,15 +111,21 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> MakeUserAdmin([FromBody] MakeAdminDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _authService.MakeUserAdminAsync(model.UserName);
+            try
+            {
+                var result = await _authService.MakeUserAdminAsync(model.UserName);
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                if (!result.Succeeded)
+                    return BadRequest(new { message = "Failed to promote user to admin.", errors = result.Errors });
 
-            return Ok(new { message = "User promoted to admin successfully!" });
+                return Ok(new { message = "User promoted to admin successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
-
     }
 }
