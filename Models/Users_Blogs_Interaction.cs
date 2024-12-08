@@ -14,7 +14,7 @@ namespace Models
         public int Id { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public Users User { get; set; }
 
@@ -22,5 +22,10 @@ namespace Models
         public int BlogId { get; set; }
         [ForeignKey("BlogId")]
         public Blogs Blog { get; set; }
+
+        [Required]
+        public int InteractionId { get; set; }
+        [ForeignKey("InteractionId")]
+        public Interactions Interaction { get; set; }
     }
 }

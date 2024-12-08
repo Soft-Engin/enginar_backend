@@ -21,6 +21,12 @@ namespace BackEngin.Data
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Users_Interactions> Users_Interactions { get; set; }
+        public DbSet<Interactions> Interactions { get; set; }
+        public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
+        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
+        public DbSet<Blogs> Blogs { get; set; }
+
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +64,7 @@ namespace BackEngin.Data
                 .HasForeignKey(ip => ip.PreferenceId);
 
             PopulatePreferences(modelBuilder);
+            ConfigureUserInteractions(modelBuilder);
             PopulateIngredientTypes(modelBuilder);
         }
 
@@ -93,6 +100,69 @@ namespace BackEngin.Data
            );
         }
 
+        private void ConfigureUserInteractions(ModelBuilder modelBuilder)
+        {
+            // Seed Interactions
+            modelBuilder.Entity<Interactions>().HasData(
+                new Interactions { Id = 1, Name = "Follow", Description = "User follows another user" },
+                new Interactions { Id = 2, Name = "BookmarkRecipe", Description = "User bookmarks a recipe" },
+                new Interactions { Id = 3, Name = "BookmarkBlog", Description = "User bookmarks a blog" }
+            );
+
+            // Configure Users_Interactions Relationships
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.InitiatorUser)
+                .WithMany()
+                .HasForeignKey(ui => ui.InitiatorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.TargetUser)
+                .WithMany()
+                .HasForeignKey(ui => ui.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.Interaction)
+                .WithMany()
+                .HasForeignKey(ui => ui.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+               .HasOne(uri => uri.User)
+               .WithMany()
+               .HasForeignKey(uri => uri.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+                .HasOne(uri => uri.Recipe)
+                .WithMany()
+                .HasForeignKey(uri => uri.RecipeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+                .HasOne(uri => uri.Interaction)
+                .WithMany()
+                .HasForeignKey(uri => uri.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.User)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.Blog)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.BlogId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.Interaction)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IngredientTypes>(entity =>
