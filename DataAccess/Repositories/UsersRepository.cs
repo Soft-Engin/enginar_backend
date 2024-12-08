@@ -1,6 +1,8 @@
 ﻿using BackEngin.Data;
 using DataAccess.Repositories.IRepositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Models.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,86 @@ namespace DataAccess.Repositories
         {
             _db = db;
 
+        }
+
+        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
+        {
+            var followersQuery = _db.Users_Interactions
+                .Where(ui => ui.TargetUserId == userId && ui.Interaction.Name == "Follow")
+                .Select(ui => ui.InitiatorUser.UserName);
+
+            var totalCount = await followersQuery.CountAsync();
+
+            var usernames = await followersQuery
+                .Skip((page - 1) * pageSize) // Skip records of previous pages
+                .Take(pageSize)              // Take the records for the current page
+                .ToListAsync();
+
+            return new PaginatedResponseDTO<string>
+            {
+                Items = usernames,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
+        {
+            var followingsQuery = _db.Users_Interactions
+                .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
+                .Select(ui => ui.TargetUser.UserName);
+
+            var totalCount = await followingsQuery.CountAsync();
+
+            var usernames = await followingsQuery
+                .Skip((page - 1) * pageSize) // Skip records of previous pages
+                .Take(pageSize)              // Take the records for the current page
+                .ToListAsync();
+
+            return new PaginatedResponseDTO<string>
+            {
+                Items = usernames,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId)
+        {
+            var existingInteraction = await _db.Users_Interactions
+                .FirstOrDefaultAsync(ui => ui.InitiatorUserId == initiatorUserId && ui.TargetUserId == targetUserId && ui.Interaction.Name == "Follow");
+
+            if (existingInteraction != null)
+                return false;
+
+            var followInteraction = await _db.Interactions.FirstOrDefaultAsync(i => i.Name == "Follow");
+
+            if (followInteraction == null)
+                throw new Exception("Follow interaction not defined in database.");
+
+            var userInteraction = new Users_Interactions
+            {
+                InitiatorUserId = initiatorUserId,
+                TargetUserId = targetUserId,
+                InteractionId = followInteraction.Id
+            };
+
+            _db.Users_Interactions.Add(userInteraction);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId)
+        {
+            var userInteraction = await _db.Users_Interactions
+                .FirstOrDefaultAsync(ui => ui.InitiatorUserId == initiatorUserId && ui.TargetUserId == targetUserId && ui.Interaction.Name == "Follow");
+
+            if (userInteraction == null)
+                return false;
+
+            _db.Users_Interactions.Remove(userInteraction);
+            return await _db.SaveChangesAsync() > 0;
         }
     }
 }

@@ -385,14 +385,62 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Fresh vegetables",
+                            Description = "Edible plants or their parts, intended for cooking or eating raw.",
                             Name = "Vegetable"
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Cooking oils",
-                            Name = "Oil"
+                            Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food.",
+                            Name = "Fruit"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Animal flesh that is eaten as food.",
+                            Name = "Meat"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Food produced from or containing the milk of mammals.",
+                            Name = "Dairy"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Small, hard, dry seeds harvested for human or animal consumption.",
+                            Name = "Grain"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Sea life regarded as food by humans, includes fish and shellfish.",
+                            Name = "Seafood"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark.",
+                            Name = "Spice"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Plants with savory or aromatic properties used for flavoring and garnishing food.",
+                            Name = "Herb"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Dry, edible fruits or seeds that usually have a high fat content.",
+                            Name = "Nuts & Seeds"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Drinkable liquids other than water, may be hot or cold.",
+                            Name = "Beverage"
                         });
                 });
 
@@ -431,6 +479,73 @@ namespace DataAccess.Migrations
                             TypeId = 2
                         });
                 });
+
+            modelBuilder.Entity("Models.Ingredients_Preferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreferenceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("PreferenceId");
+
+                    b.ToTable("Ingredients_Preferences");
+                });
+
+            modelBuilder.Entity("Models.Interactions", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Interactions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "User follows another user",
+                            Name = "Follow"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "User bookmarks a recipe",
+                            Name = "BookmarkRecipe"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "User bookmarks a blog",
+                            Name = "BookmarkBlog"
+                        });
+                });
+
+
+            
 
             modelBuilder.Entity("Models.Preferences", b =>
                 {
@@ -694,6 +809,94 @@ namespace DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Users_Blogs_Interactions");
+                });
+
+            modelBuilder.Entity("Models.Users_Interactions", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InitiatorUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("InteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorUserId");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("Users_Interactions");
+                });
+
+            modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("InteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Users_Recipes_Interactions");
+                });
+
             modelBuilder.Entity("Models.Users", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -718,22 +921,6 @@ namespace DataAccess.Migrations
 
                     b.HasDiscriminator().HasValue("Users");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "33157474-c8cd-4c1a-8b0e-eae7756dc77c",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "c88b2936-1e6e-49d3-ab03-36c1185a36e2",
-                            TwoFactorEnabled = false,
-                            UserName = "zeynep",
-                            FirstName = "zeynep",
-                            LastName = "kara",
-                            RoleId = 1
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -848,6 +1035,25 @@ namespace DataAccess.Migrations
                     b.Navigation("Type");
                 });
 
+            modelBuilder.Entity("Models.Ingredients_Preferences", b =>
+                {
+                    b.HasOne("Models.Ingredients", "Ingredient")
+                        .WithMany("Ingredients_Preferences")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Preferences", "Preference")
+                        .WithMany("Ingredients_Preferences")
+                        .HasForeignKey("PreferenceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+
+                    b.Navigation("Preference");
+                });
+
             modelBuilder.Entity("Models.Recipes", b =>
                 {
                     b.HasOne("Models.Users", "User")
@@ -878,6 +1084,87 @@ namespace DataAccess.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
+                {
+                    b.HasOne("Models.Blogs", "Blog")
+                        .WithMany()
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Interactions", "Interaction")
+                        .WithMany()
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.Users_Interactions", b =>
+                {
+                    b.HasOne("Models.Users", "InitiatorUser")
+                        .WithMany()
+                        .HasForeignKey("InitiatorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Interactions", "Interaction")
+                        .WithMany()
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("InitiatorUser");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("TargetUser");
+                });
+
+            modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
+                {
+                    b.HasOne("Models.Interactions", "Interaction")
+                        .WithMany()
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Models.Users", b =>
                 {
                     b.HasOne("Models.Addresses", "Address")
@@ -893,6 +1180,16 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.Navigation("Ingredients_Preferences");
+                });
+
+            modelBuilder.Entity("Models.Preferences", b =>
+                {
+                    b.Navigation("Ingredients_Preferences");
                 });
 
             modelBuilder.Entity("Models.Recipes", b =>

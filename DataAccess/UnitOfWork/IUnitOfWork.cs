@@ -17,6 +17,7 @@ namespace DataAccess.Repositories
         IEventsRepository Events { get; }
         IEvents_RequirementsRepository Events_Requirements { get; }
         IIngredientsRepository Ingredients { get; }
+        IIngredientTypesRepository IngredientTypes { get; }
         IIngredients_PreferencesRepository Ingredients_Preferences { get; }
         IInteractionsRepository Interactions { get; }
         IPreferencesRepository Preferences { get; }
