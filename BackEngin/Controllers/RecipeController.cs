@@ -18,14 +18,14 @@ namespace BackEngin.Controllers
             _recipeService = recipeService;
         }
 
-        [HttpGet("recipes")]
+        [HttpGet]
         public async Task<IActionResult> GetRecipes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var recipes = await _recipeService.GetRecipes(pageNumber, pageSize);
             return Ok(recipes);
         }
 
-        [HttpPost("create-recipe")]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
@@ -62,7 +62,7 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpGet("recipe-details/{recipeId}")]
+        [HttpGet("{recipeId}")]
         public async Task<IActionResult> GetRecipeDetails(int recipeId)
         {
             var recipe = await _recipeService.GetRecipeDetails(recipeId);
@@ -70,7 +70,7 @@ namespace BackEngin.Controllers
             return Ok(recipe);
         }
 
-        [HttpPut("update-recipe/{recipeId}")]
+        [HttpPut("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDto)
         {
@@ -108,7 +108,7 @@ namespace BackEngin.Controllers
             
         }
 
-        [HttpDelete("delete-recipe/{recipeId}")]
+        [HttpDelete("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {
