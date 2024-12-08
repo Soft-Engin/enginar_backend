@@ -67,11 +67,10 @@ namespace BackEngin.Services
                     {
                         Header = createBlogDTO.Recipe.Header,
                         BodyText = createBlogDTO.Recipe.BodyText,
-                        UserId = userId, // Associate the recipe with the same user
                         Ingredients = createBlogDTO.Recipe.Ingredients
                     };
 
-                    var createdRecipe = await _recipeService.CreateRecipe(createRecipeDTO);
+                    var createdRecipe = await _recipeService.CreateRecipe(userId, createRecipeDTO);
                     recipeId = createdRecipe.Id; // Link the new recipe to the blog
                 }
             }            
@@ -108,6 +107,7 @@ namespace BackEngin.Services
             // Update the blog fields
             blog.Header = updateBlogDTO.Header;
             blog.BodyText = updateBlogDTO.BodyText;
+            blog.UserId = blog.UserId; // its stupid but the owner does not change hehe
 
             // Handle recipe updates
             if (updateBlogDTO.Recipe != null)
@@ -124,11 +124,10 @@ namespace BackEngin.Services
                     {
                         Header = updateBlogDTO.Recipe.Header,
                         BodyText = updateBlogDTO.Recipe.BodyText,
-                        UserId = blog.UserId,
                         Ingredients = updateBlogDTO.Recipe.Ingredients
                     };
 
-                    var newRecipe = await _recipeService.CreateRecipe(createRecipeDTO);
+                    var newRecipe = await _recipeService.CreateRecipe(blog.UserId, createRecipeDTO);
                     blog.RecipeId = newRecipe.Id; // Associate the newly created recipe with the blog
                 }
             }

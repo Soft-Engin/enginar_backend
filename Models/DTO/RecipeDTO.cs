@@ -23,8 +23,6 @@ namespace Models.DTO
         public string Header { get; set; }
         public string BodyText { get; set; }
 
-        public string UserId { get; set; }
-
         public List<RecipeIngredientRequestDTO> Ingredients { get; set; }
     }
 

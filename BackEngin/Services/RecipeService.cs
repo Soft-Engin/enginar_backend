@@ -39,7 +39,7 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<RecipeDetailsDTO> CreateRecipe(CreateRecipeDTO createRecipeDTO)
+        public async Task<RecipeDetailsDTO> CreateRecipe(string userId, CreateRecipeDTO createRecipeDTO)
         {
             // Check if ingredients are provided and valid
             await IngredientCheck(createRecipeDTO.Ingredients);
@@ -48,7 +48,7 @@ namespace BackEngin.Services
             {
                 Header = createRecipeDTO.Header,
                 BodyText = createRecipeDTO.BodyText,
-                UserId = createRecipeDTO.UserId
+                UserId = userId
             };
 
             await _unitOfWork.Recipes.AddAsync(newRecipe);

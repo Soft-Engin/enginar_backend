@@ -41,11 +41,11 @@ namespace BackEngin.Controllers
                 {
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
-                    UserId = await GetActiveUserId(),
                     Ingredients = recipeDto.Ingredients
                 };
 
-                var createdRecipe = await _recipeService.CreateRecipe(recipe);
+                string userId = await GetActiveUserId();
+                var createdRecipe = await _recipeService.CreateRecipe(userId, recipe);
                 if (createdRecipe == null) return BadRequest(new { message = "Invalid recipe data." });
 
                 return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
