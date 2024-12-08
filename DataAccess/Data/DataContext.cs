@@ -20,11 +20,11 @@ namespace BackEngin.Data
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<IngredientTypes> IngredientTypes { get; set; }
-        public DbSet<Users_Interactions> Users_Interactions { get; set; } 
+        public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
-        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; } 
-        public DbSet<Blogs> Blogs { get; set; } 
+        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
+        public DbSet<Blogs> Blogs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,10 +36,6 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
             );
 
-            modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Berker ", LastName = "Bayar", RoleId = 1 }
-            );
-                
             modelBuilder.Entity<Recipes>().HasData(
                 new Recipes { Id = 1, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
             );
