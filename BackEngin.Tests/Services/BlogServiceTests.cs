@@ -69,9 +69,25 @@ namespace BackEngin.Tests.Services
                 }
             };
 
-            var createdRecipe = new RecipeDetailsDTO { Id = 1, Header = "New Recipe", BodyText = "Recipe Content" };
+            var createdRecipe = new RecipeDetailsDTO
+            {
+                Id = 1,
+                Header = "New Recipe",
+                BodyText = "Recipe Content",
+                Ingredients = createBlogDTO.Recipe.Ingredients
+                    .Select(i => new RecipeIngredientDetailsDTO
+                    {
+                        IngredientId = i.IngredientId,
+                        Quantity = i.Quantity,
+                        Unit = i.Unit,
+                        IngredientName = "Flour" // Mocked ingredient name
+                    }).ToList()
+            };
 
-            _mockRecipeService.Setup(r => r.CreateRecipe(It.IsAny<CreateRecipeDTO>())).ReturnsAsync(createdRecipe);
+            // Mock RecipeService to return the created recipe
+            _mockRecipeService.Setup(r => r.CreateRecipe(userId, It.IsAny<CreateRecipeDTO>())).ReturnsAsync(createdRecipe);
+
+            // Mock Blog creation
             _mockUnitOfWork.Setup(u => u.Blogs.AddAsync(It.IsAny<Blogs>())).Verifiable();
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
@@ -81,7 +97,12 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.RecipeId.Should().Be(1);
+            result.Header.Should().Be("New Blog");
+            result.BodyText.Should().Be("Blog Content");
+
+            // Verify Blog and Recipe creation
             _mockUnitOfWork.Verify(u => u.Blogs.AddAsync(It.IsAny<Blogs>()), Times.Once);
+            _mockRecipeService.Verify(r => r.CreateRecipe(userId, It.IsAny<CreateRecipeDTO>()), Times.Once);
         }
 
 
@@ -99,13 +120,14 @@ namespace BackEngin.Tests.Services
                     Header = "New Recipe",
                     BodyText = "Recipe Content",
                     Ingredients = new List<RecipeIngredientRequestDTO>
-                    {
-                        new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 2, Unit = "cups" }
-                    }
+            {
+                new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 2, Unit = "cups" }
+            }
                 }
             };
 
-            _mockRecipeService.Setup(r => r.CreateRecipe(It.IsAny<CreateRecipeDTO>()))
+            // Mock the CreateRecipe method in IRecipeService to throw an ArgumentException
+            _mockRecipeService.Setup(r => r.CreateRecipe(userId, It.IsAny<CreateRecipeDTO>()))
                               .ThrowsAsync(new ArgumentException("One or more ingredient IDs are invalid."));
 
             // Act

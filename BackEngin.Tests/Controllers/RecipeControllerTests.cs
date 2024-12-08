@@ -76,33 +76,33 @@ namespace BackEngin.Tests.Controllers
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 Ingredients = new List<RecipeIngredientRequestDTO>
-                {
-                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-                }
+        {
+            new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+        }
             };
-
-            var updatedRecipeIngredients = createRecipeDto.Ingredients
-                .Select(i => new RecipeIngredientDetailsDTO
-                {
-                    IngredientId = i.IngredientId,
-                    Quantity = i.Quantity,
-                    Unit = i.Unit,
-                    IngredientName = "Flour" // Simulated from ingredient lookup
-                }).ToList();
 
             var createdRecipe = new RecipeDetailsDTO
             {
                 Id = 1,
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
-                Ingredients = updatedRecipeIngredients
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+        {
+            new RecipeIngredientDetailsDTO
+            {
+                IngredientId = 1,
+                Quantity = 2,
+                Unit = "cups",
+                IngredientName = "Flour" // Mocked response from service
+            }
+        }
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
                      .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
 
-            _mockRecipeService.Setup(s => s.CreateRecipe(It.Is<CreateRecipeDTO>(
-                dto => dto.UserId == "currentUserId" && dto.Header == "Pancakes"))).ReturnsAsync(createdRecipe);
+            _mockRecipeService.Setup(s => s.CreateRecipe("currentUserId", It.IsAny<CreateRecipeDTO>()))
+                              .ReturnsAsync(createdRecipe);
 
             // Act
             var result = await _recipeController.CreateRecipe(createRecipeDto);
@@ -112,7 +112,6 @@ namespace BackEngin.Tests.Controllers
             var createdResult = result as CreatedAtActionResult;
             createdResult.Value.Should().BeEquivalentTo(createdRecipe);
         }
-
 
         [Fact]
         public async Task GetRecipeDetails_ShouldReturnOk_WithRecipe()
