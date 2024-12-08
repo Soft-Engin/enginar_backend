@@ -55,15 +55,13 @@ namespace BackEngin.Controllers
                 {
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
-                    UserId = await GetActiveUserId(),
                     Ingredients = recipeDto.Ingredients
                 };
 
-                var createdRecipe = await _recipeService.CreateRecipe(recipe);
-                if (createdRecipe == null)
-                {
-                    return BadRequest(new { message = "Recipe creation failed." });
-                }
+                string userId = await GetActiveUserId();
+                var createdRecipe = await _recipeService.CreateRecipe(userId, recipe);
+                if (createdRecipe == null) return BadRequest(new { message = "Recipe creation failed." });
+
 
                 return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
             }

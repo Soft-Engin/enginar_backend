@@ -75,24 +75,34 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-                {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-                }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+        {
+            new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+        }
             };
+
             var createdRecipe = new RecipeDetailsDTO
             {
                 Id = 1,
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
-                Ingredients = createRecipeDto.Ingredients
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+        {
+            new RecipeIngredientDetailsDTO
+            {
+                IngredientId = 1,
+                Quantity = 2,
+                Unit = "cups",
+                IngredientName = "Flour" // Mocked response from service
+            }
+        }
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
                      .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
 
-            _mockRecipeService.Setup(s => s.CreateRecipe(It.Is<CreateRecipeDTO>(
-                dto => dto.UserId == "currentUserId" && dto.Header == "Pancakes"))).ReturnsAsync(createdRecipe);
+            _mockRecipeService.Setup(s => s.CreateRecipe("currentUserId", It.IsAny<CreateRecipeDTO>()))
+                              .ReturnsAsync(createdRecipe);
 
             // Act
             var result = await _recipeController.CreateRecipe(createRecipeDto);
@@ -102,7 +112,6 @@ namespace BackEngin.Tests.Controllers
             var createdResult = result as CreatedAtActionResult;
             createdResult.Value.Should().BeEquivalentTo(createdRecipe);
         }
-
 
         [Fact]
         public async Task GetRecipeDetails_ShouldReturnOk_WithRecipe()
@@ -161,9 +170,9 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+                    new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
                 }
             };
 
@@ -202,18 +211,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
 
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             // Mock the Recipe Owner
@@ -281,10 +299,10 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-        {
-            new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
-        }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+                {
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                }
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("otherUserId");
@@ -317,17 +335,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
+
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");

@@ -16,16 +16,19 @@ namespace BackEngin.Data
         public DbSet<Roles> Roles { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Preferences> Preferences { get; set; }
-
+        public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
-        public DbSet<Ingredients> Ingredients { get; set; }
-        public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Blogs> Blogs { get; set; }
+
+
+
+
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
-        public DbSet<Blogs> Blogs { get; set; }
 
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
 
@@ -38,20 +41,23 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
             );
 
-            modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 1, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
+            modelBuilder.Entity<Ingredients>().HasData(
+                new Ingredients { Id = 3, Name = "Enginar", TypeId = 1 },
+                new Ingredients { Id = 4, Name = "Zeytinyağı", TypeId = 2 }
             );
 
-            modelBuilder.Entity<Ingredients>().HasData(
-                new Ingredients { Id = 1, Name = "Enginar", TypeId = 1 },
-                new Ingredients { Id = 2, Name = "Zeytinyağı", TypeId = 2 }
+            modelBuilder.Entity<Recipes>().HasData(
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "3" }
             );
 
             modelBuilder.Entity<Recipes_Ingredients>().HasData(
-                new Recipes_Ingredients { Id = 1, RecipeId = 1, IngredientId = 1, Quantity = 2, Unit = "adet" },
-                new Recipes_Ingredients { Id = 2, RecipeId = 1, IngredientId = 2, Quantity = 3, Unit = "yemek kaşığı" }
+                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
+                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
             );
 
+            modelBuilder.Entity<Blogs>().HasData(
+                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "3" }
+            );
             // Configure many-to-many relationship between Ingredients and Preferences
             modelBuilder.Entity<Ingredients_Preferences>()
                 .HasOne(ip => ip.Ingredient)
@@ -163,6 +169,7 @@ namespace BackEngin.Data
                 .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
+
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IngredientTypes>(entity =>
