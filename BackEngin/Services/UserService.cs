@@ -234,12 +234,30 @@ namespace BackEngin.Services
         }
         public async Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
         {
+            // Probably not most efficient way to validate targetUserId
+            // but i dont care
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
             return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize);
         }
 
 
         public async Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
+            // Probably not most efficient way to validate targetUserId
+            // but i dont care
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
             return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize);
         }
     }

@@ -206,7 +206,7 @@ namespace BackEngin.Controllers
 
             if (bookmarks == null)
             {
-                return NotFound("No bookmarked recipes found for this user. The user might not exist");
+                return NotFound("User does not exist");
             }
 
             return Ok(bookmarks);
@@ -231,7 +231,7 @@ namespace BackEngin.Controllers
 
             if (bookmarkedBlogs == null)
             {
-                return NotFound("No bookmarked blogs found for this user. The user might not exist");
+                return NotFound("User does not exist");
             }
 
             return Ok(bookmarkedBlogs);
