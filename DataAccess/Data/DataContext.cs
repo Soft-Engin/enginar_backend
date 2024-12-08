@@ -15,16 +15,16 @@ namespace BackEngin.Data
 
         public DbSet<Roles> Roles { get; set; }
         public DbSet<Users> Users { get; set; }
-        public DbSet<Preferences> Preferences { get; set; }        
+        public DbSet<Preferences> Preferences { get; set; }
         public DbSet<IngredientTypes> IngredientTypes { get; set; }
-        public DbSet<Ingredients> Ingredients { get; set; }       
+        public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Blogs> Blogs { get; set; }
-        
-        
-        
-        
+
+
+
+
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
@@ -39,10 +39,6 @@ namespace BackEngin.Data
             modelBuilder.Entity<Roles>().HasData(
                 new Roles { Id = 1, Name = "User", Description = "Default user role" },
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
-            );
-
-            modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "3", UserName = "zeynep", FirstName = "zeynep", LastName = "kara", RoleId = 1}
             );
 
             modelBuilder.Entity<Ingredients>().HasData(
