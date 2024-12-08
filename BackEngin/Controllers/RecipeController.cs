@@ -7,7 +7,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/recipe")]
+    [Route("api/v{version:apiVersion}/recipes")]
     [ApiController]
     public class RecipeController : ApiControllerBase
     {
@@ -18,7 +18,8 @@ namespace BackEngin.Controllers
             _recipeService = recipeService;
         }
 
-        [HttpGet("recipes")]
+        // GET /recipes
+        [HttpGet]
         public async Task<IActionResult> GetRecipes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -35,7 +36,8 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpPost("create-recipe")]
+        // POST /recipes
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
@@ -76,7 +78,8 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpGet("recipe-details/{recipeId}")]
+        // GET /recipes/{recipeId}
+        [HttpGet("{recipeId}")]
         public async Task<IActionResult> GetRecipeDetails(int recipeId)
         {
             try
@@ -95,7 +98,8 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpPut("update-recipe/{recipeId}")]
+        // PUT /recipes/{recipeId}
+        [HttpPut("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDto)
         {
@@ -133,7 +137,8 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpDelete("delete-recipe/{recipeId}")]
+        // DELETE /recipes/{recipeId}
+        [HttpDelete("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {
