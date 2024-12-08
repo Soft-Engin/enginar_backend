@@ -55,6 +55,7 @@ namespace BackEngin.Data
                 new Recipes_Ingredients { Id = 2, RecipeId = 1, IngredientId = 2, Quantity = 3, Unit = "yemek kaşığı" }
             );
             PopulatePreferences(modelBuilder);
+            ConfigureUserInteractions(modelBuilder);
         }
 
         private void PopulatePreferences(ModelBuilder modelBuilder)
@@ -87,7 +88,10 @@ namespace BackEngin.Data
                 new Preferences { Id = 19, Name = "Keto", Description = "A low-carb, high-fat diet focused on inducing ketosis for energy." },
                 new Preferences { Id = 20, Name = "Paleo", Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods." }
            );
+        }
 
+        private void ConfigureUserInteractions(ModelBuilder modelBuilder)
+        {
             // Seed Interactions
             modelBuilder.Entity<Interactions>().HasData(
                 new Interactions { Id = 1, Name = "Follow", Description = "User follows another user" },
