@@ -162,6 +162,7 @@ namespace BackEngin.Data
                 .WithMany()
                 .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Restrict);
+        }
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IngredientTypes>(entity =>
