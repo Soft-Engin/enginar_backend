@@ -7,39 +7,58 @@ namespace BackEngin.Controllers
     {
         public ApiControllerBase() { }
 
-        //give the accessed object's associated userId as parameter.
         protected async Task<bool> CanUserAccess(string userId)
         {
-            var userIdFromToken = await GetActiveUserId();
-            var userRole = await GetActiveUserRole();
-
-            if (userIdFromToken == userId || userRole == "Admin")
+            try
             {
-                return true;
-            }
+                var userIdFromToken = await GetActiveUserId();
+                var userRole = await GetActiveUserRole();
 
-            return false;
+                if (userIdFromToken == userId || userRole == "Admin")
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error checking user access: {ex.Message}");
+            }
         }
 
         protected async Task<string> GetActiveUserId()
         {
-            var id = User.FindAll(ClaimTypes.NameIdentifier).Last()?.Value;
-            if (id == null)
+            try
             {
-                throw new Exception("JWT token is missing NameIdentifier claim!");
+                var id = User.FindAll(ClaimTypes.NameIdentifier).LastOrDefault()?.Value;
+                if (id == null)
+                {
+                    throw new Exception("JWT token is missing NameIdentifier claim.");
+                }
+                return id;
             }
-            return id;
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving active user ID: {ex.Message}");
+            }
         }
 
         protected async Task<string> GetActiveUserRole()
         {
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            if (role == null)
+            try
             {
-                throw new Exception("JWT token is missing Role claim!");
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (role == null)
+                {
+                    throw new Exception("JWT token is missing Role claim.");
+                }
+                return role;
             }
-            return role;
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving active user role: {ex.Message}");
+            }
         }
     }
 }

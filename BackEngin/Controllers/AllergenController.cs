@@ -4,8 +4,6 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Http.HttpResults;
-using NuGet.Common;
 
 namespace BackEngin.Controllers
 {
@@ -25,8 +23,15 @@ namespace BackEngin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAllergens()
         {
-            var allergens = await _allergenService.GetAllAllergensAsync();
-            return Ok(allergens);
+            try
+            {
+                var allergens = await _allergenService.GetAllAllergensAsync();
+                return Ok(allergens);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // POST /allergens - Create a new allergen (admin only)
@@ -35,14 +40,21 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> CreateAllergen([FromBody] AllergenDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _allergenService.CreateAllergenAsync(model);
-            if (result == null)
+            try
             {
-                return BadRequest("Allergen can not be created");
+                var result = await _allergenService.CreateAllergenAsync(model);
+                if (result == null)
+                {
+                    return BadRequest(new { message = "Allergen could not be created." });
+                }
+                return Ok(new { Id = result, message = "Allergen created successfully!" });
             }
-            return Ok(new { Id = result, message = "Allergen logged in successfully!" });
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // PUT /allergens/{allergenId} - Update an allergen (admin only)
@@ -51,18 +63,25 @@ namespace BackEngin.Controllers
         public async Task<IActionResult> UpdateAllergen(int allergenId, [FromBody] AllergenDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _allergenService.UpdateAllergenAsync(allergenId, model);
-            if (result == null)
+            try
             {
-                return BadRequest("Allergen does not exist");
+                var result = await _allergenService.UpdateAllergenAsync(allergenId, model);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Allergen does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Allergen could not be updated." });
+                }
+                return Ok(new { message = "Allergen updated successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Allergen can not be updated");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Allergen updated successfully!" });
         }
 
         // DELETE /allergens/{allergenId} - Delete an allergen (admin only)
@@ -70,16 +89,23 @@ namespace BackEngin.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAllergen(int allergenId)
         {
-            var result = await _allergenService.DeleteAllergenAsync(allergenId);
-            if (result == null)
+            try
             {
-                return BadRequest("Allergen does not exist");
+                var result = await _allergenService.DeleteAllergenAsync(allergenId);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Allergen does not exist." });
+                }
+                if (result == false)
+                {
+                    return BadRequest(new { message = "Allergen could not be deleted." });
+                }
+                return Ok(new { message = "Allergen deleted successfully!" });
             }
-            if (result == false)
+            catch (Exception ex)
             {
-                return BadRequest("Allergen can not be deleted");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            return Ok(new { message = "Allergen deleted successfully!" });
         }
     }
 }

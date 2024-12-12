@@ -16,10 +16,21 @@ namespace BackEngin.Data
         public DbSet<Roles> Roles { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Preferences> Preferences { get; set; }
+        public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Ingredients> Ingredients { get; set; }
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
-        public DbSet<Ingredients> Ingredients { get; set; }
-        public DbSet<IngredientTypes> IngredientTypes { get; set; }
+        public DbSet<Blogs> Blogs { get; set; }
+
+
+
+
+        public DbSet<Users_Interactions> Users_Interactions { get; set; }
+        public DbSet<Interactions> Interactions { get; set; }
+        public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
+        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
+
+        public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,25 +41,37 @@ namespace BackEngin.Data
                 new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
             );
 
-            modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 1, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
+            modelBuilder.Entity<Ingredients>().HasData(
+                new Ingredients { Id = 3, Name = "Enginar", TypeId = 1 },
+                new Ingredients { Id = 4, Name = "Zeytinyağı", TypeId = 2 }
             );
 
-            modelBuilder.Entity<IngredientTypes>().HasData(
-               new IngredientTypes { Id = 1, Name = "Vegetable", Description = "Fresh vegetables" },
-               new IngredientTypes { Id = 2, Name = "Oil", Description = "Cooking oils" }
-           );
-
-            modelBuilder.Entity<Ingredients>().HasData(
-                new Ingredients { Id = 1, Name = "Enginar", TypeId = 1 },
-                new Ingredients { Id = 2, Name = "Zeytinyağı", TypeId = 2 }
+            modelBuilder.Entity<Recipes>().HasData(
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "3" }
             );
 
             modelBuilder.Entity<Recipes_Ingredients>().HasData(
-                new Recipes_Ingredients { Id = 1, RecipeId = 1, IngredientId = 1, Quantity = 2, Unit = "adet" },
-                new Recipes_Ingredients { Id = 2, RecipeId = 1, IngredientId = 2, Quantity = 3, Unit = "yemek kaşığı" }
+                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
+                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
             );
+
+            modelBuilder.Entity<Blogs>().HasData(
+                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "3" }
+            );
+            // Configure many-to-many relationship between Ingredients and Preferences
+            modelBuilder.Entity<Ingredients_Preferences>()
+                .HasOne(ip => ip.Ingredient)
+                .WithMany(i => i.Ingredients_Preferences)
+                .HasForeignKey(ip => ip.IngredientId);
+
+            modelBuilder.Entity<Ingredients_Preferences>()
+                .HasOne(ip => ip.Preference)
+                .WithMany(p => p.Ingredients_Preferences)
+                .HasForeignKey(ip => ip.PreferenceId);
+
             PopulatePreferences(modelBuilder);
+            ConfigureUserInteractions(modelBuilder);
+            PopulateIngredientTypes(modelBuilder);
         }
 
         private void PopulatePreferences(ModelBuilder modelBuilder)
@@ -81,7 +104,92 @@ namespace BackEngin.Data
                 new Preferences { Id = 19, Name = "Keto", Description = "A low-carb, high-fat diet focused on inducing ketosis for energy." },
                 new Preferences { Id = 20, Name = "Paleo", Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods." }
            );
+        }
 
+        private void ConfigureUserInteractions(ModelBuilder modelBuilder)
+        {
+            // Seed Interactions
+            modelBuilder.Entity<Interactions>().HasData(
+                new Interactions { Id = 1, Name = "Follow", Description = "User follows another user" },
+                new Interactions { Id = 2, Name = "BookmarkRecipe", Description = "User bookmarks a recipe" },
+                new Interactions { Id = 3, Name = "BookmarkBlog", Description = "User bookmarks a blog" }
+            );
+
+            // Configure Users_Interactions Relationships
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.InitiatorUser)
+                .WithMany()
+                .HasForeignKey(ui => ui.InitiatorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.TargetUser)
+                .WithMany()
+                .HasForeignKey(ui => ui.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Interactions>()
+                .HasOne(ui => ui.Interaction)
+                .WithMany()
+                .HasForeignKey(ui => ui.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+               .HasOne(uri => uri.User)
+               .WithMany()
+               .HasForeignKey(uri => uri.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+                .HasOne(uri => uri.Recipe)
+                .WithMany()
+                .HasForeignKey(uri => uri.RecipeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Recipes_Interaction>()
+                .HasOne(uri => uri.Interaction)
+                .WithMany()
+                .HasForeignKey(uri => uri.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.User)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.Blog)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.BlogId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users_Blogs_Interaction>()
+                .HasOne(ubi => ubi.Interaction)
+                .WithMany()
+                .HasForeignKey(ubi => ubi.InteractionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void PopulateIngredientTypes(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IngredientTypes>(entity =>
+            {
+                entity.HasKey(it => it.Id); // Primary key
+                entity.Property(it => it.Id).ValueGeneratedOnAdd(); // Auto-increment
+            });
+
+            modelBuilder.Entity<IngredientTypes>().HasData(
+                new IngredientTypes { Id = 1, Name = "Vegetable", Description = "Edible plants or their parts, intended for cooking or eating raw." },
+                new IngredientTypes { Id = 2, Name = "Fruit", Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food." },
+                new IngredientTypes { Id = 3, Name = "Meat", Description = "Animal flesh that is eaten as food." },
+                new IngredientTypes { Id = 4, Name = "Dairy", Description = "Food produced from or containing the milk of mammals." },
+                new IngredientTypes { Id = 5, Name = "Grain", Description = "Small, hard, dry seeds harvested for human or animal consumption." },
+                new IngredientTypes { Id = 6, Name = "Seafood", Description = "Sea life regarded as food by humans, includes fish and shellfish." },
+                new IngredientTypes { Id = 7, Name = "Spice", Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark." },
+                new IngredientTypes { Id = 8, Name = "Herb", Description = "Plants with savory or aromatic properties used for flavoring and garnishing food." },
+                new IngredientTypes { Id = 9, Name = "Nuts & Seeds", Description = "Dry, edible fruits or seeds that usually have a high fat content." },
+                new IngredientTypes { Id = 10, Name = "Beverage", Description = "Drinkable liquids other than water, may be hot or cold." }
+            );
         }
     }
 

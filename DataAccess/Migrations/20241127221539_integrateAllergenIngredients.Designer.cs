@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241119210205_Allergens")]
-    partial class Allergens
+    [Migration("20241127221539_integrateAllergenIngredients")]
+    partial class integrateAllergenIngredients
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,28 +24,6 @@ namespace DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("BackEngin.Models.WeatherForecast", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Summary")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TemperatureC")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WeatherForecasts");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -344,6 +322,148 @@ namespace DataAccess.Migrations
                     b.ToTable("Districts");
                 });
 
+            modelBuilder.Entity("Models.IngredientTypes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IngredientTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Edible plants or their parts, intended for cooking or eating raw.",
+                            Name = "Vegetable"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food.",
+                            Name = "Fruit"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Animal flesh that is eaten as food.",
+                            Name = "Meat"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Food produced from or containing the milk of mammals.",
+                            Name = "Dairy"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Small, hard, dry seeds harvested for human or animal consumption.",
+                            Name = "Grain"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Sea life regarded as food by humans, includes fish and shellfish.",
+                            Name = "Seafood"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark.",
+                            Name = "Spice"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Plants with savory or aromatic properties used for flavoring and garnishing food.",
+                            Name = "Herb"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Dry, edible fruits or seeds that usually have a high fat content.",
+                            Name = "Nuts & Seeds"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Drinkable liquids other than water, may be hot or cold.",
+                            Name = "Beverage"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Ingredients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Enginar",
+                            TypeId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Zeytinyağı",
+                            TypeId = 2
+                        });
+                });
+
+            modelBuilder.Entity("Models.Ingredients_Preferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreferenceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("PreferenceId");
+
+                    b.ToTable("Ingredients_Preferences");
+                });
+
             modelBuilder.Entity("Models.Preferences", b =>
                 {
                     b.Property<int>("Id")
@@ -484,6 +604,90 @@ namespace DataAccess.Migrations
                             Id = 20,
                             Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods.",
                             Name = "Paleo"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Recipes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BodyText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Recipes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
+                            Header = "Enginar Şöleni",
+                            UserId = "1"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Quantity")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("Recipes_Ingredients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IngredientId = 1,
+                            Quantity = 2.0,
+                            RecipeId = 1,
+                            Unit = "adet"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IngredientId = 2,
+                            Quantity = 3.0,
+                            RecipeId = 1,
+                            Unit = "yemek kaşığı"
                         });
                 });
 
@@ -631,6 +835,66 @@ namespace DataAccess.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.HasOne("Models.IngredientTypes", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("Models.Ingredients_Preferences", b =>
+                {
+                    b.HasOne("Models.Ingredients", "Ingredient")
+                        .WithMany("Ingredients_Preferences")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Preferences", "Preference")
+                        .WithMany("Ingredients_Preferences")
+                        .HasForeignKey("PreferenceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+
+                    b.Navigation("Preference");
+                });
+
+            modelBuilder.Entity("Models.Recipes", b =>
+                {
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
+                {
+                    b.HasOne("Models.Ingredients", "Ingredient")
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany("Recipes_Ingredients")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+
+                    b.Navigation("Recipe");
+                });
+
             modelBuilder.Entity("Models.Users", b =>
                 {
                     b.HasOne("Models.Addresses", "Address")
@@ -646,6 +910,21 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.Navigation("Ingredients_Preferences");
+                });
+
+            modelBuilder.Entity("Models.Preferences", b =>
+                {
+                    b.Navigation("Ingredients_Preferences");
+                });
+
+            modelBuilder.Entity("Models.Recipes", b =>
+                {
+                    b.Navigation("Recipes_Ingredients");
                 });
 #pragma warning restore 612, 618
         }

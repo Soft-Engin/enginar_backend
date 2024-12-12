@@ -7,7 +7,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/recipe")]
+    [Route("api/v{version:apiVersion}/recipes")]
     [ApiController]
     public class RecipeController : ApiControllerBase
     {
@@ -18,22 +18,36 @@ namespace BackEngin.Controllers
             _recipeService = recipeService;
         }
 
-        [HttpGet("recipes")]
+        // GET /recipes
+        [HttpGet]
         public async Task<IActionResult> GetRecipes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var recipes = await _recipeService.GetRecipes(pageNumber, pageSize);
-            return Ok(recipes);
+            try
+            {
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
+
+                var recipes = await _recipeService.GetRecipes(pageNumber, pageSize);
+                return Ok(recipes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        [HttpPost("create-recipe")]
+        // POST /recipes
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateRecipe([FromBody] RecipeRequestDTO recipeDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            // this probably wont even get triggered
-            if (recipeDto == null) return BadRequest("Invalid recipe data.");
+            if (recipeDto == null)
+            {
+                return BadRequest(new { message = "Invalid recipe data." });
+            }
 
             try
             {
@@ -41,89 +55,117 @@ namespace BackEngin.Controllers
                 {
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
-                    UserId = await GetActiveUserId(),
                     Ingredients = recipeDto.Ingredients
                 };
 
-                var createdRecipe = await _recipeService.CreateRecipe(recipe);
-                if (createdRecipe == null) return BadRequest("Invalid recipe data.");
+                string userId = await GetActiveUserId();
+                var createdRecipe = await _recipeService.CreateRecipe(userId, recipe);
+                if (createdRecipe == null) return BadRequest(new { message = "Recipe creation failed." });
+
 
                 return CreatedAtAction(nameof(GetRecipeDetails), new { recipeId = createdRecipe.Id }, createdRecipe);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
 
-        [HttpGet("recipe-details/{recipeId}")]
+        // GET /recipes/{recipeId}
+        [HttpGet("{recipeId}")]
         public async Task<IActionResult> GetRecipeDetails(int recipeId)
         {
-            var recipe = await _recipeService.GetRecipeDetails(recipeId);
-            if (recipe == null) return NotFound();
-            return Ok(recipe);
+            try
+            {
+                var recipe = await _recipeService.GetRecipeDetails(recipeId);
+                if (recipe == null)
+                {
+                    return NotFound(new { message = "Recipe not found." });
+                }
+
+                return Ok(recipe);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        [HttpPut("update-recipe/{recipeId}")]
+        // PUT /recipes/{recipeId}
+        [HttpPut("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeRequestDTO updateRecipeDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var recipeOwner = await _recipeService.GetOwner(recipeId);
-            // Return NotFound if the recipe doesn't exist
-            if (recipeOwner == null)
-            {
-                return NotFound();
-            }
-            if (!await CanUserAccess(recipeOwner))
-            {
-                return Unauthorized();
-            }
             try
             {
-                var updatedRecipe = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
-                if (updatedRecipe == null) // Double-check if the update failed
+                var recipeOwner = await _recipeService.GetOwner(recipeId);
+                if (recipeOwner == null)
                 {
-                    return NotFound();
+                    return NotFound(new { message = "Recipe does not exist." });
                 }
+
+                if (!await CanUserAccess(recipeOwner))
+                {
+                    return Unauthorized(new { message = "Unauthorized to access this recipe." });
+                }
+
+                var updatedRecipe = await _recipeService.UpdateRecipe(recipeId, updateRecipeDto);
+                if (updatedRecipe == null)
+                {
+                    return NotFound(new { message = "Recipe update failed." });
+                }
+
                 return Ok(updatedRecipe);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            
         }
 
-        [HttpDelete("delete-recipe/{recipeId}")]
+        // DELETE /recipes/{recipeId}
+        [HttpDelete("{recipeId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int recipeId)
         {
-            var recipeOwner = await _recipeService.GetOwner(recipeId);
-            if(recipeOwner == null)
+            try
             {
-                return NotFound();
+                var recipeOwner = await _recipeService.GetOwner(recipeId);
+                if (recipeOwner == null)
+                {
+                    return NotFound(new { message = "Recipe does not exist." });
+                }
+
+                if (!await CanUserAccess(recipeOwner))
+                {
+                    return Unauthorized(new { message = "You are not authorized to delete this recipe." });
+                }
+
+                var result = await _recipeService.DeleteRecipe(recipeId);
+                if (!result)
+                {
+                    return NotFound(new { message = "Recipe deletion failed." });
+                }
+
+                return Ok(new { message = "Recipe deleted successfully!" });
             }
-            if (!await CanUserAccess(recipeOwner))
+            catch (Exception ex)
             {
-                return Unauthorized();
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-            var result = await _recipeService.DeleteRecipe(recipeId);
-            if (!result) return NotFound();
-            return Ok(new { message = "Recipe deleted successfully!" });
         }
+
     }
 }

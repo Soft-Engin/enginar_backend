@@ -75,24 +75,34 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-                {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-                }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+        {
+            new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+        }
             };
+
             var createdRecipe = new RecipeDetailsDTO
             {
                 Id = 1,
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
-                Ingredients = createRecipeDto.Ingredients
+                Ingredients = new List<RecipeIngredientDetailsDTO>
+        {
+            new RecipeIngredientDetailsDTO
+            {
+                IngredientId = 1,
+                Quantity = 2,
+                Unit = "cups",
+                IngredientName = "Flour" // Mocked response from service
+            }
+        }
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
                      .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
 
-            _mockRecipeService.Setup(s => s.CreateRecipe(It.Is<CreateRecipeDTO>(
-                dto => dto.UserId == "currentUserId" && dto.Header == "Pancakes"))).ReturnsAsync(createdRecipe);
+            _mockRecipeService.Setup(s => s.CreateRecipe("currentUserId", It.IsAny<CreateRecipeDTO>()))
+                              .ReturnsAsync(createdRecipe);
 
             // Act
             var result = await _recipeController.CreateRecipe(createRecipeDto);
@@ -102,7 +112,6 @@ namespace BackEngin.Tests.Controllers
             var createdResult = result as CreatedAtActionResult;
             createdResult.Value.Should().BeEquivalentTo(createdRecipe);
         }
-
 
         [Fact]
         public async Task GetRecipeDetails_ShouldReturnOk_WithRecipe()
@@ -141,7 +150,15 @@ namespace BackEngin.Tests.Controllers
             var result = await _recipeController.GetRecipeDetails(recipeId);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Recipe not found."
+            });
         }
 
         [Fact]
@@ -153,10 +170,10 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
-            {
-                new RecipeIngredientDetailsDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
-            }
+                Ingredients = new List<RecipeIngredientRequestDTO>
+                {
+                    new RecipeIngredientRequestDTO { IngredientId = 99, Quantity = 1, Unit = "tbsp" } // Invalid ingredient ID
+                }
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");
@@ -173,8 +190,15 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Value.Should().Be("One or more ingredient IDs are invalid.");
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400); // StatusCode contains the HTTP status code
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "One or more ingredient IDs are invalid." // Message is part of the response Value
+            });
         }
+
 
 
 
@@ -187,18 +211,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
 
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             // Mock the Recipe Owner
@@ -243,10 +276,17 @@ namespace BackEngin.Tests.Controllers
             var result = await _recipeController.UpdateRecipe(recipeId, updateRecipeDto);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
-            _mockRecipeService.Verify(s => s.GetOwner(recipeId), Times.Once);
-            _mockRecipeService.Verify(s => s.UpdateRecipe(It.IsAny<int>(), It.IsAny<RecipeRequestDTO>()), Times.Never);
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Recipe does not exist."
+            });
         }
+
 
 
 
@@ -259,21 +299,31 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("otherUserId");
-            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier)).Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
-            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role)).Returns(new Claim(ClaimTypes.Role, "User"));
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
 
             // Act
             var result = await _recipeController.UpdateRecipe(recipeId, updateRecipeDto);
 
             // Assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+
+            unauthorizedResult.Should().NotBeNull();
+            unauthorizedResult.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+            unauthorizedResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Unauthorized to access this recipe."
+            });
         }
 
         [Fact]
@@ -285,17 +335,27 @@ namespace BackEngin.Tests.Controllers
             {
                 Header = "Updated Pancakes",
                 BodyText = "Updated delicious pancakes recipe",
-                Ingredients = new List<RecipeIngredientDetailsDTO>
+                Ingredients = new List<RecipeIngredientRequestDTO>
                 {
-                    new RecipeIngredientDetailsDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 3, Unit = "cups" }
                 }
             };
+
+            var updatedRecipeIngredients = updateRecipeDto.Ingredients
+                .Select(i => new RecipeIngredientDetailsDTO
+                {
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    IngredientName = "Flour" // Simulated from ingredient lookup
+                }).ToList();
+
             var updatedRecipe = new RecipeDetailsDTO
             {
                 Id = recipeId,
                 Header = updateRecipeDto.Header,
                 BodyText = updateRecipeDto.BodyText,
-                Ingredients = updateRecipeDto.Ingredients
+                Ingredients = updatedRecipeIngredients
             };
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");
@@ -318,19 +378,32 @@ namespace BackEngin.Tests.Controllers
             // Arrange
             var recipeId = 1;
 
+            // Mocking the recipe owner to be a different user
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("otherUserId");
-            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier)).Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
-            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role)).Returns(new Claim(ClaimTypes.Role, "User"));
+
+            // Mocking the current user claims (non-owner and non-admin)
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
 
             // Act
             var result = await _recipeController.DeleteRecipe(recipeId);
 
             // Assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+
+            unauthorizedResult.Should().NotBeNull();
+            unauthorizedResult.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+            unauthorizedResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "You are not authorized to delete this recipe."
+            });
         }
 
         [Fact]
-        public async Task DeleteRecipe_ShouldReturnNoContent_WhenUserIsOwner()
+        public async Task DeleteRecipe_ShouldReturnOk_WhenUserIsOwner()
         {
             // Arrange
             var recipeId = 1;
@@ -354,15 +427,25 @@ namespace BackEngin.Tests.Controllers
             var recipeId = 99;
 
             _mockRecipeService.Setup(s => s.GetOwner(recipeId)).ReturnsAsync("currentUserId");
-            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier)).Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
-            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role)).Returns(new Claim(ClaimTypes.Role, "User"));
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
             _mockRecipeService.Setup(s => s.DeleteRecipe(recipeId)).ReturnsAsync(false);
 
             // Act
             var result = await _recipeController.DeleteRecipe(recipeId);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+
+            notFoundResult.Should().NotBeNull();
+            notFoundResult.StatusCode.Should().Be(404);
+            notFoundResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Recipe deletion failed."
+            });
         }
 
         [Fact]
@@ -373,6 +456,14 @@ namespace BackEngin.Tests.Controllers
 
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+
+            badRequestResult.Should().NotBeNull();
+            badRequestResult.StatusCode.Should().Be(400);
+            badRequestResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "Invalid recipe data."
+            });
         }
 
         [Fact]

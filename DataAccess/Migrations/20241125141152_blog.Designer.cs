@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241106134839_users")]
-    partial class users
+    [Migration("20241125141152_blog")]
+    partial class blog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,28 +24,6 @@ namespace DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("BackEngin.Models.WeatherForecast", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Summary")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TemperatureC")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WeatherForecasts");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -201,12 +179,10 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -243,12 +219,10 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -282,6 +256,48 @@ namespace DataAccess.Migrations
                     b.HasIndex("DistrictId");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("Models.Blogs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BodyText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Blogs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
+                            Header = "ENGINAR YOLCULUĞU",
+                            RecipeId = 2,
+                            UserId = "3"
+                        });
                 });
 
             modelBuilder.Entity("Models.Cities", b =>
@@ -348,6 +364,220 @@ namespace DataAccess.Migrations
                     b.ToTable("Districts");
                 });
 
+            modelBuilder.Entity("Models.IngredientTypes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IngredientTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Fresh vegetables",
+                            Name = "Vegetable"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Cooking oils",
+                            Name = "Oil"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Ingredients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 3,
+                            Name = "Enginar",
+                            TypeId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Zeytinyağı",
+                            TypeId = 2
+                        });
+                });
+
+            modelBuilder.Entity("Models.Preferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Preferences");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "A type of protein commonly found in wheat, barley, and rye.",
+                            Name = "Gluten"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Milk and products derived from milk, such as cheese and yogurt.",
+                            Name = "Dairy"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Tree nuts including almonds, cashews, and walnuts; excludes peanuts.",
+                            Name = "Nuts"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "A type of legume that is a common allergen, distinct from tree nuts.",
+                            Name = "Peanuts"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "A legume used in products like tofu, soy milk, and many processed foods.",
+                            Name = "Soy"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "A common ingredient in baking and cooking derived from chicken eggs.",
+                            Name = "Eggs"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Seafood including cod, salmon, and tuna.",
+                            Name = "Fish"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Crustaceans and mollusks like shrimp, crab, and clams.",
+                            Name = "Shellfish"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Seeds and oils derived from sesame plants, found in many cuisines.",
+                            Name = "Sesame"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "A diet that excludes all animal products, including meat, dairy, and honey.",
+                            Name = "Vegan"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "A diet that excludes meat and fish but may include dairy and eggs.",
+                            Name = "Vegetarian"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Avoidance of dairy products due to difficulty digesting lactose.",
+                            Name = "Lactose Intolerant"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "A diet that includes fish but excludes other forms of meat.",
+                            Name = "Pescatarian"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Dietary requirements based on Islamic law, including avoidance of pork and alcohol.",
+                            Name = "Halal"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Food prepared in compliance with Jewish dietary laws, avoiding non-kosher animals and mixing meat with dairy.",
+                            Name = "Kosher"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "A diet that limits fermentable oligosaccharides, disaccharides, monosaccharides, and polyols to manage digestive symptoms.",
+                            Name = "Low FODMAP"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Avoidance of all nuts, including peanuts and tree nuts.",
+                            Name = "Nut-Free"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "A diet primarily focused on consuming plant-derived foods, minimizing or excluding animal products.",
+                            Name = "Plant-Based"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "A low-carb, high-fat diet focused on inducing ketosis for energy.",
+                            Name = "Keto"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods.",
+                            Name = "Paleo"
+                        });
+                });
+
             modelBuilder.Entity("Models.Recipes", b =>
                 {
                     b.Property<int>("Id")
@@ -373,6 +603,63 @@ namespace DataAccess.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Recipes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 2,
+                            BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
+                            Header = "Enginar Şöleni",
+                            UserId = "3"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Quantity")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("Recipes_Ingredients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 3,
+                            IngredientId = 3,
+                            Quantity = 2.0,
+                            RecipeId = 2,
+                            Unit = "adet"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            IngredientId = 4,
+                            Quantity = 3.0,
+                            RecipeId = 2,
+                            Unit = "yemek kaşığı"
+                        });
                 });
 
             modelBuilder.Entity("Models.Roles", b =>
@@ -394,6 +681,20 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Default user role",
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Admin role",
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Models.Users", b =>
@@ -419,6 +720,23 @@ namespace DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.HasDiscriminator().HasValue("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "3",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "33157474-c8cd-4c1a-8b0e-eae7756dc77c",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "c88b2936-1e6e-49d3-ab03-36c1185a36e2",
+                            TwoFactorEnabled = false,
+                            UserName = "zeynep",
+                            FirstName = "zeynep",
+                            LastName = "kara",
+                            RoleId = 1
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -483,6 +801,23 @@ namespace DataAccess.Migrations
                     b.Navigation("District");
                 });
 
+            modelBuilder.Entity("Models.Blogs", b =>
+                {
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId");
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Models.Cities", b =>
                 {
                     b.HasOne("Models.Countries", "Country")
@@ -505,6 +840,17 @@ namespace DataAccess.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Models.Ingredients", b =>
+                {
+                    b.HasOne("Models.IngredientTypes", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
+                });
+
             modelBuilder.Entity("Models.Recipes", b =>
                 {
                     b.HasOne("Models.Users", "User")
@@ -514,6 +860,25 @@ namespace DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.Recipes_Ingredients", b =>
+                {
+                    b.HasOne("Models.Ingredients", "Ingredient")
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany("Recipes_Ingredients")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+
+                    b.Navigation("Recipe");
                 });
 
             modelBuilder.Entity("Models.Users", b =>
@@ -531,6 +896,11 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Models.Recipes", b =>
+                {
+                    b.Navigation("Recipes_Ingredients");
                 });
 #pragma warning restore 612, 618
         }
