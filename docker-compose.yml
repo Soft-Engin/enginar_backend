@@ -35,7 +35,21 @@ services:
         ALTER ROLE db_owner ADD MEMBER ${MSSQL_USER};
         GO
       \"
-      " 
+      "
+      
+  backengin:
+    build: .
+    image: enginar-backend
+    container_name: backengin
+    depends_on:
+      mssql-tools:
+        condition: service_completed_successfully
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5173;http://+:8080
+    ports:
+      - "8091:5173"
+      - "8090:8080"
 
 volumes:
   mssql_data:
