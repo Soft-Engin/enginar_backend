@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Reflection.Emit;
 using DataAccess.Migrations;
+using Models.InteractionModels;
 
 namespace BackEngin.Data
 {
@@ -21,16 +22,19 @@ namespace BackEngin.Data
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Blogs> Blogs { get; set; }
-
-
-
-
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
 
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
+
+        public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
+        public DbSet<Blog_Comments> Blog_Comments { get; set; }
+        public DbSet<Blog_Likes> Blog_Likes { get; set; }
+        public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
+        public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
+        public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
