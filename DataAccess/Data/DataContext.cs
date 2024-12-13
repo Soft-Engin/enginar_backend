@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
-using System.Reflection.Emit;
-using DataAccess.Migrations;
 using Models.InteractionModels;
 
 namespace BackEngin.Data
@@ -50,18 +48,19 @@ namespace BackEngin.Data
                 new Ingredients { Id = 4, Name = "Zeytinyağı", TypeId = 2 }
             );
 
-            modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "3" }
-            );
+            //modelBuilder.Entity<Recipes>().HasData(
+            //    new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "3" }
+            //);
 
-            modelBuilder.Entity<Recipes_Ingredients>().HasData(
-                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
-                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
-            );
+            //modelBuilder.Entity<Recipes_Ingredients>().HasData(
+            //    new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
+            //    new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
+            //);
 
-            modelBuilder.Entity<Blogs>().HasData(
-                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "3" }
-            );
+            //modelBuilder.Entity<Blogs>().HasData(
+            //    new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "3" }
+            //);
+
             // Configure many-to-many relationship between Ingredients and Preferences
             modelBuilder.Entity<Ingredients_Preferences>()
                 .HasOne(ip => ip.Ingredient)
@@ -172,6 +171,42 @@ namespace BackEngin.Data
                 .WithMany()
                 .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Bookmarks>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany() 
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Recipe_Comments>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany() 
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Recipe_Likes>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany() 
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Bookmarks>()
+              .HasOne(rb => rb.Blog)
+              .WithMany()
+              .HasForeignKey(rb => rb.BlogId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Comments>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Likes>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)
