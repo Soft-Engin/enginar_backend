@@ -3,6 +3,7 @@ using DataAccess.Migrations;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DTO;
 
@@ -119,5 +120,40 @@ namespace BackEngin.Services
             }
         }
 
+        public async Task<PaginatedResponseDTO<AllergenIdDTO>> SearchAllergens(AllergenSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = unitOfWork.Preferences.GetQueryable();
+
+            if (!string.IsNullOrEmpty(searchParams.NameContains))
+                query = query.Where(a => a.Name.Contains(searchParams.NameContains));
+
+            if (!string.IsNullOrEmpty(searchParams.DescriptionContains))
+                query = query.Where(a => a.Description.Contains(searchParams.DescriptionContains));
+
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "description" => ascending ? query.OrderBy(a => a.Description) : query.OrderByDescending(a => a.Description),
+                _ => ascending ? query.OrderBy(a => a.Name) : query.OrderByDescending(a => a.Name),
+            };
+
+            var totalCount = await query.CountAsync();
+            var allergens = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var allergenDTOs = allergens.Select(a => new AllergenIdDTO
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Description = a.Description
+            }).ToList();
+
+            return new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                Items = allergenDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
     }
 }

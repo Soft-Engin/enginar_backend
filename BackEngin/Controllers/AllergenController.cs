@@ -107,5 +107,28 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchAllergens(
+            [FromQuery] string? nameContains,
+            [FromQuery] string? descriptionContains,
+            [FromQuery] string sortBy = "Name",
+            [FromQuery] string sortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            var searchParams = new AllergenSearchParams
+            {
+                NameContains = nameContains,
+                DescriptionContains = descriptionContains,
+                SortBy = sortBy,
+                SortOrder = sortOrder
+            };
+
+            var result = await _allergenService.SearchAllergens(searchParams, pageNumber, pageSize);
+            return Ok(result);
+        }
+
     }
 }
