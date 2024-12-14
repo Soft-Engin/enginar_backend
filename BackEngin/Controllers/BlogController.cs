@@ -128,5 +128,36 @@ namespace BackEngin.Controllers
             if (recipe == null) return NotFound("No recipe associated with this blog.");
             return Ok(recipe);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBlogs(
+            [FromQuery] string? headerContains,
+            [FromQuery] string? bodyContains,
+            [FromQuery] string? userName,
+            [FromQuery] int? recipeId,
+            [FromQuery] List<int> ingredientIds,
+            [FromQuery] List<int> allergenIds,
+            [FromQuery] string sortBy = "Header",
+            [FromQuery] string sortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            var searchParams = new BlogSearchParams
+            {
+                HeaderContains = headerContains,
+                BodyContains = bodyContains,
+                UserName = userName,
+                RecipeId = recipeId,
+                IngredientIds = ingredientIds ?? new List<int>(),
+                AllergenIds = allergenIds ?? new List<int>(),
+                SortBy = sortBy,
+                SortOrder = sortOrder
+            };
+
+            var result = await _blogService.SearchBlogs(searchParams, pageNumber, pageSize);
+            return Ok(result);
+        }
+
     }
 }

@@ -11,5 +11,6 @@ namespace BackEngin.Services.Interfaces
         Task<BlogDetailDTO> GetBlogById(int blogId);
         Task<RecipeDetailsDTO> GetRecipeOfBlog(int blogId);
         Task<string?> GetOwner(int blogId);
+        Task<PaginatedResponseDTO<BlogDTO>> SearchBlogs(BlogSearchParams searchParams, int pageNumber, int pageSize);
     }
 }
