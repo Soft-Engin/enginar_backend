@@ -249,11 +249,11 @@ namespace BackEngin.Controllers
             [FromQuery] int pageSize = 10
             )
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
             try
             {
-                if (pageNumber <= 0) pageNumber = 1;
-                if (pageSize <= 0) pageSize = 10;
-
                 var searchParams = new UserSearchParams
                 {
                     UserNameContains = UsernameContains,

@@ -143,17 +143,27 @@ namespace BackEngin.Controllers
             [FromQuery] int pageSize = 10
             )
         {
-            var searchParams = new IngredientSearchParams
-            {
-                NameContains = nameContains,
-                IngredientTypeIds = ingredientTypeIds,
-                AllergenIds = allergenIds ?? new List<int>(),
-                SortBy = sortBy,
-                SortOrder = sortOrder
-            };
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
 
-            var result = await _ingredientsService.SearchIngredients(searchParams, pageNumber, pageSize);
-            return Ok(result);
+            try
+            {
+                var searchParams = new IngredientSearchParams
+                {
+                    NameContains = nameContains,
+                    IngredientTypeIds = ingredientTypeIds,
+                    AllergenIds = allergenIds ?? new List<int>(),
+                    SortBy = sortBy,
+                    SortOrder = sortOrder
+                };
+
+                var result = await _ingredientsService.SearchIngredients(searchParams, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
     }

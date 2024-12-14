@@ -180,19 +180,28 @@ namespace BackEngin.Controllers
             [FromQuery] int pageSize = 10
             )
         {
-            var searchParams = new RecipeSearchParams
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+            try
             {
-                HeaderContains = headerContains,
-                BodyContains = bodyContains,
-                UserName = userName,
-                IngredientIds = ingredientIds ?? new List<int>(),
-                AllergenIds = allergenIds ?? new List<int>(),
-                SortBy = sortBy,
-                SortOrder = sortOrder
-            };
+                var searchParams = new RecipeSearchParams
+                {
+                    HeaderContains = headerContains,
+                    BodyContains = bodyContains,
+                    UserName = userName,
+                    IngredientIds = ingredientIds ?? new List<int>(),
+                    AllergenIds = allergenIds ?? new List<int>(),
+                    SortBy = sortBy,
+                    SortOrder = sortOrder
+                };
 
-            var result = await _recipeService.SearchRecipes(searchParams, pageNumber, pageSize);
-            return Ok(result);
+                var result = await _recipeService.SearchRecipes(searchParams, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
     }
