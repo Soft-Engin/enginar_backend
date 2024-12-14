@@ -10,5 +10,6 @@ namespace BackEngin.Services.Interfaces
         Task<RecipeDetailsDTO> UpdateRecipe(int recipeId, RecipeRequestDTO updateRecipeDTO);
         Task<bool> DeleteRecipe(int recipeId);
         Task<string?> GetOwner(int recipeId);
+        Task<PaginatedResponseDTO<RecipeDTO>> SearchRecipes(RecipeSearchParams searchParams, int pageNumber, int pageSize);
     }
 }

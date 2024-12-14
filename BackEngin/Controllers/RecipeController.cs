@@ -167,5 +167,33 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchRecipes(
+            [FromQuery] string? headerContains,
+            [FromQuery] string? bodyContains,
+            [FromQuery] string? userName,
+            [FromQuery] List<int> ingredientIds,
+            [FromQuery] List<int> allergenIds,
+            [FromQuery] string sortBy = "Header",
+            [FromQuery] string sortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            var searchParams = new RecipeSearchParams
+            {
+                HeaderContains = headerContains,
+                BodyContains = bodyContains,
+                UserName = userName,
+                IngredientIds = ingredientIds ?? new List<int>(),
+                AllergenIds = allergenIds ?? new List<int>(),
+                SortBy = sortBy,
+                SortOrder = sortOrder
+            };
+
+            var result = await _recipeService.SearchRecipes(searchParams, pageNumber, pageSize);
+            return Ok(result);
+        }
+
     }
 }
