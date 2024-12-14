@@ -274,8 +274,9 @@ namespace BackEngin.Services
 
             if (!string.IsNullOrEmpty(searchParams.First_LastNameContains))
             {
-                query = query.Where(u => u.FirstName.Contains(searchParams.First_LastNameContains));
-                query = query.Where(u => u.LastName.Contains(searchParams.First_LastNameContains));
+                query = query.Where(u => u.FirstName.Contains(searchParams.First_LastNameContains)
+                                        || u.LastName.Contains(searchParams.First_LastNameContains));
+
             }
 
             if (!string.IsNullOrEmpty(searchParams.EmailContains))
