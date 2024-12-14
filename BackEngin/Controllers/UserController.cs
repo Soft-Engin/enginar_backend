@@ -237,5 +237,39 @@ namespace BackEngin.Controllers
             return Ok(bookmarkedBlogs);
         }
 
+        // GET /users/search - Search users
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers(
+            [FromQuery] string? UsernameContains,
+            [FromQuery] string? First_LastNameContains,
+            [FromQuery] string? EmailContains,
+            [FromQuery] string SortBy = "Name",
+            [FromQuery] string SortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            try
+            {
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
+
+                var searchParams = new UserSearchParams
+                {
+                    UserNameContains = UsernameContains,
+                    First_LastNameContains = First_LastNameContains,
+                    EmailContains = EmailContains,
+                    SortBy = SortBy,
+                    SortOrder = SortOrder
+                };
+
+                var paginatedResults = await _userService.SearchUsersAsync(searchParams, pageNumber, pageSize);
+                return Ok(paginatedResults);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
     }
 }

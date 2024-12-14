@@ -260,5 +260,68 @@ namespace BackEngin.Services
 
             return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize);
         }
+
+        public async Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            // Base query
+            IQueryable<Users> query = _unitOfWork.Users.GetQueryable();
+
+            // Apply filtering
+            if (!string.IsNullOrEmpty(searchParams.UserNameContains))
+            {
+                query = query.Where(u => u.UserName.Contains(searchParams.UserNameContains));
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.First_LastNameContains))
+            {
+                query = query.Where(u => u.FirstName.Contains(searchParams.First_LastNameContains));
+                query = query.Where(u => u.LastName.Contains(searchParams.First_LastNameContains));
+            }
+
+            if (!string.IsNullOrEmpty(searchParams.EmailContains))
+            {
+                query = query.Where(u => u.Email.Contains(searchParams.EmailContains));
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrEmpty(searchParams.SortBy))
+            {
+                query = searchParams.SortBy switch
+                {
+                    "UserName" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+                    "Name" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.FirstName + u.LastName) : query.OrderBy(u => u.FirstName + u.LastName),
+                    "Email" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+                    _ => query.OrderBy(u => u.UserName) // Default sorting by Name
+                };
+            }
+
+            // Fetch paginated results
+            var totalCount = await query.CountAsync();
+            var users = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Map to DTOs
+            var userDTOs = users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Address = u.Address,
+                Role = u.Role,
+                UserName = u.UserName,
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber
+            }).ToList();
+
+            return new PaginatedResponseDTO<UserDTO>
+            {
+                Items = userDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
     }
 }
