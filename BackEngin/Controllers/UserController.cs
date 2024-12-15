@@ -240,11 +240,7 @@ namespace BackEngin.Controllers
         // GET /users/search - Search users
         [HttpGet("search")]
         public async Task<IActionResult> SearchUsers(
-            [FromQuery] string? UsernameContains,
-            [FromQuery] string? First_LastNameContains,
-            [FromQuery] string? EmailContains,
-            [FromQuery] string SortBy = "Name",
-            [FromQuery] string SortOrder = "asc",
+            [FromQuery] UserSearchParams userSearchParams,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10
             )
@@ -254,16 +250,7 @@ namespace BackEngin.Controllers
 
             try
             {
-                var searchParams = new UserSearchParams
-                {
-                    UserNameContains = UsernameContains,
-                    First_LastNameContains = First_LastNameContains,
-                    EmailContains = EmailContains,
-                    SortBy = SortBy,
-                    SortOrder = SortOrder
-                };
-
-                var paginatedResults = await _userService.SearchUsersAsync(searchParams, pageNumber, pageSize);
+                var paginatedResults = await _userService.SearchUsersAsync(userSearchParams, pageNumber, pageSize);
                 return Ok(paginatedResults);
             }
             catch (Exception ex)

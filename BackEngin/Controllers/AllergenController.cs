@@ -110,10 +110,7 @@ namespace BackEngin.Controllers
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchAllergens(
-            [FromQuery] string? nameContains,
-            [FromQuery] string? descriptionContains,
-            [FromQuery] string sortBy = "Name",
-            [FromQuery] string sortOrder = "asc",
+            [FromQuery] AllergenSearchParams searchParams,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10
             )
@@ -123,14 +120,6 @@ namespace BackEngin.Controllers
 
             try
             {
-                var searchParams = new AllergenSearchParams
-                {
-                    NameContains = nameContains,
-                    DescriptionContains = descriptionContains,
-                    SortBy = sortBy,
-                    SortOrder = sortOrder
-                };
-
                 var result = await _allergenService.SearchAllergens(searchParams, pageNumber, pageSize);
                 return Ok(result);
             }

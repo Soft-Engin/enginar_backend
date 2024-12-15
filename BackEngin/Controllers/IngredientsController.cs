@@ -134,11 +134,7 @@ namespace BackEngin.Controllers
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchIngredients(
-            [FromQuery] string? nameContains,
-            [FromQuery] List<int> ingredientTypeIds,
-            [FromQuery] List<int> allergenIds,
-            [FromQuery] string sortBy = "Name",
-            [FromQuery] string sortOrder = "asc",
+            [FromQuery] IngredientSearchParams searchParams,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10
             )
@@ -148,15 +144,6 @@ namespace BackEngin.Controllers
 
             try
             {
-                var searchParams = new IngredientSearchParams
-                {
-                    NameContains = nameContains,
-                    IngredientTypeIds = ingredientTypeIds,
-                    AllergenIds = allergenIds ?? new List<int>(),
-                    SortBy = sortBy,
-                    SortOrder = sortOrder
-                };
-
                 var result = await _ingredientsService.SearchIngredients(searchParams, pageNumber, pageSize);
                 return Ok(result);
             }
