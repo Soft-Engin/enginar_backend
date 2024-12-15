@@ -480,5 +480,48 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
         }
 
+        [Fact]
+        public async Task SearchRecipes_ShouldReturnOk_WithFilteredRecipes()
+        {
+            // Arrange
+            var searchParams = new RecipeSearchParams
+            {
+                HeaderContains = "Pancake",
+                BodyContains = "sweet",
+                UserName = "user1",
+                IngredientIds = new List<int> { 1 },
+                AllergenIds = new List<int> { 2 },
+                SortBy = "Header",
+                SortOrder = "asc"
+            };
+
+            var paginatedRecipes = new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = new List<RecipeDTO>
+                    {
+                        new RecipeDTO { Id = 1, Header = "Pancake Recipe", BodyText = "A sweet pancake recipe" }
+                    },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockRecipeService.Setup(s => s.SearchRecipes(searchParams, 1, 10))
+                .ReturnsAsync(paginatedRecipes);
+
+            // Act
+            var result = await _recipeController.SearchRecipes(
+                searchParams,
+                pageNumber: 1,
+                pageSize: 10
+            ) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().BeEquivalentTo(paginatedRecipes);
+        }
+
+
     }
 }
