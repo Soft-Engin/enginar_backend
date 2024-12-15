@@ -57,12 +57,12 @@ builder.Services.AddIdentityCore<Users>(options =>
 // Configure database context with environment variables
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    var connectionString = $"Server={Environment.GetEnvironmentVariable("MSSQL_SERVER")},{Environment.GetEnvironmentVariable("MSSQL_HOST_PORT")};" +
-                           $"Database={Environment.GetEnvironmentVariable("MSSQL_DATABASE")};" +
-                           $"User Id={Environment.GetEnvironmentVariable("MSSQL_USER")};" +
-                           $"Password={Environment.GetEnvironmentVariable("MSSQL_PASSWORD")};" +
-                           $"TrustServerCertificate={Environment.GetEnvironmentVariable("TrustServerCertificate")};";
-    options.UseSqlServer(connectionString);
+    var connectionString = $"Host={Environment.GetEnvironmentVariable("POSTGRES_SERVER")};" +
+                           $"Port={Environment.GetEnvironmentVariable("POSTGRES_HOST_PORT")};" +
+                           $"Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};" +
+                           $"Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};" +
+                           $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};";
+    options.UseNpgsql(connectionString);
 });
 
 // Add API versioning
