@@ -4,15 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Moq;
 using Models;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using BackEngin.Tests.Helpers;
 using Models.DTO;
-using System.Data;
-using System.Diagnostics.Metrics;
-using System.Net;
-using DataAccess.Migrations;
-using System.Collections.Generic;
-using BackEngin.Services.Interfaces;
+using BackEngin.Tests.Utils;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -112,7 +107,7 @@ namespace BackEngin.Tests.Services
 
             var users = new List<Users> { user }.AsQueryable();
 
-            var mockDbSet = MockHelper.BuildMockDbSet(users);
+            var mockDbSet = users.AsQueryable().BuildMockDbSet();
             _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
 
             // Act
@@ -137,7 +132,7 @@ namespace BackEngin.Tests.Services
             // Arrange
             var users = new List<Users>().AsQueryable(); // Empty list to simulate no users
 
-            var mockDbSet = MockHelper.BuildMockDbSet(users);
+            var mockDbSet = users.AsQueryable().BuildMockDbSet();
             _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
 
             // Act
@@ -582,6 +577,144 @@ namespace BackEngin.Tests.Services
             result.Items.Should().BeEmpty();
             result.TotalCount.Should().Be(0);
             _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldReturnAll_WhenNoFilter()
+        {
+            var usersList = TestUtilities.CreateUsers(10);
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams();
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 20);
+
+            result.TotalCount.Should().Be(10);
+            result.Items.Should().HaveCount(10);
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldFilterByUserNameContains()
+        {
+            var usersList = TestUtilities.CreateUsers(5);
+            usersList[0].UserName = "specialUser";
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams
+            {
+                UserNameContains = "special"
+            };
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 10);
+            result.TotalCount.Should().Be(1);
+            result.Items.First().UserName.Should().Be("specialUser");
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldFilterByFirstOrLastNameContains()
+        {
+            var usersList = TestUtilities.CreateUsers(5);
+            usersList[1].FirstName = "John";
+            usersList[1].LastName = "SpecialLast";
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams
+            {
+                First_LastNameContains = "Special"
+            };
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 10);
+            result.TotalCount.Should().Be(1);
+            result.Items.First().LastName.Should().Be("SpecialLast");
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldFilterByEmailContains()
+        {
+            var usersList = TestUtilities.CreateUsers(5);
+            usersList[2].Email = "unique@example.com";
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams
+            {
+                EmailContains = "unique"
+            };
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 10);
+            result.TotalCount.Should().Be(1);
+            result.Items.First().Email.Should().Be("unique@example.com");
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldApplySortingByUserNameAsc()
+        {
+            var usersList = TestUtilities.CreateUsers(3);
+            usersList[0].UserName = "ZUser";
+            usersList[1].UserName = "AUser";
+            usersList[2].UserName = "MUser";
+
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams
+            {
+                SortBy = "UserName",
+                SortOrder = "asc"
+            };
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 10);
+            result.Items.First().UserName.Should().Be("AUser");
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldApplySortingByNameDesc()
+        {
+            var usersList = TestUtilities.CreateUsers(3);
+            // Sort by Name means FirstName+LastName
+            usersList[0].FirstName = "Zed";
+            usersList[0].LastName = "Zebra";
+
+            usersList[1].FirstName = "Adam";
+            usersList[1].LastName = "Apple";
+
+            usersList[2].FirstName = "Mary";
+            usersList[2].LastName = "Maple";
+
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams
+            {
+                SortBy = "Name",
+                SortOrder = "desc"
+            };
+
+            var result = await _userService.SearchUsersAsync(searchParams, 1, 10);
+            // ZedZebra should come first in desc
+            result.Items.First().FirstName.Should().Be("Zed");
+        }
+
+        [Fact]
+        public async Task SearchUsers_ShouldPaginate()
+        {
+            var usersList = TestUtilities.CreateUsers(25);
+            var users = usersList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Users.GetQueryable()).Returns(users.Object);
+
+            var searchParams = new UserSearchParams();
+            int pageNumber = 3;
+            int pageSize = 5;
+
+            var result = await _userService.SearchUsersAsync(searchParams, pageNumber, pageSize);
+
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.TotalCount.Should().Be(25);
+            result.Items.Should().HaveCount(5);
         }
 
     }

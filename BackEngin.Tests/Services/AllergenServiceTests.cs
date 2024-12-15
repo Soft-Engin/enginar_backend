@@ -1,12 +1,11 @@
 ﻿using BackEngin.Services;
-using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using Models;
 using Models.DTO;
 using Moq;
 using FluentAssertions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using BackEngin.Tests.Utils;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -168,5 +167,113 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldReturnAll_WhenNoFilterApplied()
+        {
+            // Arrange
+            var allergens = TestUtilities.CreateAllergens(5).AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Preferences.GetQueryable()).Returns(allergens.Object);
+            var searchParams = new AllergenSearchParams(); // No filters, should return all
+
+            // Act
+            var result = await _allergenService.SearchAllergens(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(5);
+            result.Items.Should().HaveCount(5);
+        }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldFilterByName()
+        {
+            // Arrange
+            var allergens = TestUtilities.CreateAllergens(5);
+            allergens.First().Name = "SpecialAllergen";
+            var mockAllergens = allergens.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Preferences.GetQueryable()).Returns(mockAllergens.Object);
+
+            var searchParams = new AllergenSearchParams
+            {
+                NameContains = "Special"
+            };
+
+            // Act
+            var result = await _allergenService.SearchAllergens(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Name.Should().Be("SpecialAllergen");
+        }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldFilterByDescription()
+        {
+            // Arrange
+            var allergens = TestUtilities.CreateAllergens(5);
+            allergens.Last().Description = "unique description";
+            var mockAllergens = allergens.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Preferences.GetQueryable()).Returns(mockAllergens.Object);
+
+            var searchParams = new AllergenSearchParams
+            {
+                DescriptionContains = "unique"
+            };
+
+            // Act
+            var result = await _allergenService.SearchAllergens(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Description.Should().Be("unique description");
+        }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldApplySorting()
+        {
+            // Arrange
+            var allergens = TestUtilities.CreateAllergens(5);
+            allergens[0].Name = "Zeta";
+            allergens[1].Name = "Alpha";
+            var mockAllergens = allergens.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Preferences.GetQueryable()).Returns(mockAllergens.Object);
+
+            var searchParams = new AllergenSearchParams
+            {
+                SortBy = "Name",
+                SortOrder = "desc"
+            };
+
+            // Act
+            var result = await _allergenService.SearchAllergens(searchParams, 1, 10);
+
+            // Assert (desc should put "Zeta" first if it exists)
+            result.Items.First().Name.Should().Be("Zeta");
+        }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldPaginateResults()
+        {
+            // Arrange
+            var allergens = TestUtilities.CreateAllergens(30).AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Preferences.GetQueryable()).Returns(allergens.Object);
+
+            var searchParams = new AllergenSearchParams();
+            int pageNumber = 2;
+            int pageSize = 10;
+
+            // Act
+            var result = await _allergenService.SearchAllergens(searchParams, pageNumber, pageSize);
+
+            // Assert
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.TotalCount.Should().Be(30);
+            result.Items.Should().HaveCount(10);
+        }
+
+
     }
 }
