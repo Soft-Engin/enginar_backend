@@ -17,49 +17,44 @@ namespace BackEngin.Controllers
             _interactionService = interactionService;
         }
 
-        // Like a Blog
-        [HttpPost("blogs/{blogId}/like")]
-        public async Task<IActionResult> LikeBlog(int blogId)
+        // the toogle like and bookmark api endpoint handle both like and unlike cases according to the current state as social media platforms
+
+        // Toggle Like for Blog
+        [HttpPost("blogs/{blogId}/toggle-like")]
+        public async Task<IActionResult> ToggleLikeBlog(int blogId)
         {
             try
             {
                 string userId = await GetActiveUserId();
-                await _interactionService.LikeBlog(userId, blogId);
-                return Ok(new { message = "Blog liked successfully." });
-            }
-            catch (ArgumentException ex)
-            {
-                // Handle cases such as duplicate likes
-                return BadRequest(new { message = ex.Message });
+                bool isLiked = await _interactionService.ToggleLikeBlog(userId, blogId);
+
+                string message = isLiked ? "Blog liked successfully." : "Blog unliked successfully.";
+                return Ok(new { message });
             }
             catch (Exception ex)
             {
-                // Handle unexpected errors
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", error = ex.Message });
             }
         }
 
-        // Like a Recipe
-        [HttpPost("recipes/{recipeId}/like")]
-        public async Task<IActionResult> LikeRecipe(int recipeId)
+        // Toggle Like for Recipe
+        [HttpPost("recipes/{recipeId}/toggle-like")]
+        public async Task<IActionResult> ToggleLikeRecipe(int recipeId)
         {
             try
             {
                 string userId = await GetActiveUserId();
-                await _interactionService.LikeRecipe(userId, recipeId);
-                return Ok(new { message = "Recipe liked successfully." });
-            }
-            catch (ArgumentException ex)
-            {
-                // Handle cases such as duplicate likes
-                return BadRequest(new { message = ex.Message });
+                bool isLiked = await _interactionService.ToggleLikeRecipe(userId, recipeId);
+
+                string message = isLiked ? "Recipe liked successfully." : "Recipe unliked successfully.";
+                return Ok(new { message });
             }
             catch (Exception ex)
             {
-                // Handle unexpected errors
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", error = ex.Message });
             }
         }
+
 
         // Bookmark a Blog
         [HttpPost("blogs/{blogId}/bookmark")]
@@ -68,8 +63,9 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                await _interactionService.BookmarkBlog(userId, blogId);
-                return Ok(new { message = "Blog bookmarked successfully." });
+                bool isBookmarked = await _interactionService.ToggleBookmarkBlog(userId, blogId);
+                string message = isBookmarked ? "Blog bookmarked successfully." : "Blog unbookmarked successfully.";
+                return Ok(new { message });
             }
             catch (Exception ex)
             {
@@ -84,8 +80,9 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                await _interactionService.BookmarkRecipe(userId, recipeId);
-                return Ok(new { message = "Recipe bookmarked successfully." });
+                bool isBookmarked = await _interactionService.ToggleBookmarkRecipe(userId, recipeId);
+                string message = isBookmarked ? "Recipe bookmarked successfully." : "Recipe unbookmarked successfully.";
+                return Ok(new { message });
             }
             catch (Exception ex)
             {
@@ -100,7 +97,7 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                var comment = await _interactionService.CommentOnBlog(userId, blogId, commentDto.Text);
+                var comment = await _interactionService.CommentOnBlog(userId, blogId, commentDto);
                 return Ok(comment);
             }
             catch (Exception ex)
@@ -116,7 +113,7 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                var comment = await _interactionService.CommentOnRecipe(userId, recipeId, commentDto.Text);
+                var comment = await _interactionService.CommentOnRecipe(userId, recipeId, commentDto);
                 return Ok(comment);
             }
             catch (Exception ex)
@@ -132,7 +129,7 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                var updatedComment = await _interactionService.UpdateBlogComment(userId, commentId, commentDto.Text);
+                var updatedComment = await _interactionService.UpdateBlogComment(userId, commentId, commentDto);
                 return Ok(updatedComment);
             }
             catch (Exception ex)
@@ -148,7 +145,7 @@ namespace BackEngin.Controllers
             try
             {
                 string userId = await GetActiveUserId();
-                var updatedComment = await _interactionService.UpdateRecipeComment(userId, commentId, commentDto.Text);
+                var updatedComment = await _interactionService.UpdateRecipeComment(userId, commentId, commentDto);
                 return Ok(updatedComment);
             }
             catch (Exception ex)
@@ -188,10 +185,6 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-
-
-
     }
 
 }

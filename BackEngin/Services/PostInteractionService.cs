@@ -16,92 +16,124 @@ namespace BackEngin.Services
             _unitOfWork = unitOfWork;
         }
 
-        // Like Blog
-        public async Task LikeBlog(string userId, int blogId)
+        // Toggle Like for Blog
+        public async Task<bool> ToggleLikeBlog(string userId, int blogId)
         {
-            // Check if the user has already liked the blog
             var existingLike = await _unitOfWork.Blog_Likes.FindAsync(l => l.UserId == userId && l.BlogId == blogId);
 
             if (existingLike.Any())
-                throw new ArgumentException("You have already liked this blog.");
-
-            // Create a new like
-            var blogLike = new Blog_Likes
             {
-                UserId = userId,
-                BlogId = blogId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _unitOfWork.Blog_Likes.AddAsync(blogLike);
-            await _unitOfWork.CompleteAsync();
+                // Unlike if it already exists
+                _unitOfWork.Blog_Likes.Delete(existingLike.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unlike
+            }
+            else
+            {
+                // Like if it doesn't exist
+                var blogLike = new Blog_Likes
+                {
+                    UserId = userId,
+                    BlogId = blogId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Blog_Likes.AddAsync(blogLike);
+                await _unitOfWork.CompleteAsync();
+                return true; // Like
+            }
         }
 
-        // Like Recipe
-        public async Task LikeRecipe(string userId, int recipeId)
+        // Toggle Like for Recipe
+        public async Task<bool> ToggleLikeRecipe(string userId, int recipeId)
         {
-            // Check if the user has already liked the recipe
             var existingLike = await _unitOfWork.Recipe_Likes.FindAsync(l => l.UserId == userId && l.RecipeId == recipeId);
 
             if (existingLike.Any())
-                throw new ArgumentException("You have already liked this recipe.");
-
-            // Create a new like
-            var recipeLike = new Recipe_Likes
             {
-                UserId = userId,
-                RecipeId = recipeId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _unitOfWork.Recipe_Likes.AddAsync(recipeLike);
-            await _unitOfWork.CompleteAsync();
+                // Unlike if it already exists
+                _unitOfWork.Recipe_Likes.Delete(existingLike.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unlike
+            }
+            else
+            {
+                // Like if it doesn't exist
+                var recipeLike = new Recipe_Likes
+                {
+                    UserId = userId,
+                    RecipeId = recipeId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Recipe_Likes.AddAsync(recipeLike);
+                await _unitOfWork.CompleteAsync();
+                return true; // Like
+            }
         }
 
-        // Bookmark Blog
-        public async Task BookmarkBlog(string userId, int blogId)
+        // Toggle Bookmark for Blog
+        public async Task<bool> ToggleBookmarkBlog(string userId, int blogId)
         {
             var existingBookmark = await _unitOfWork.Blog_Bookmarks.FindAsync(b => b.UserId == userId && b.BlogId == blogId);
+
             if (existingBookmark.Any())
-                throw new ArgumentException("Blog is already bookmarked.");
-
-            var bookmark = new Blog_Bookmarks
             {
-                UserId = userId,
-                BlogId = blogId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _unitOfWork.Blog_Bookmarks.AddAsync(bookmark);
-            await _unitOfWork.CompleteAsync();
+                // Remove bookmark if it exists
+                _unitOfWork.Blog_Bookmarks.Delete(existingBookmark.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unbookmark
+            }
+            else
+            {
+                // Add bookmark if it doesn't exist
+                var bookmark = new Blog_Bookmarks
+                {
+                    UserId = userId,
+                    BlogId = blogId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Blog_Bookmarks.AddAsync(bookmark);
+                await _unitOfWork.CompleteAsync();
+                return true; // bookmark
+            }            
         }
 
-        // Bookmark Recipe
-        public async Task BookmarkRecipe(string userId, int recipeId)
+        // Toggle Bookmark for Recipe
+        public async Task<bool> ToggleBookmarkRecipe(string userId, int recipeId)
         {
             var existingBookmark = await _unitOfWork.Recipe_Bookmarks.FindAsync(b => b.UserId == userId && b.RecipeId == recipeId);
+
             if (existingBookmark.Any())
-                throw new ArgumentException("Recipe is already bookmarked.");
-
-            var bookmark = new Recipe_Bookmarks
             {
-                UserId = userId,
-                RecipeId = recipeId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _unitOfWork.Recipe_Bookmarks.AddAsync(bookmark);
-            await _unitOfWork.CompleteAsync();
+                // Remove bookmark if it exists
+                _unitOfWork.Recipe_Bookmarks.Delete(existingBookmark.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unbookmark
+            }
+            else
+            {
+                // Add bookmark if it doesn't exist
+                var bookmark = new Recipe_Bookmarks
+                {
+                    UserId = userId,
+                    RecipeId = recipeId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Recipe_Bookmarks.AddAsync(bookmark);
+                await _unitOfWork.CompleteAsync();
+                return true; // bookmark
+            }
         }
 
+
         // Comment on Blog
-        public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, string commentText)
+        public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, CommentRequestDTO commentRequest)
         {
             var comment = new Blog_Comments
             {
                 UserId = userId,
                 BlogId = blogId,
-                CommentText = commentText,
+                CommentText = commentRequest.Text,
+                ImageBlob = commentRequest.Image,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -111,20 +143,22 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = blogId,
+                Recipe_blog_id = comment.BlogId,
                 Text = comment.CommentText,
+                Image = comment.ImageBlob,
                 Timestamp = comment.CreatedAt
             };
         }
 
         // Comment on Recipe
-        public async Task<CommentDTO> CommentOnRecipe(string userId, int recipeId, string commentText)
+        public async Task<CommentDTO> CommentOnRecipe(string userId, int recipeId, CommentRequestDTO commentRequest)
         {
             var comment = new Recipe_Comments
             {
                 UserId = userId,
                 RecipeId = recipeId,
-                CommentText = commentText,
+                CommentText = commentRequest.Text,
+                ImageBlob = commentRequest.Image,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -134,21 +168,23 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = recipeId,
+                Recipe_blog_id = comment.RecipeId,
                 Text = comment.CommentText,
+                Image = comment.ImageBlob,
                 Timestamp = comment.CreatedAt
             };
         }
 
         // Update Blog Comment
-        public async Task<CommentDTO> UpdateBlogComment(string userId, int commentId, string updatedComment)
+        public async Task<CommentDTO> UpdateBlogComment(string userId, int commentId, CommentRequestDTO commentRequest)
         {
             var comment = await _unitOfWork.Blog_Comments.GetByIdAsync(commentId);
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
-            comment.CommentText = updatedComment;
+            comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
+            comment.ImageBlob = commentRequest.Image;
 
             _unitOfWork.Blog_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
@@ -156,20 +192,23 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Text = updatedComment,
+                Text = comment.CommentText,
+                Image = comment.ImageBlob,
+                Recipe_blog_id = comment.BlogId,
                 Timestamp = comment.CreatedAt
             };
         }
 
         // Update Recipe Comment
-        public async Task<CommentDTO> UpdateRecipeComment(string userId, int commentId, string updatedComment)
+        public async Task<CommentDTO> UpdateRecipeComment(string userId, int commentId, CommentRequestDTO commentRequest)
         {
             var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
-            comment.CommentText = updatedComment;
+            comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
+            comment.ImageBlob = commentRequest.Image;
 
             _unitOfWork.Recipe_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
@@ -177,7 +216,9 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Text = updatedComment,
+                Text = comment.CommentText,
+                Image = comment.ImageBlob,
+                Recipe_blog_id = comment.RecipeId,
                 Timestamp = comment.CreatedAt
             };
         }

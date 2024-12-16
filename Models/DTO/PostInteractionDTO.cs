@@ -9,9 +9,8 @@ namespace Models.DTO
 {
     public class CommentRequestDTO
     {
-        public int recipe_blog_id { get; set; }
         public string Text { get; set; }
-        public Blob Image { get; set; }
+        public byte[] Image { get; set; }
     };
 
     public class CommentDTO
@@ -19,7 +18,7 @@ namespace Models.DTO
         public int Id { get; set; }
         public int Recipe_blog_id { get; set; }
         public string Text { get; set; }
-        public Blob Image { get; set; }
+        public byte[] Image { get; set; }
         public DateTime Timestamp { get; set; }
     };
 
