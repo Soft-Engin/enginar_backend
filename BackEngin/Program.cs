@@ -57,7 +57,7 @@ builder.Services.AddIdentityCore<Users>(options =>
 // Configure database context with environment variables
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    var connectionString = $"Host={Environment.GetEnvironmentVariable("POSTGRES_SERVER")};" +
+    var connectionString = $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};" +
                            $"Port={Environment.GetEnvironmentVariable("POSTGRES_HOST_PORT")};" +
                            $"Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};" +
                            $"Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};" +
