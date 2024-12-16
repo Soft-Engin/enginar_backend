@@ -14,7 +14,7 @@ git config core.hooksPath .githooks
 
 ## Using Docker
 
-To run the whole project you should first edit the `.env.example` file and copy into `.env` file then edit according your preferred settings. Then you can run the project with given command in the project folder.
+To run the whole project you should first edit the `.env.example` file and copy into `.env` file then edit according your preferred settings. Then you can run the project with given command in the project folder. In "Development" mode, container's Swagger UI is hosted on 8090 port and at /swagger/index.html path. Use http.
 
 ```sh
 # If you run the project first time or made update and didn't built the docker images.
@@ -24,6 +24,11 @@ docker compose up -d --build
 ```sh
 # If you didn't change anything on the source code and already built the docker images.
 docker compose up -d
+```
+
+```sh
+# If you just want to run postgres server for local development. (Change env variable POSTGRES_HOST to "localhost").
+docker compose up -d postgres
 ```
 
 ### Key Update: 
