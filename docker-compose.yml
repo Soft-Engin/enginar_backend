@@ -1,41 +1,45 @@
 services:
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mssql_server
+  postgres:
+    image: postgres:latest
+    container_name: postgres_server
     environment:
-      ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
-    ports:
-      - "${MSSQL_HOST_PORT}:1433"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - mssql_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -b -o /dev/null
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  mssql-tools:
-    image: mcr.microsoft.com/mssql-tools
-    container_name: mssql_tools
+  
+  enginar-backend-migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    image: enginar-backend-migrator
+    container_name: enginar_backend_migrator
     depends_on:
-      mssql:
+      postgres:
         condition: service_healthy
-    entrypoint: >
-      /bin/bash -c "
-      /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P ${MSSQL_SA_PASSWORD} -d master -Q \"
-        CREATE DATABASE ${MSSQL_DATABASE};
-        GO
-        CREATE LOGIN ${MSSQL_USER} WITH PASSWORD = '${MSSQL_PASSWORD}';
-        GO
-        USE ${MSSQL_DATABASE};
-        GO
-        CREATE USER ${MSSQL_USER} FOR LOGIN ${MSSQL_USER};
-        GO
-        ALTER ROLE db_owner ADD MEMBER ${MSSQL_USER};
-        GO
-      \"
-      " 
+    env_file:
+      - .env
 
+  enginar-backend:
+    build:  
+      context: .
+      dockerfile: Dockerfile
+    image: enginar-backend
+    container_name: enginar_backend
+    depends_on:
+      enginar-backend-migrator:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8090:8080"
 volumes:
-  mssql_data:
+  postgres_data:

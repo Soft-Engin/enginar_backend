@@ -7,6 +7,8 @@ on:
       - 'hotfix/**'
       - 'feature/**'
       - 'bugfix/**'
+      - main
+      - dev
   pull_request:
     branches:
       - main
