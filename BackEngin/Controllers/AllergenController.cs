@@ -4,6 +4,7 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using BackEngin.Services;
 
 namespace BackEngin.Controllers
 {
@@ -19,14 +20,18 @@ namespace BackEngin.Controllers
             _allergenService = allergenService;
         }
 
-        // GET /allergens - List all allergens
+
+        // GET /allergens - Get paginated list of allergens
         [HttpGet]
-        public async Task<IActionResult> GetAllAllergens()
+        public async Task<IActionResult> GetPaginatedAllergens([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var allergens = await _allergenService.GetAllAllergensAsync();
-                return Ok(allergens);
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
+
+                var paginatedAllergens = await _allergenService.GetPaginatedAsync(pageNumber, pageSize);
+                return Ok(paginatedAllergens);
             }
             catch (Exception ex)
             {
