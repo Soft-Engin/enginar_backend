@@ -1,15 +1,24 @@
 #!/bin/sh
 
-# Pre-commit hook to format staged C# files using `dotnet format`
+# Pre-commit hook to:
+# - Make sure branching strategy applied correctly.
+# - Format staged C# files using `dotnet format`.
+
+source .githooks/hook-helper.sh
 
 # Ensure consistent behavior across systems
 LC_ALL=C
+
+# Ensure push to correct branch is done.
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+check_branch_naming_convention "$local_branch"
 
 # Find the solution file (assuming one solution in the repo)
 SOLUTION_FILE=$(find . -name "*.sln" | head -n 1)
 
 if [ -z "$SOLUTION_FILE" ]; then
-    echo "ERROR: No solution (.sln) file found. Aborting pre-commit hook."
+    echo "ERROR: No solution (.sln) file found. Aborting pre-commit hook." >&2
     exit 1
 fi
 
