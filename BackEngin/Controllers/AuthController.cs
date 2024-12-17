@@ -115,7 +115,7 @@ namespace BackEngin.Controllers
             if (!HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
             {
                 if (!User.IsInRole("Admin"))
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "User is not authorized to access this endpoint." });
             }
 
             try
