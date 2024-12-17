@@ -107,11 +107,16 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("make-admin")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> MakeUserAdmin([FromBody] MakeAdminDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            if (!HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+            {
+                if (!User.IsInRole("Admin"))
+                    return Forbid();
+            }
 
             try
             {
