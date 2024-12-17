@@ -69,6 +69,9 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task LoginUser_ShouldReturnToken_WhenCredentialsAreValid()
         {
+            // Ensure a valid secret key is set
+            Environment.SetEnvironmentVariable("JWTSecretKey", "test_secret_key_12312312312312312312312");
+
             var model = new LoginRequestDTO { Identifier = "testuser", Password = "Password123" };
             var user = new Users { UserName = model.Identifier, Id = "1" };
             var role = new Roles { Id = 2, Name = "User", Description = "Regular user" };
@@ -77,7 +80,6 @@ namespace BackEngin.Tests.Services
             _mockUserManager.Setup(um => um.FindByNameAsync(model.Identifier)).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.CheckPasswordAsync(user, model.Password)).ReturnsAsync(true);
 
-            // Mock the GetByIdAsync method to return the role
             _mockUnitOfWork.Setup(uow => uow.Roles.GetByIdAsync(user.RoleId)).ReturnsAsync(role);
 
             var token = await _authService.LoginUser(model);
@@ -102,18 +104,16 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task GenerateJwtToken_ShouldReturnToken_WhenUserIsValid()
         {
-            // Arrange
+            // Ensure a valid secret key is set
+            Environment.SetEnvironmentVariable("JWTSecretKey", "test_secret_key_123123123123123123123123");
+
             var user = new Users { UserName = "testuser", Id = "1", RoleId = 2 };
             var role = new Roles { Id = 2, Name = "User", Description = "Regular user" };
 
-            // Mock the GetByIdAsync method to return the role
-            _mockUnitOfWork.Setup(uow => uow.Roles.GetByIdAsync(user.RoleId))
-                .ReturnsAsync(role);
+            _mockUnitOfWork.Setup(uow => uow.Roles.GetByIdAsync(user.RoleId)).ReturnsAsync(role);
 
-            // Act
             var token = await _authService.GenerateJwtToken(user);
 
-            // Assert
             token.Should().NotBeNullOrEmpty();
         }
 
