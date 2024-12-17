@@ -7,6 +7,8 @@ using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace BackEngin.Tests.Controllers
@@ -279,6 +281,23 @@ namespace BackEngin.Tests.Controllers
             _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
                 .ReturnsAsync(IdentityResult.Success);
 
+            // Mock IWebHostEnvironment to simulate Development
+            var envMock = new Mock<IWebHostEnvironment>();
+            envMock.Setup(e => e.EnvironmentName).Returns("Development");
+
+            // Set up RequestServices
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton(envMock.Object);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            _authController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    RequestServices = serviceProvider
+                }
+            };
+
             // Act
             var result = await _authController.MakeUserAdmin(model);
 
@@ -310,6 +329,23 @@ namespace BackEngin.Tests.Controllers
             var identityErrors = new IdentityError[] { new IdentityError { Description = "User not found." } };
             _mockAuthService.Setup(s => s.MakeUserAdminAsync(model.UserName))
                 .ReturnsAsync(IdentityResult.Failed(identityErrors));
+
+            // Mock IWebHostEnvironment to simulate Development
+            var envMock = new Mock<IWebHostEnvironment>();
+            envMock.Setup(e => e.EnvironmentName).Returns("Development");
+
+            // Set up RequestServices
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton(envMock.Object);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            _authController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    RequestServices = serviceProvider
+                }
+            };
 
             // Act
             var result = await _authController.MakeUserAdmin(model);
