@@ -31,23 +31,6 @@ namespace BackEngin.Tests.Helpers
             return mockConfig;
         }
 
-        public static Mock<DbSet<T>> BuildMockDbSet<T>(this IQueryable<T> source) where T : class
-        {
-            var mockDbSet = new Mock<DbSet<T>>();
-
-            // Set up IQueryable properties
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(new TestAsyncQueryProvider<T>(source.Provider));
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(source.Expression);
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(source.ElementType);
-            mockDbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(source.GetEnumerator());
-
-            // Set up IAsyncEnumerable for EF Core async methods
-            mockDbSet.As<IAsyncEnumerable<T>>()
-                .Setup(m => m.GetAsyncEnumerator(It.IsAny<System.Threading.CancellationToken>()))
-                .Returns(new TestAsyncEnumerator<T>(source.GetEnumerator()));
-
-            return mockDbSet;
-        }
     }
 
     public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>

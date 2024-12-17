@@ -128,5 +128,27 @@ namespace BackEngin.Controllers
             if (recipe == null) return NotFound("No recipe associated with this blog.");
             return Ok(recipe);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBlogs(
+            [FromQuery] BlogSearchParams searchParams,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            try
+            {
+                var result = await _blogService.SearchBlogs(searchParams, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
     }
 }

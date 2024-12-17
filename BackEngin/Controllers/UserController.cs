@@ -237,5 +237,26 @@ namespace BackEngin.Controllers
             return Ok(bookmarkedBlogs);
         }
 
+        // GET /users/search - Search users
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers(
+            [FromQuery] UserSearchParams userSearchParams,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            try
+            {
+                var paginatedResults = await _userService.SearchUsersAsync(userSearchParams, pageNumber, pageSize);
+                return Ok(paginatedResults);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
     }
 }

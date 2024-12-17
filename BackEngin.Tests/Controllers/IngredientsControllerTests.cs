@@ -344,5 +344,52 @@ namespace BackEngin.Tests.Controllers
 
         }
 
+        [Fact]
+        public async Task SearchIngredients_ShouldReturnOk_WithFilteredIngredients()
+        {
+            // Arrange
+            var searchParams = new IngredientSearchParams
+            {
+                NameContains = "Flour",
+                IngredientTypeIds = new List<int> { 1, 2 },
+                AllergenIds = new List<int> { 3 },
+                SortBy = "Name",
+                SortOrder = "asc"
+            };
+
+            var paginatedIngredients = new PaginatedResponseDTO<IngredientIdDTO>
+            {
+                Items = new List<IngredientIdDTO>
+                    {
+                        new IngredientIdDTO
+                        {
+                            Id = 1,
+                            Name = "Flour",
+                            Type = new IngredientTypeIdDTO { Id = 1, Name = "Grain" },
+                            Allergens = new List<AllergenIdDTO>()
+                        }
+                    },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockIngredientsService.Setup(s => s.SearchIngredients(searchParams, 1, 10))
+                .ReturnsAsync(paginatedIngredients);
+
+            // Act
+            var result = await _ingredientsController.SearchIngredients(
+                searchParams,
+                pageNumber: 1,
+                pageSize: 10
+            ) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().BeEquivalentTo(paginatedIngredients);
+        }
+
+
     }
 }

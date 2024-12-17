@@ -226,5 +226,48 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<UnauthorizedResult>();
         }
+
+        [Fact]
+        public async Task SearchBlogs_ShouldReturnOk_WithFilteredBlogs()
+        {
+            // Arrange
+            var searchParams = new BlogSearchParams
+            {
+                HeaderContains = "Recipe",
+                BodyContains = "delicious",
+                UserName = "user1",
+                SortBy = "Header",
+                SortOrder = "asc",
+                IngredientIds = new List<int> { 1 },
+                AllergenIds = new List<int> { 2 }
+            };
+
+            var paginatedBlogs = new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = new List<BlogDTO>
+                    {
+                        new BlogDTO { Id = 1, Header = "Recipe Blog", BodyText = "A delicious blog", UserId = "user1", RecipeId = 10 }
+                    },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockBlogService.Setup(s => s.SearchBlogs(searchParams, 1, 10))
+                .ReturnsAsync(paginatedBlogs);
+
+            // Act
+            var result = await _blogController.SearchBlogs(
+                searchParams,
+                pageNumber: 1,
+                pageSize: 10
+            ) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().BeEquivalentTo(paginatedBlogs);
+        }
+
     }
 }

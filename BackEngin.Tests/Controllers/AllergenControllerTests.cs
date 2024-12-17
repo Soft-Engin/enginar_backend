@@ -153,5 +153,45 @@ namespace BackEngin.Tests.Controllers
             notFoundResult.Should().NotBeNull();
             notFoundResult!.Value.Should().BeEquivalentTo(new { message = "Allergen does not exist." });
         }
+
+        [Fact]
+        public async Task SearchAllergens_ShouldReturnOk_WithFilteredAllergens()
+        {
+            // Arrange
+            var searchParams = new AllergenSearchParams
+            {
+                NameContains = "Dairy",
+                DescriptionContains = "milk",
+                SortBy = "Name",
+                SortOrder = "asc"
+            };
+
+            var paginatedAllergens = new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                Items = new List<AllergenIdDTO>
+                    {
+                        new AllergenIdDTO { Id = 2, Name = "Dairy", Description = "milk and milk products" }
+                    },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockAllergenService.Setup(a => a.SearchAllergens(searchParams, 1, 10))
+                .ReturnsAsync(paginatedAllergens);
+
+            // Act
+            var result = await _allergenController.SearchAllergens(
+                searchParams,
+                pageNumber: 1,
+                pageSize: 10
+            ) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().BeEquivalentTo(paginatedAllergens);
+        }
+
     }
 }

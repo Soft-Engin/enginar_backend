@@ -11,5 +11,6 @@ namespace BackEngin.Services.Interfaces
         Task<int?> CreateIngredientTypeAsync(IngredientTypeDTO model);
         Task<bool?> UpdateIngredientTypeAsync(int ingredientTypeId, IngredientTypeDTO model);
         Task<bool?> DeleteIngredientTypeAsync(int ingredientTypeId);
+        Task<PaginatedResponseDTO<IngredientTypeIdDTO>> SearchIngredientTypes(IngredientTypeSearchParams searchParams, int pageNumber, int pageSize);
     }
 }

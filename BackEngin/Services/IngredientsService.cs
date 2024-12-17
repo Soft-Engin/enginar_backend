@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DTO;
 
@@ -248,6 +249,64 @@ namespace BackEngin.Services
                 Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
+        }
+
+        public async Task<PaginatedResponseDTO<IngredientIdDTO>> SearchIngredients(IngredientSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = unitOfWork.Ingredients.GetQueryable()
+                .Include(i => i.Type)
+                .Include(i => i.Ingredients_Preferences)
+                .ThenInclude(ip => ip.Preference)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchParams.NameContains))
+                query = query.Where(i => i.Name.Contains(searchParams.NameContains));
+
+            if (searchParams.IngredientTypeIds.Any())
+            {
+                query = query.Where(i => searchParams.IngredientTypeIds.Contains(i.TypeId));
+            }
+
+            if (searchParams.AllergenIds.Any())
+            {
+                query = query.Where(i => !i.Ingredients_Preferences.Any(ip => searchParams.AllergenIds.Contains(ip.PreferenceId)) || !i.Ingredients_Preferences.Any());
+            }
+
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "type" => ascending ? query.OrderBy(i => i.Type.Name) : query.OrderByDescending(i => i.Type.Name),
+                _ => ascending ? query.OrderBy(i => i.Name) : query.OrderByDescending(i => i.Name),
+            };
+
+            var totalCount = await query.CountAsync();
+            var ingredients = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var ingredientDTOs = ingredients.Select(i => new IngredientIdDTO
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Type = new IngredientTypeIdDTO
+                {
+                    Id = i.Type.Id,
+                    Name = i.Type.Name,
+                    Description = i.Type.Description
+                },
+                Allergens = i.Ingredients_Preferences.Select(ip => new AllergenIdDTO
+                {
+                    Id = ip.Preference.Id,
+                    Name = ip.Preference.Name,
+                    Description = ip.Preference.Description
+                }).ToList()
+            }).ToList();
+
+            return new PaginatedResponseDTO<IngredientIdDTO>
+            {
+                Items = ingredientDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
     }
