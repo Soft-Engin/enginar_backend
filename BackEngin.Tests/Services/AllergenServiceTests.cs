@@ -4,6 +4,10 @@ using Models;
 using Models.DTO;
 using Moq;
 using FluentAssertions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DataAccess.Repositories.IRepositories;
+using System.Linq.Expressions;
 using BackEngin.Tests.Utils;
 using MockQueryable.Moq;
 
@@ -13,36 +17,54 @@ namespace BackEngin.Tests.Services
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly AllergenService _allergenService;
+        private readonly Mock<IPreferencesRepository> _mockPreferencesRepository;
+
 
         public AllergenServiceTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _allergenService = new AllergenService(_mockUnitOfWork.Object);
+
+            _mockPreferencesRepository = new Mock<IPreferencesRepository>();
+
+            _mockUnitOfWork.Setup(u => u.Preferences)
+                           .Returns(_mockPreferencesRepository.Object);
         }
 
+
         [Fact]
-        public async Task GetAllAllergensAsync_ShouldReturnListOfAllergenIdDTO()
+        public async Task GetPaginatedAllergensAsync_ShouldReturnPaginatedAllergens()
         {
             // Arrange
+            var pageNumber = 1;
+            var pageSize = 2;
             var allergens = new List<Preferences>
             {
                 new Preferences { Id = 1, Name = "Gluten", Description = "Found in wheat" },
                 new Preferences { Id = 2, Name = "Dairy", Description = "Milk and milk products" }
             };
-            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync()).ReturnsAsync(allergens);
+
+            _mockPreferencesRepository
+                 .Setup(u => u.GetPaginatedAsync(It.IsAny<Expression<Func<Preferences, bool>>>(), pageNumber, pageSize))
+                 .ReturnsAsync((allergens, 10));
 
             // Act
-            var result = await _allergenService.GetAllAllergensAsync();
+            var result = await _allergenService.GetPaginatedAsync(pageNumber, pageSize);
 
+            // Verify
+            _mockPreferencesRepository.Verify(u => u.GetPaginatedAsync(It.IsAny<Expression<Func<Preferences, bool>>>(), pageNumber, pageSize), Times.Once);
+            
             // Assert
             result.Should().NotBeNull();
-            result.Should().HaveCount(2);
-            result.Should().BeEquivalentTo(new List<AllergenIdDTO>
-            {
-                new AllergenIdDTO { Id = 1, Name = "Gluten", Description = "Found in wheat" },
-                new AllergenIdDTO { Id = 2, Name = "Dairy", Description = "Milk and milk products" }
-            });
+            result.Items.Count().Should().Be(pageSize);
+            result.TotalCount.Should().Be(10);
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.Items.First().Name.Should().Be("Gluten");
+            result.Items.Last().Description.Should().Be("Milk and milk products");
+
         }
+
 
         [Fact]
         public async Task CreateAllergenAsync_ShouldReturnAllergenId_WhenCreationIsSuccessful()

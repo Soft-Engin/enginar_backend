@@ -18,9 +18,11 @@ namespace BackEngin.Services
             unitOfWork = _unitOfWork;
         }
 
-        public async Task<IEnumerable<AllergenIdDTO>> GetAllAllergensAsync()
+        public async Task<PaginatedResponseDTO<AllergenIdDTO>> GetPaginatedAsync(int pageNumber, int pageSize)
         {
-            var allergens = await unitOfWork.Preferences.GetAllAsync();
+            var (allergens, totalCount) = await unitOfWork.Preferences.GetPaginatedAsync(
+                pageNumber: pageNumber,
+                pageSize: pageSize);
 
             // Map each Allergen to an AllergenDTO
             var allergenDTOs = allergens.Select(a => new AllergenIdDTO
@@ -30,7 +32,13 @@ namespace BackEngin.Services
                 Description = a.Description
             });
 
-            return allergenDTOs;
+            return new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                Items = allergenDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<int?> CreateAllergenAsync(AllergenDTO model)

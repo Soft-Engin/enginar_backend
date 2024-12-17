@@ -21,23 +21,35 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllAllergens_ShouldReturnOk_WithAllAllergens()
+        public async Task GetPaginatedAllergens_ShouldReturnOk_WithPaginatedAllergens()
         {
             // Arrange
-            var allergens = new List<AllergenIdDTO>
+            var pageNumber = 1;
+            var pageSize = 2;
+            var paginatedResponse = new PaginatedResponseDTO<AllergenIdDTO>
             {
-                new AllergenIdDTO { Id = 1, Name = "Gluten", Description = "Found in wheat" },
-                new AllergenIdDTO { Id = 2, Name = "Dairy", Description = "Milk and milk products" }
+                Items = new List<AllergenIdDTO>
+                {
+                    new AllergenIdDTO { Id = 1, Name = "Gluten", Description = "Found in wheat" },
+                    new AllergenIdDTO { Id = 2, Name = "Dairy", Description = "Milk and milk products" }
+                },
+                TotalCount = 10,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
-            _mockAllergenService.Setup(a => a.GetAllAllergensAsync()).ReturnsAsync(allergens);
+
+            _mockAllergenService.Setup(a => a.GetPaginatedAsync(pageNumber, pageSize))
+                                .ReturnsAsync(paginatedResponse);
 
             // Act
-            var result = await _allergenController.GetAllAllergens() as OkObjectResult;
+            var result = await _allergenController.GetPaginatedAllergens(pageNumber, pageSize);
 
             // Assert
-            result.Should().NotBeNull();
-            result.StatusCode.Should().Be(200);
-            result.Value.Should().BeEquivalentTo(allergens);
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult.StatusCode.Should().Be(200);
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
         }
 
         [Fact]
