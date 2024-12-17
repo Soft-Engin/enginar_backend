@@ -1,0 +1,35 @@
+# Use dotnet SDK for building the application
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.20 AS build
+ARG BUILD_CONFIGURATION=Release
+
+# Update build environment and create a non-root user
+RUN apk -U upgrade && \
+    adduser --system --shell /usr/sbin/nologin enginar-backend-user
+
+# Install the Entity Framework Core CLI tool
+RUN dotnet tool install dotnet-ef --tool-path "/usr/local/share/dotnet-tools"
+ENV PATH="$PATH:/usr/local/share/dotnet-tools"
+
+WORKDIR /src
+
+# Copy all .csproj files and restore dependencies
+COPY BackEngin/BackEngin.csproj ./BackEngin/.
+COPY DataAccess/DataAccess.csproj ./DataAccess/.
+COPY Models/Models.csproj ./Models/.
+COPY BackEngin.Tests/BackEngin.Tests.csproj ./BackEngin.Tests/.
+COPY BackEngin.sln .
+RUN dotnet restore "./BackEngin.sln"
+
+# Copy remaining files.
+COPY . .
+
+# Change ownership of the source code to the non-root user
+RUN chown -R enginar-backend-user /src 
+
+# Switch to the non-root user
+USER enginar-backend-user
+
+WORKDIR /src
+
+# Build the application
+ENTRYPOINT ["dotnet-ef", "database", "update", "--project", "DataAccess", "--startup-project", "BackEngin"]

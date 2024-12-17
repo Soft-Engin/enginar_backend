@@ -1,0 +1,10 @@
+# Ignore all files.
+*
+
+# Just allow necessary project folders.
+!BackEngin/
+!DataAccess/
+!Models/
+!BackEngin.Tests/
+!*.sln
+

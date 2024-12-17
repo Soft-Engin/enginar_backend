@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_server
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  enginar-backend-migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    image: enginar-backend-migrator
+    container_name: enginar_backend_migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  enginar-backend:
+    build:  
+      context: .
+      dockerfile: Dockerfile
+    image: enginar-backend
+    container_name: enginar_backend
+    depends_on:
+      enginar-backend-migrator:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8090:8080"
+volumes:
+  postgres_data:
