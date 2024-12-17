@@ -2,17 +2,7 @@ name: SonarQube Analysis and Build Project
 
 on:
   push:
-    branches:
-      - 'release/**'
-      - 'hotfix/**'
-      - 'feature/**'
-      - 'bugfix/**'
-      - main
-      - dev
   pull_request:
-    branches:
-      - main
-      - dev
 
 jobs:
   sonar_analysis:

@@ -24,7 +24,7 @@ jobs:
           elif [[ "$BASE_BRANCH" == "dev" ]]; then
             ALLOWED_PATTERN="^(feature|hotfix|release|bugfix)\/.*$"
           elif [[ "$BASE_BRANCH" =~ "^(release)\/.*$" ]]; then
-            ALLOWED_PATTERN="^(hotfix\/.*|dev)$"
+            ALLOWED_PATTERN="^(hotfix\/.*|dev|bugfix\/.*)$"
           else
             echo "Error: Pull requests are only allowed to 'main', 'development', or 'release' branches."
             exit 1
