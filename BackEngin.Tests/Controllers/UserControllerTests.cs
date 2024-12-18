@@ -398,5 +398,54 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<NotFoundObjectResult>();
         }
+
+        [Fact]
+        public async Task SearchUsers_ShouldReturnOk_WithFilteredUsers()
+        {
+            // Arrange
+            var searchParams = new UserSearchParams
+            {
+                UserNameContains = "johndoe",
+                First_LastNameContains = "John",
+                EmailContains = "example.com",
+                SortBy = "Name",
+                SortOrder = "asc"
+            };
+
+            var paginatedUsers = new PaginatedResponseDTO<UserDTO>
+            {
+                Items = new List<UserDTO>
+                    {
+                        new UserDTO
+                        {
+                            Id = "1",
+                            FirstName = "John",
+                            LastName = "Doe",
+                            Email = "johndoe@example.com",
+                            UserName = "johndoe",
+                            Role = new Roles { Name = "Admin" }
+                        }
+                    },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockUserService.Setup(us => us.SearchUsersAsync(searchParams, 1, 10))
+                .ReturnsAsync(paginatedUsers);
+
+            // Act
+            var result = await _userController.SearchUsers(
+                searchParams,
+                pageNumber:1,
+                pageSize:10
+                ) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().BeEquivalentTo(paginatedUsers);
+        }
+
     }
 }

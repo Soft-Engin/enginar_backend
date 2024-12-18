@@ -1,16 +1,11 @@
 ﻿using BackEngin.Services;
-using BackEngin.Services.Interfaces;
+using BackEngin.Tests.Utils;
 using DataAccess.Repositories;
-using DataAccess.Repositories.IRepositories; // Ensure correct namespace
 using FluentAssertions;
 using Models;
 using Models.DTO;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -304,5 +299,95 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task SearchIngredientTypes_ShouldReturnAll_WhenNoFilter()
+        {
+            var types = TestUtilities.CreateIngredientTypes(10).AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.IngredientTypes.GetQueryable()).Returns(types.Object);
+
+            var searchParams = new IngredientTypeSearchParams();
+
+            var result = await _ingredientTypesService.SearchIngredientTypes(searchParams, 1, 20);
+
+            result.TotalCount.Should().Be(10);
+            result.Items.Should().HaveCount(10);
+        }
+
+        [Fact]
+        public async Task SearchIngredientTypes_ShouldFilterByName()
+        {
+            var typeList = TestUtilities.CreateIngredientTypes(5);
+            typeList[0].Name = "SpecialType";
+            var mockTypes = typeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.IngredientTypes.GetQueryable()).Returns(mockTypes.Object);
+
+            var searchParams = new IngredientTypeSearchParams
+            {
+                NameContains = "Special"
+            };
+
+            var result = await _ingredientTypesService.SearchIngredientTypes(searchParams, 1, 10);
+
+            result.TotalCount.Should().Be(1);
+            result.Items.First().Name.Should().Be("SpecialType");
+        }
+
+        [Fact]
+        public async Task SearchIngredientTypes_ShouldFilterByDescription()
+        {
+            var typeList = TestUtilities.CreateIngredientTypes(5);
+            typeList[4].Description = "unique desc";
+            var mockTypes = typeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.IngredientTypes.GetQueryable()).Returns(mockTypes.Object);
+
+            var searchParams = new IngredientTypeSearchParams
+            {
+                DescriptionContains = "unique"
+            };
+
+            var result = await _ingredientTypesService.SearchIngredientTypes(searchParams, 1, 10);
+
+            result.TotalCount.Should().Be(1);
+            result.Items.First().Description.Should().Be("unique desc");
+        }
+
+        [Fact]
+        public async Task SearchIngredientTypes_ShouldApplySorting()
+        {
+            var typeList = TestUtilities.CreateIngredientTypes(3);
+            typeList[0].Name = "Z-Type";
+            typeList[1].Name = "A-Type";
+            var mockTypes = typeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.IngredientTypes.GetQueryable()).Returns(mockTypes.Object);
+
+            var searchParams = new IngredientTypeSearchParams
+            {
+                SortBy = "Name",
+                SortOrder = "asc"
+            };
+
+            var result = await _ingredientTypesService.SearchIngredientTypes(searchParams, 1, 10);
+
+            result.Items.First().Name.Should().Be("A-Type");
+        }
+
+        [Fact]
+        public async Task SearchIngredientTypes_ShouldPaginate()
+        {
+            var typeList = TestUtilities.CreateIngredientTypes(30).AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.IngredientTypes.GetQueryable()).Returns(typeList.Object);
+
+            var searchParams = new IngredientTypeSearchParams();
+            int pageNumber = 2, pageSize = 10;
+
+            var result = await _ingredientTypesService.SearchIngredientTypes(searchParams, pageNumber, pageSize);
+
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.TotalCount.Should().Be(30);
+            result.Items.Should().HaveCount(10);
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DTO;
 
@@ -126,5 +127,42 @@ namespace BackEngin.Services
                 return false;
             }
         }
+
+        public async Task<PaginatedResponseDTO<IngredientTypeIdDTO>> SearchIngredientTypes(IngredientTypeSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = unitOfWork.IngredientTypes.GetQueryable();
+
+            if (!string.IsNullOrEmpty(searchParams.NameContains))
+                query = query.Where(it => it.Name.Contains(searchParams.NameContains));
+
+            if (!string.IsNullOrEmpty(searchParams.DescriptionContains))
+                query = query.Where(it => it.Description.Contains(searchParams.DescriptionContains));
+
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "description" => ascending ? query.OrderBy(it => it.Description) : query.OrderByDescending(it => it.Description),
+                _ => ascending ? query.OrderBy(it => it.Name) : query.OrderByDescending(it => it.Name),
+            };
+
+            var totalCount = await query.CountAsync();
+            var ingredientTypes = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var ingredientTypeDTOs = ingredientTypes.Select(it => new IngredientTypeIdDTO
+            {
+                Id = it.Id,
+                Name = it.Name,
+                Description = it.Description
+            }).ToList();
+
+            return new PaginatedResponseDTO<IngredientTypeIdDTO>
+            {
+                Items = ingredientTypeDTOs,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
     }
 }

@@ -19,5 +19,6 @@ namespace BackEngin.Services.Interfaces
         Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
         Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize);
         Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize);
     }
 }

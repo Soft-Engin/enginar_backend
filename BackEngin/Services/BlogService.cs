@@ -1,5 +1,6 @@
 ﻿using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DTO;
 
@@ -215,5 +216,82 @@ namespace BackEngin.Services
                 return null;
             return blog.UserId;
         }
+
+        public async Task<PaginatedResponseDTO<BlogDTO>> SearchBlogs(BlogSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = _unitOfWork.Blogs.GetQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(searchParams.HeaderContains))
+                query = query.Where(b => b.Header.Contains(searchParams.HeaderContains));
+
+            if (!string.IsNullOrEmpty(searchParams.BodyContains))
+                query = query.Where(b => b.BodyText.Contains(searchParams.BodyContains));
+
+            if (!string.IsNullOrEmpty(searchParams.UserName))
+                query = query.Where(b => b.User.UserName == searchParams.UserName);
+
+            if (searchParams.RecipeId.HasValue)
+                query = query.Where(b => b.RecipeId == searchParams.RecipeId);
+
+            // For Ingredient and Allergen filtering, we need to include related data:
+            if (searchParams.IngredientIds.Any() || searchParams.AllergenIds.Any())
+            {
+                query = query.Include(b => b.Recipe)
+                             .ThenInclude(r => r.Recipes_Ingredients)
+                             .ThenInclude(ri => ri.Ingredient)
+                             .ThenInclude(i => i.Ingredients_Preferences)
+                             .ThenInclude(ip => ip.Preference);
+
+                if (searchParams.IngredientIds.Any())
+                {
+                    query = query.Where(b => b.Recipe != null &&
+                        b.Recipe.Recipes_Ingredients.Any(ri => searchParams.IngredientIds.Contains(ri.IngredientId)));
+                }
+
+                if (searchParams.AllergenIds.Any())
+                {
+                    query = query.Where(b => b.Recipe != null &&
+                        (b.Recipe.Recipes_Ingredients.Any(ri =>
+                            !ri.Ingredient.Ingredients_Preferences.Any(ip => searchParams.AllergenIds.Contains(ip.PreferenceId)) ||
+                            !ri.Ingredient.Ingredients_Preferences.Any()
+                        ))
+                    );
+                }
+            }
+
+            // Sorting
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "bodytext" => ascending ? query.OrderBy(b => b.BodyText) : query.OrderByDescending(b => b.BodyText),
+                "username" => ascending ? query.OrderBy(b => b.User.UserName) : query.OrderByDescending(b => b.User.UserName),
+                _ => ascending ? query.OrderBy(b => b.Header) : query.OrderByDescending(b => b.Header),
+            };
+
+            var totalCount = await query.CountAsync();
+            var blogs = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var blogDtos = blogs.Select(b => new BlogDTO
+            {
+                Id = b.Id,
+                Header = b.Header,
+                BodyText = b.BodyText,
+                UserId = b.UserId,
+                RecipeId = b.RecipeId
+            }).ToList();
+
+            return new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = blogDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
     }
 }

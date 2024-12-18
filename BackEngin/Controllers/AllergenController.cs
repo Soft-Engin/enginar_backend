@@ -19,14 +19,18 @@ namespace BackEngin.Controllers
             _allergenService = allergenService;
         }
 
-        // GET /allergens - List all allergens
+
+        // GET /allergens - Get paginated list of allergens
         [HttpGet]
-        public async Task<IActionResult> GetAllAllergens()
+        public async Task<IActionResult> GetPaginatedAllergens([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var allergens = await _allergenService.GetAllAllergensAsync();
-                return Ok(allergens);
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
+
+                var paginatedAllergens = await _allergenService.GetPaginatedAsync(pageNumber, pageSize);
+                return Ok(paginatedAllergens);
             }
             catch (Exception ex)
             {
@@ -107,5 +111,27 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchAllergens(
+            [FromQuery] AllergenSearchParams searchParams,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            try
+            {
+                var result = await _allergenService.SearchAllergens(searchParams, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
     }
 }

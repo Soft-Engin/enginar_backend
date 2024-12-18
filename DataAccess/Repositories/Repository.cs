@@ -123,5 +123,11 @@ namespace DataAccess.Repositories
         {
             _dbSet.RemoveRange(entities);
         }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
     }
 }

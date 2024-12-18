@@ -1,16 +1,12 @@
 ﻿using BackEngin.Services;
-using BackEngin.Services.Interfaces;
+using BackEngin.Tests.Utils;
 using DataAccess.Repositories;
-using DataAccess.Repositories.IRepositories; // Ensure correct namespace
+using DataAccess.Repositories.IRepositories;
 using FluentAssertions;
 using Models;
 using Models.DTO;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -365,5 +361,149 @@ namespace BackEngin.Tests.Services
             _mockIngredientsRepository.Verify(u => u.Delete(It.IsAny<Ingredients>()), Times.Never);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
         }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldReturnAll_WhenNoFilter()
+        {
+            var ingredientTypes = TestUtilities.CreateIngredientTypes(2);
+            var allAllergens = TestUtilities.CreateAllergens(3);
+            var ingredients = TestUtilities.CreateIngredients(10, ingredientTypes, true, allAllergens).AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(ingredients.Object);
+
+            var searchParams = new IngredientSearchParams();
+
+            var result = await _ingredientsService.SearchIngredients(searchParams, 1, 20);
+
+            result.TotalCount.Should().Be(10);
+            result.Items.Should().HaveCount(10);
+        }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldFilterByName()
+        {
+            var types = TestUtilities.CreateIngredientTypes(1);
+            var allergens = TestUtilities.CreateAllergens(2);
+            var ingredientList = TestUtilities.CreateIngredients(5, types, true, allergens);
+            ingredientList[0].Name = "SpecialIngredient";
+
+            var mockIngredients = ingredientList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(mockIngredients.Object);
+
+            var searchParams = new IngredientSearchParams
+            {
+                NameContains = "Special"
+            };
+
+            var result = await _ingredientsService.SearchIngredients(searchParams, 1, 10);
+
+            result.TotalCount.Should().Be(1);
+            result.Items.First().Name.Should().Be("SpecialIngredient");
+        }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldFilterByIngredientTypeIds()
+        {
+            var types = TestUtilities.CreateIngredientTypes(3);
+            var allergens = TestUtilities.CreateAllergens(2);
+            var ingredientList = TestUtilities.CreateIngredients(10, types, true, allergens);
+
+            // Let's pick only typeId = 1 and 2
+            var chosenTypes = new List<int> { 1, 2 };
+            // Make sure some ingredients have typeId=3
+            ingredientList[8].TypeId = 3;
+            ingredientList[9].TypeId = 3;
+
+            var mockIngredients = ingredientList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(mockIngredients.Object);
+
+            var searchParams = new IngredientSearchParams
+            {
+                IngredientTypeIds = chosenTypes
+            };
+
+            var result = await _ingredientsService.SearchIngredients(searchParams, 1, 20);
+
+            result.Items.Should().AllSatisfy(i => chosenTypes.Contains(i.Type.Id));
+            result.TotalCount.Should().Be(ingredientList.Count(i => chosenTypes.Contains(i.TypeId)));
+        }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldExcludeAllergens()
+        {
+            var types = TestUtilities.CreateIngredientTypes(1);
+            var allergens = TestUtilities.CreateAllergens(2);
+            var ingredientList = TestUtilities.CreateIngredients(5, types, true, allergens);
+
+            // IngredientId=1 has no allergen=2
+            ingredientList[0].Ingredients_Preferences.Clear();
+            // IngredientId=2 has allergen=2
+            ingredientList[1].Ingredients_Preferences.Clear();
+            ingredientList[1].Ingredients_Preferences.Add(new Ingredients_Preferences
+            {
+                IngredientId = 2,
+                PreferenceId = 2,
+                Preference = allergens[1]
+            });
+
+            var mockIngredients = ingredientList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(mockIngredients.Object);
+
+            var searchParams = new IngredientSearchParams
+            {
+                AllergenIds = new List<int> { 2 }
+            };
+
+            // Only ingredients without allergen=2 or with no allergens should remain
+            var result = await _ingredientsService.SearchIngredients(searchParams, 1, 10);
+
+            result.Items.Should().NotContain(i => i.Allergens.Any(a => a.Id == 2));
+        }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldApplySorting()
+        {
+            var types = TestUtilities.CreateIngredientTypes(1);
+            var allergens = TestUtilities.CreateAllergens(1);
+            var ingredientList = TestUtilities.CreateIngredients(3, types, false, allergens);
+
+            ingredientList[0].Name = "Z-Ingredient";
+            ingredientList[1].Name = "A-Ingredient";
+            ingredientList[2].Name = "M-Ingredient";
+
+            var mockIngredients = ingredientList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(mockIngredients.Object);
+
+            var searchParams = new IngredientSearchParams
+            {
+                SortBy = "Name",
+                SortOrder = "asc"
+            };
+
+            var result = await _ingredientsService.SearchIngredients(searchParams, 1, 10);
+            result.Items.First().Name.Should().Be("A-Ingredient");
+        }
+
+        [Fact]
+        public async Task SearchIngredients_ShouldPaginate()
+        {
+            var types = TestUtilities.CreateIngredientTypes(1);
+            var allergens = TestUtilities.CreateAllergens(1);
+            var ingredientList = TestUtilities.CreateIngredients(25, types, false, allergens);
+
+            var mockIngredients = ingredientList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Ingredients.GetQueryable()).Returns(mockIngredients.Object);
+
+            var searchParams = new IngredientSearchParams();
+            var pageNumber = 2;
+            var pageSize = 5;
+
+            var result = await _ingredientsService.SearchIngredients(searchParams, pageNumber, pageSize);
+
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.TotalCount.Should().Be(25);
+            result.Items.Should().HaveCount(5);
+        }
+
     }
 }

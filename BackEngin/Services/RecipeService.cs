@@ -1,6 +1,7 @@
 ﻿using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DTO;
 
@@ -290,5 +291,73 @@ namespace BackEngin.Services
             }
             return true; // Validation passed successfully
         }
+
+        public async Task<PaginatedResponseDTO<RecipeDTO>> SearchRecipes(RecipeSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = _unitOfWork.Recipes.GetQueryable();
+
+            // Filters
+            if (!string.IsNullOrEmpty(searchParams.HeaderContains))
+                query = query.Where(r => r.Header.Contains(searchParams.HeaderContains));
+
+            if (!string.IsNullOrEmpty(searchParams.BodyContains))
+                query = query.Where(r => r.BodyText.Contains(searchParams.BodyContains));
+
+            if (!string.IsNullOrEmpty(searchParams.UserName))
+                query = query.Where(r => r.User.UserName == searchParams.UserName);
+
+            if (searchParams.IngredientIds.Any() || searchParams.AllergenIds.Any())
+            {
+                query = query.Include(r => r.Recipes_Ingredients)
+                             .ThenInclude(ri => ri.Ingredient)
+                             .ThenInclude(i => i.Ingredients_Preferences)
+                             .ThenInclude(ip => ip.Preference);
+
+                if (searchParams.IngredientIds.Any())
+                {
+                    query = query.Where(r => r.Recipes_Ingredients.Any(ri => searchParams.IngredientIds.Contains(ri.IngredientId)));
+                }
+
+                if (searchParams.AllergenIds.Any())
+                {
+                    query = query.Where(r => r.Recipes_Ingredients.Any(ri =>
+                        !ri.Ingredient.Ingredients_Preferences.Any(ip => searchParams.AllergenIds.Contains(ip.PreferenceId)) ||
+                        !ri.Ingredient.Ingredients_Preferences.Any()
+                    ));
+                }
+
+            }
+
+            // Sorting
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "bodytext" => ascending ? query.OrderBy(r => r.BodyText) : query.OrderByDescending(r => r.BodyText),
+                "userid" => ascending ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId),
+                _ => ascending ? query.OrderBy(r => r.Header) : query.OrderByDescending(r => r.Header),
+            };
+
+            var totalCount = await query.CountAsync();
+            var recipes = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var recipeDtos = recipes.Select(r => new RecipeDTO
+            {
+                Id = r.Id,
+                Header = r.Header,
+                BodyText = r.BodyText
+            }).ToList();
+
+            return new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = recipeDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
     }
 }

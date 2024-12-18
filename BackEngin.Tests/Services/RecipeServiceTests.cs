@@ -1,10 +1,12 @@
 ﻿using BackEngin.Services;
+using BackEngin.Tests.Utils;
 using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using FluentAssertions;
 using Models;
 using Models.DTO;
 using Moq;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -374,6 +376,169 @@ namespace BackEngin.Tests.Services
             result.Should().BeFalse();
         }
 
+        [Fact]
+        public async Task SearchRecipes_ShouldReturnAll_WhenNoFilter()
+        {
+            var users = TestUtilities.CreateUsers(2);
+            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1), true, TestUtilities.CreateAllergens(2));
+            var recipes = TestUtilities.CreateRecipes(10, users, ingredients).AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams();
+
+            var result = await _recipeService.SearchRecipes(searchParams, 1, 20);
+
+            result.TotalCount.Should().Be(10);
+            result.Items.Should().HaveCount(10);
+        }
+
+        [Fact]
+        public async Task SearchRecipes_ShouldFilterByHeaderAndBody()
+        {
+            var users = TestUtilities.CreateUsers(1);
+            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
+            var recipeList = TestUtilities.CreateRecipes(5, users, ingredients);
+
+            recipeList[0].Header = "SpecialHeader";
+            recipeList[0].BodyText = "SweetBodyText";
+            recipeList[1].Header = "SpecialHeader";
+            recipeList[1].BodyText = "Not sweet";
+            recipeList[2].Header = "Irrelevant";
+            recipeList[2].BodyText = "SweetBodyText";
+
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams
+            {
+                HeaderContains = "Special",
+                BodyContains = "Sweet"
+            };
+
+            var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+
+            result.TotalCount.Should().Be(1);
+            result.Items.First().Header.Should().Be("SpecialHeader");
+        }
+
+        [Fact]
+        public async Task SearchRecipes_ShouldFilterByUserName()
+        {
+            var users = TestUtilities.CreateUsers(2);
+            users[0].UserName = "recipeUser";
+            var ingredients = TestUtilities.CreateIngredients(3, TestUtilities.CreateIngredientTypes(1));
+            var recipeList = TestUtilities.CreateRecipes(5, users, ingredients);
+            recipeList[0].UserId = users[0].Id;
+            recipeList[1].UserId = users[1].Id;
+
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams
+            {
+                UserName = "recipeUser"
+            };
+
+            var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+            result.Items.Should().AllSatisfy(r => r.Header.StartsWith("Recipe"));
+            result.Items.Count().Should().Be(recipeList.Count(r => r.UserId == users[0].Id));
+        }
+
+        [Fact]
+        public async Task SearchRecipes_ShouldFilterByIngredientsAndAllergens()
+        {
+            var users = TestUtilities.CreateUsers(1);
+            var allAllergens = TestUtilities.CreateAllergens(2);
+            var ingredientTypes = TestUtilities.CreateIngredientTypes(1);
+            var ingredients = TestUtilities.CreateIngredients(5, ingredientTypes, true, allAllergens);
+            var recipeList = TestUtilities.CreateRecipes(5, users, ingredients);
+
+            // Setup one recipe to have IngredientId=1 without allergen=2
+            recipeList[0].Recipes_Ingredients.Clear();
+            recipeList[0].Recipes_Ingredients.Add(new Recipes_Ingredients
+            {
+                RecipeId = recipeList[0].Id,
+                IngredientId = 1,
+                Ingredient = ingredients.First(i => i.Id == 1)
+            });
+
+            // Another recipe to have allergen=2, which should be excluded
+            var ingWithAllergen = ingredients.First(i => i.Id == 3);
+            ingWithAllergen.Ingredients_Preferences.Clear();
+            ingWithAllergen.Ingredients_Preferences.Add(new Ingredients_Preferences
+            {
+                IngredientId = 3,
+                PreferenceId = 2,
+                Preference = allAllergens[1]
+            });
+
+            recipeList[1].Recipes_Ingredients.Clear();
+            recipeList[1].Recipes_Ingredients.Add(new Recipes_Ingredients
+            {
+                RecipeId = recipeList[1].Id,
+                IngredientId = 3,
+                Ingredient = ingWithAllergen
+            });
+
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams
+            {
+                IngredientIds = new List<int> { 1 },
+                AllergenIds = new List<int> { 2 }
+            };
+
+            var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+            result.TotalCount.Should().Be(4);
+            result.Items.First().Id.Should().Be(recipeList[0].Id);
+        }
+
+        [Fact]
+        public async Task SearchRecipes_ShouldApplySorting()
+        {
+            var users = TestUtilities.CreateUsers(1);
+            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
+            var recipeList = TestUtilities.CreateRecipes(3, users, ingredients);
+
+            recipeList[0].Header = "Z-Recipe";
+            recipeList[1].Header = "A-Recipe";
+            recipeList[2].Header = "M-Recipe";
+
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams
+            {
+                SortBy = "Header",
+                SortOrder = "asc"
+            };
+
+            var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+            result.Items.First().Header.Should().Be("A-Recipe");
+        }
+
+        [Fact]
+        public async Task SearchRecipes_ShouldPaginate()
+        {
+            var users = TestUtilities.CreateUsers(1);
+            var ingredients = TestUtilities.CreateIngredients(2, TestUtilities.CreateIngredientTypes(1));
+            var recipeList = TestUtilities.CreateRecipes(25, users, ingredients);
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+
+            var searchParams = new RecipeSearchParams();
+            var pageNumber = 3;
+            var pageSize = 5;
+
+            var result = await _recipeService.SearchRecipes(searchParams, pageNumber, pageSize);
+
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+            result.TotalCount.Should().Be(25);
+            result.Items.Should().HaveCount(5);
+        }
 
     }
 }
