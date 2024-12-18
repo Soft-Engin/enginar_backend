@@ -29,6 +29,7 @@ namespace DataAccess.Repositories
         IUsers_InteractionsRepository Users_Interactions { get; }
         IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         IUsersRepository Users { get; }
+        IUser_Event_ParticipationsRepository User_Event_Participations { get; }
 
         Task<int> CompleteAsync();
     }

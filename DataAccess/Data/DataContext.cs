@@ -32,6 +32,7 @@ namespace BackEngin.Data
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
 
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
+        public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

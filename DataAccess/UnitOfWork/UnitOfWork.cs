@@ -34,6 +34,7 @@ namespace DataAccess.Repositories
         public IUsers_InteractionsRepository Users_Interactions { get; }
         public IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         public IUsersRepository Users { get; }
+        public IUser_Event_ParticipationsRepository User_Event_Participations { get; }
 
         public UnitOfWork(DataContext db)
         {
@@ -61,6 +62,7 @@ namespace DataAccess.Repositories
             Users_Interactions = new Users_InteractionsRepository(_db);
             Users_Recipes_Interactions = new Users_Recipes_InteractionsRepository(_db);
             Users = new UsersRepository(_db);
+            User_Event_Participations = new User_Event_ParticipationsRepository(db);
 
 
         }

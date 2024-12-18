@@ -14,7 +14,7 @@ namespace Models
         public int Id { get; set; }
 
         [Required]
-        public int CreatorId { get; set; }
+        public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public Users Creator { get; set; }
 
