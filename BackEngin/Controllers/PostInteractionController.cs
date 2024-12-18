@@ -3,10 +3,12 @@ using Models.DTO;
 using Models;
 using System.Security.Claims;
 using BackEngin.Services.Interfaces;
+using Asp.Versioning;
 
 namespace BackEngin.Controllers
 {
-    [Route("api/v1/posts")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/interactions")]
     [ApiController]
     public class PostInteractionController : ApiControllerBase
     {
