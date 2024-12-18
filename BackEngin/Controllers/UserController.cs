@@ -52,7 +52,7 @@ namespace BackEngin.Controllers
         // Get self user
         [HttpGet("me")]
         [Authorize]
-        public async Task<IActionResult> GetSelfUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
             var id = await GetActiveUserId();
             var user = await _userService.GetUserByIdAsync(id);
