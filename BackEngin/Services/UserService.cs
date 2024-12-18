@@ -18,7 +18,6 @@ namespace BackEngin.Services
 {
     public class UserService : IUserService
     {
-        private readonly DataContext _context;
         private readonly UserManager<Users> _userManager;
         private readonly IUnitOfWork _unitOfWork;
 
