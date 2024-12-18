@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Reflection.Emit;
-using DataAccess.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Models.InteractionModels;
 
@@ -62,15 +61,6 @@ namespace BackEngin.Data
             modelBuilder.Entity<Recipes>().HasData(
                 new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
             );
-
-            //modelBuilder.Entity<Recipes_Ingredients>().HasData(
-            //    new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
-            //    new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
-            //);
-
-            //modelBuilder.Entity<Blogs>().HasData(
-            //    new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "3" }
-            //);
 
             modelBuilder.Entity<Blogs>().HasData(
                 new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" }
@@ -188,19 +178,19 @@ namespace BackEngin.Data
 
             modelBuilder.Entity<Recipe_Bookmarks>()
                .HasOne(rb => rb.Recipe)
-               .WithMany() 
+               .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
-               .OnDelete(DeleteBehavior.Restrict); 
+               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Recipe_Comments>()
                .HasOne(rb => rb.Recipe)
-               .WithMany() 
+               .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
-               .OnDelete(DeleteBehavior.Restrict); 
+               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Recipe_Likes>()
                .HasOne(rb => rb.Recipe)
-               .WithMany() 
+               .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
                .OnDelete(DeleteBehavior.Restrict);
 
