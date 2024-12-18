@@ -1,5 +1,6 @@
 ﻿using BackEngin.Data;
 using DataAccess.Repositories.IRepositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,34 @@ namespace DataAccess.Repositories
         {
             _db = db;
 
+        }
+
+        public async Task<(IEnumerable<Events> Items, int TotalCount)> GetPaginatedBySeedAsync(uint multiplier, uint seedValue, uint limiter, int pageNumber = 1, int pageSize = 10)
+        {
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            IQueryable<Events> query = _dbSet;
+
+            // Calculate weighted order dynamically
+            var weightedQuery = query
+                .Select(entity => new
+                {
+                    Entity = entity,
+                    Weight = (entity.Id * multiplier + seedValue) % limiter //does not work
+                })
+                .OrderBy(item => item.Weight)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            // Execute the query
+            var items = await weightedQuery
+                .Select(item => item.Entity)
+                .ToListAsync();
+
+            var totalCount = await query.CountAsync();
+
+            return (items, totalCount);
         }
     }
 }

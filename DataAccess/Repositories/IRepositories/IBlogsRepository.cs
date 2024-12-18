@@ -2,7 +2,7 @@
 
 namespace DataAccess.Repositories.IRepositories
 {
-    public interface IBlogsRepository : IRepository<Blogs>
+    public interface IBlogsRepository : IRepository<Blogs>, IFeedProviderRepository<Blogs>
     {
     }
 }
