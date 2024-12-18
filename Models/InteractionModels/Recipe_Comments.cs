@@ -24,9 +24,9 @@ namespace Models.InteractionModels
         public Recipes Recipe { get; set; }
 
         [MaxLength(500)]
-        public string CommentText { get; set; }
+        public string? CommentText { get; set; }
 
-        public byte[] ImageBlob { get; set; }
+        public byte[]? ImageBlob { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

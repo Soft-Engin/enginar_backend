@@ -128,6 +128,11 @@ namespace BackEngin.Services
         // Comment on Blog
         public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, CommentRequestDTO commentRequest)
         {
+            if((commentRequest.Image ==  null) && (commentRequest.Text == null))
+            {
+                throw new ArgumentException("The comment must have text or image");
+            }
+
             var comment = new Blog_Comments
             {
                 UserId = userId,
@@ -153,6 +158,11 @@ namespace BackEngin.Services
         // Comment on Recipe
         public async Task<CommentDTO> CommentOnRecipe(string userId, int recipeId, CommentRequestDTO commentRequest)
         {
+            if ((commentRequest.Image == null) && (commentRequest.Text == null))
+            {
+                throw new ArgumentException("The comment must have text or image");
+            }
+
             var comment = new Recipe_Comments
             {
                 UserId = userId,
