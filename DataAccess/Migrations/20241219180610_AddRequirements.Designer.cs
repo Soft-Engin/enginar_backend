@@ -3,6 +3,7 @@ using System;
 using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241219180610_AddRequirements")]
+    partial class AddRequirements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -440,7 +443,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -462,7 +465,7 @@ namespace DataAccess.Migrations
                             BodyText = "Celebrate the New Year with us!",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatorId = "1",
-                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "New Year's Eve Party"
                         });
                 });
@@ -1145,11 +1148,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6a2ca518-92e1-432e-b267-edd8f800f6c3",
+                            ConcurrencyStamp = "998c4d74-15dd-4147-a7b5-0310a75fa9ff",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5221282a-37a4-4b33-9dd9-3f906daf2aa5",
+                            SecurityStamp = "c5c9e8a8-91df-4da7-b0f9-01b7ecc5e139",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Adam",
@@ -1159,11 +1162,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1f9c16a5-8fce-4871-949b-7fc781331efe",
+                            ConcurrencyStamp = "a6992c24-9c42-4e3f-85e6-fe307009f840",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5fea988a-18df-441b-8dc0-0c43270078ed",
+                            SecurityStamp = "bd5f42c7-b5c7-4d7a-b8a7-e5193338031f",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Kadın",
@@ -1173,11 +1176,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1e136567-8ab2-4e04-8f58-fb73924994b6",
+                            ConcurrencyStamp = "2c6075ab-655e-4dae-b198-292fe1153770",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ee4d89bb-63f0-4c46-be71-aa36a01c1f8b",
+                            SecurityStamp = "6d007c95-b5e5-46fb-b202-e9fe460f4432",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Çocuk",
@@ -1187,11 +1190,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "244c76db-225f-4e2c-aa27-2ab7b30baf69",
+                            ConcurrencyStamp = "e5130e3b-8cb2-4197-8ecd-6cc9a7af9aed",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "99e9fb50-a3df-48f4-b75f-e45df597bcb4",
+                            SecurityStamp = "8f1e3606-2498-4198-b717-1295d8b0fb10",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Yaşlı",
@@ -1201,11 +1204,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a3cda023-1d77-4eae-8c17-969fad32eb0d",
+                            ConcurrencyStamp = "22bdb7fb-2cd4-47a5-aadf-899d43cb84c0",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "28b3d5b6-1d09-47ff-b407-17bd00b82d10",
+                            SecurityStamp = "dee7168a-9346-4d19-9ac3-84255b603595",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Enginar",

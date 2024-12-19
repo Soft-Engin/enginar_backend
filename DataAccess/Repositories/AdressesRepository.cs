@@ -1,5 +1,6 @@
 ﻿using BackEngin.Data;
 using DataAccess.Repositories.IRepositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,11 @@ namespace DataAccess.Repositories
         {
             _db = db;
 
+        }
+
+        public async Task<Addresses> SingleOrDefaultAsync(Func<Addresses, bool> predicate)
+        {
+            return await Task.Run(() => _db.Addresses.SingleOrDefault(predicate));
         }
     }
 }

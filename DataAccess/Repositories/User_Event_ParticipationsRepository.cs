@@ -17,5 +17,10 @@ namespace DataAccess.Repositories
             _db = db;
 
         }
+
+        public async Task<IQueryable<User_Event_Participations>> FindAllAsync(Func<User_Event_Participations, bool> predicate)
+        {
+            return await Task.FromResult(_db.User_Event_Participations.Where(predicate).AsQueryable());
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241219155410_AddCreatedAtToEvents")]
+    partial class AddCreatedAtToEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -331,20 +334,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Cities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CountryId = 1,
-                            Name = "Istanbul"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CountryId = 2,
-                            Name = "New York"
-                        });
                 });
 
             modelBuilder.Entity("Models.Countries", b =>
@@ -362,18 +351,6 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Turkey"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "USA"
-                        });
                 });
 
             modelBuilder.Entity("Models.Districts", b =>
@@ -404,16 +381,16 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            CityId = 1,
+                            CityId = 0,
                             Name = "Kadikoy",
-                            PostCode = 34710
+                            PostCode = 0
                         },
                         new
                         {
                             Id = 2,
-                            CityId = 1,
+                            CityId = 0,
                             Name = "Besiktas",
-                            PostCode = 34353
+                            PostCode = 0
                         });
                 });
 
@@ -440,7 +417,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -462,51 +439,8 @@ namespace DataAccess.Migrations
                             BodyText = "Celebrate the New Year with us!",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatorId = "1",
-                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "New Year's Eve Party"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RequirementId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("RequirementId");
-
-                    b.ToTable("Events_Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EventId = 1,
-                            RequirementId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EventId = 1,
-                            RequirementId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EventId = 1,
-                            RequirementId = 3
                         });
                 });
 
@@ -920,47 +854,6 @@ namespace DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Guests must confirm attendance before the event.",
-                            Name = "RSVP Required"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Guests are required to follow the formal dress code.",
-                            Name = "Dress Code"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Only guests aged 18 and above are allowed to attend.",
-                            Name = "Age Limit"
-                        });
-                });
-
             modelBuilder.Entity("Models.Roles", b =>
                 {
                     b.Property<int>("Id")
@@ -1145,11 +1038,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6a2ca518-92e1-432e-b267-edd8f800f6c3",
+                            ConcurrencyStamp = "1bd9149d-7e9c-4cb3-9ed7-0b7ac5a7fcdc",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5221282a-37a4-4b33-9dd9-3f906daf2aa5",
+                            SecurityStamp = "9393ad01-eeb2-422e-a658-61f183bdbafc",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Adam",
@@ -1159,11 +1052,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1f9c16a5-8fce-4871-949b-7fc781331efe",
+                            ConcurrencyStamp = "ab97fbec-d9d1-42f8-8cf1-c11d2bb0e2fa",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5fea988a-18df-441b-8dc0-0c43270078ed",
+                            SecurityStamp = "ddd2ab2f-f860-4881-908d-c787ac75365b",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Kadın",
@@ -1173,11 +1066,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1e136567-8ab2-4e04-8f58-fb73924994b6",
+                            ConcurrencyStamp = "99592d1b-36b9-4f32-b79d-ce5fc4bb4994",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ee4d89bb-63f0-4c46-be71-aa36a01c1f8b",
+                            SecurityStamp = "2bf5262a-a423-4dcd-b93e-e22151607008",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Çocuk",
@@ -1187,11 +1080,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "244c76db-225f-4e2c-aa27-2ab7b30baf69",
+                            ConcurrencyStamp = "41e3255f-8695-4342-8858-0025c902edfd",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "99e9fb50-a3df-48f4-b75f-e45df597bcb4",
+                            SecurityStamp = "665d83f2-c612-4155-bd2f-4817c9debb0e",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Yaşlı",
@@ -1201,11 +1094,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a3cda023-1d77-4eae-8c17-969fad32eb0d",
+                            ConcurrencyStamp = "a39b4451-eda8-4037-9ce8-5a484d741931",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "28b3d5b6-1d09-47ff-b407-17bd00b82d10",
+                            SecurityStamp = "8893cca7-8ec9-40f9-a6c7-0c07eebda3ed",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Enginar",
@@ -1331,25 +1224,6 @@ namespace DataAccess.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.HasOne("Models.Events", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Requirements", "Requirement")
-                        .WithMany()
-                        .HasForeignKey("RequirementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Requirement");
                 });
 
             modelBuilder.Entity("Models.Ingredients", b =>

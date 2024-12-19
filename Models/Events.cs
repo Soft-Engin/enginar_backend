@@ -27,6 +27,9 @@ namespace Models
         public DateTime Date { get; set; }
 
         [Required]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
         public string Title { get; set; }
 
         [Required]
