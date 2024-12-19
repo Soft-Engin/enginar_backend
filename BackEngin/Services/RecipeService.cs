@@ -36,6 +36,8 @@ namespace BackEngin.Services
                 BodyText = r.BodyText,
                 UserId = r.UserId,
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
+                Image = r.Image,
+                CreatedAt = r.CreatedAt,
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -56,7 +58,9 @@ namespace BackEngin.Services
             {
                 Header = createRecipeDTO.Header,
                 BodyText = createRecipeDTO.BodyText,
-                UserId = userId
+                UserId = userId,
+                Image = createRecipeDTO.Image,
+                CreatedAt = DateTime.UtcNow,
             };
 
             await _unitOfWork.Recipes.AddAsync(newRecipe);
@@ -113,7 +117,9 @@ namespace BackEngin.Services
                 BodyText = newRecipe.BodyText,
                 UserId = userId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
-                Ingredients = ingredientDetailsDTOs
+                Ingredients = ingredientDetailsDTOs,
+                Image = newRecipe.Image,
+                CreatedAt = newRecipe.CreatedAt,
             };
         }
 
@@ -155,7 +161,9 @@ namespace BackEngin.Services
                 BodyText = recipe.BodyText,
                 UserId = recipe.UserId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
-                Ingredients = ingredientDTOs
+                Ingredients = ingredientDTOs,
+                Image = recipe.Image,
+                CreatedAt = recipe.CreatedAt
             };
         }
 
@@ -171,6 +179,7 @@ namespace BackEngin.Services
             // Update the recipe details
             recipe.Header = updateRecipeDTO.Header;
             recipe.BodyText = updateRecipeDTO.BodyText;
+            recipe.Image = updateRecipeDTO.Image;
 
             // Fetch existing ingredients for the recipe
             var existingIngredients = (await _unitOfWork.Recipes_Ingredients
@@ -255,7 +264,9 @@ namespace BackEngin.Services
                 BodyText = recipe.BodyText,
                 UserId = recipe.UserId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
-                Ingredients = ingredientDTOs
+                Ingredients = ingredientDTOs,
+                Image = recipe.Image,
+                CreatedAt = recipe.CreatedAt,
             };
         }
 

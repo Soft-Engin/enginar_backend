@@ -56,7 +56,7 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1", CreatedAt = new DateTime() }
             );
 
             modelBuilder.Entity<Recipes_Ingredients>().HasData(
@@ -65,7 +65,7 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Blogs>().HasData(
-                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" }
+                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" , CreatedAt = new DateTime()}
             );
             // Configure many-to-many relationship between Ingredients and Preferences
             modelBuilder.Entity<Ingredients_Preferences>()
