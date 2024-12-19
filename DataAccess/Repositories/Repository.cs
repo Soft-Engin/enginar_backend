@@ -94,6 +94,10 @@ namespace DataAccess.Repositories
             return (items, totalCount);
         }
 
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.CountAsync(predicate);
+        }
         public async Task<IEnumerable<T>> FindAsync(Func<T, bool> predicate)
         {
             return await Task.FromResult(_dbSet.Where(predicate));

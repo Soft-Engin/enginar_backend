@@ -3,6 +3,7 @@ using System;
 using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241218151642_InteractionsTables")]
+    partial class InteractionsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -540,6 +543,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("CommentText")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -547,6 +551,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<string>("UserId")
@@ -625,6 +630,7 @@ namespace DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CommentText")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -632,6 +638,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<int>("RecipeId")
@@ -1079,11 +1086,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "251e6142-6459-4edc-a4b9-e6b65b7f1d6f",
+                            ConcurrencyStamp = "c85a82d4-12cb-4fa1-8550-e7cdea70a628",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ffd84a1c-0955-4776-a71d-fca5bbaa90bf",
+                            SecurityStamp = "d0916b18-e36f-47f0-9628-d65644d6ad4e",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Adam",
@@ -1093,11 +1100,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c1b0fe9e-a4c9-49b6-a9c4-62ec31bbe10b",
+                            ConcurrencyStamp = "d5a1c5b7-4e34-48c4-a061-63bb4179474c",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c8bbbc8b-dc3e-4e9e-9b67-4a102bc8d845",
+                            SecurityStamp = "4915fcd5-b3b6-4f86-9b08-af0bc4b359ba",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Kadın",
@@ -1107,11 +1114,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "08a93889-8c49-435b-a2c4-60a6fdd39dcd",
+                            ConcurrencyStamp = "1f409006-dbd1-4064-a4f6-c94375a4ca5a",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6ab3c1e7-02cc-48bf-8747-0a570d9eb87d",
+                            SecurityStamp = "2dcd5905-0b82-47c8-9b57-3d76004d1f4c",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Çocuk",
@@ -1121,11 +1128,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "68e2ed19-ed3e-492f-8651-365dc4000b7d",
+                            ConcurrencyStamp = "d4707db1-bfbe-4329-8a7b-39aa9742b6d2",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b6363b58-8fd5-444b-a65d-f4a56b4c0d23",
+                            SecurityStamp = "6c00c55c-e825-4062-bea9-a384c651727a",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Yaşlı",
@@ -1135,11 +1142,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d6665f3d-5302-4266-b120-597730bbafaa",
+                            ConcurrencyStamp = "51316e86-1fe0-4ccc-9703-b5914b8faf47",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "babd920a-b8fc-41a8-93d7-d6295dd088a8",
+                            SecurityStamp = "a3256b78-6a11-4ae2-a284-ff3d73cb6ae3",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Enginar",

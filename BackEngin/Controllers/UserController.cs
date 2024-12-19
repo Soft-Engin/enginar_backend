@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
-using DataAccess.Migrations;
 using Humanizer;
 
 namespace BackEngin.Controllers

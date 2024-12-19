@@ -1,5 +1,6 @@
 ﻿using BackEngin.Services;
 using BackEngin.Tests.Utils;
+using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using FluentAssertions;
 using Models;
