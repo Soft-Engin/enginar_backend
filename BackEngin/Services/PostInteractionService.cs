@@ -11,7 +11,6 @@ namespace BackEngin.Services
     public class PostInteractionService : IPostInteractionService
     {
         private readonly IUnitOfWork _unitOfWork;
-        // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmcxIiwianRpIjoiYzg0ZDM4MjAtMmE2OS00ZThkLWFiODctNWJmNDRmYTY1M2U4IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIyZTA5ZjZkNS1kYWQwLTQ5YTQtODdlNi1jNTRjMTAwOGY3ZTgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoic3RyaW5nMSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3MzQ2NDY3MDgsImlzcyI6IkVuZ2luIiwiYXVkIjoiYXVkaWVuY2UifQ.MRTSP0a3DMLmyTGsOAdK8PK9Eo2_FxIvH0TCYX8fQFs
 
         public PostInteractionService(IUnitOfWork unitOfWork)
         {
