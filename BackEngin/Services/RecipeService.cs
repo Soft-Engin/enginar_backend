@@ -24,11 +24,18 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = recipes.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
                 Header = r.Header,
-                BodyText = r.BodyText
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -96,12 +103,16 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             // Return the created recipe with ingredients
             return new RecipeDetailsDTO
             {
                 Id = newRecipe.Id,
                 Header = newRecipe.Header,
                 BodyText = newRecipe.BodyText,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDetailsDTOs
             };
         }
@@ -135,11 +146,15 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == recipe.UserId);
+
             return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,
                 BodyText = recipe.BodyText,
+                UserId = recipe.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDTOs
             };
         }
@@ -230,12 +245,16 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == recipe.UserId);
+
             // Return updated recipe details
             return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,
                 BodyText = recipe.BodyText,
+                UserId = recipe.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDTOs
             };
         }

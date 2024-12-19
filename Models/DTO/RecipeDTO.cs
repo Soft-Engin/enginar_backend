@@ -7,6 +7,8 @@ namespace Models.DTO
         public int Id { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+        public string UserId { get; set; }
+        public string UserName { get; set; }
     }
 
     public class RecipeDetailsDTO
@@ -14,6 +16,8 @@ namespace Models.DTO
         public int Id { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+        public string UserId { get; set; }
+        public string UserName { get; set; }
 
         public List<RecipeIngredientDetailsDTO> Ingredients { get; set; }
     }

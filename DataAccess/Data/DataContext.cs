@@ -48,11 +48,11 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", RoleId = 1 },
-                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", RoleId = 1 },
-                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", RoleId = 1 },
-                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", RoleId = 1 },
-                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", RoleId = 2 }
+                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 },
+                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 },
+                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 },
+                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 },
+                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 }
             );
 
             modelBuilder.Entity<Recipes>().HasData(

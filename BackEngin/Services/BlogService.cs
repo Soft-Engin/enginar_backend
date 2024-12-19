@@ -25,12 +25,18 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the blogs users
+            var userIds = blogs.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var blogDtos = blogs.Select(b => new BlogDTO
             {
                 Id = b.Id,
                 Header = b.Header,
                 BodyText = b.BodyText,
                 UserId = b.UserId,
+                UserName = userDictionary.ContainsKey(b.UserId) ? userDictionary[b.UserId] : "Unknown",
                 RecipeId = b.RecipeId
             }).ToList();
 
@@ -147,6 +153,8 @@ namespace BackEngin.Services
             _unitOfWork.Blogs.Update(blog);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == blog.UserId);
+
             // Return the updated blog details
             return new BlogDTO
             {
@@ -154,6 +162,7 @@ namespace BackEngin.Services
                 Header = blog.Header,
                 BodyText = blog.BodyText,
                 UserId = blog.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 RecipeId = blog.RecipeId
             };
         }
@@ -167,6 +176,8 @@ namespace BackEngin.Services
             // Fetch recipe details if associated
             RecipeDetailsDTO recipeDetails = await GetRecipeOfBlog(blogId);
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == blog.UserId);
+
             // Map and return the blog details along with recipe details
             return new BlogDetailDTO
             {
@@ -174,6 +185,7 @@ namespace BackEngin.Services
                 Header = blog.Header,
                 BodyText = blog.BodyText,
                 UserId = blog.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 RecipeId = blog.RecipeId,
                 RecipeHeader = recipeDetails?.Header,
                 Recipe = recipeDetails // Include the full recipe details

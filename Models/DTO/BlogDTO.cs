@@ -12,6 +12,7 @@ namespace Models.DTO
         public string Header { get; set; }
         public string BodyText { get; set; }
         public string UserId { get; set; }
+        public string UserName { get; set; }
         public int? RecipeId { get; set; }
     }
 
@@ -21,6 +22,7 @@ namespace Models.DTO
         public string Header { get; set; }
         public string BodyText { get; set; }
         public string UserId { get; set; }
+        public string UserName { get; set; }
         public int? RecipeId { get; set; }
         public string RecipeHeader { get; set; }
         public RecipeDetailsDTO Recipe { get; set; } // Full recipe details
