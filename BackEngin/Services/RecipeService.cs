@@ -38,6 +38,8 @@ namespace BackEngin.Services
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
                 Image = r.Image,
                 CreatedAt = r.CreatedAt,
+                PreperationTime = r.PreperationTime,
+                ServingSize = r.ServingSize,
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -61,6 +63,8 @@ namespace BackEngin.Services
                 UserId = userId,
                 Image = createRecipeDTO.Image,
                 CreatedAt = DateTime.UtcNow,
+                ServingSize = createRecipeDTO.ServingSize,
+                PreperationTime = createRecipeDTO.PreperationTime,
             };
 
             await _unitOfWork.Recipes.AddAsync(newRecipe);
@@ -120,6 +124,8 @@ namespace BackEngin.Services
                 Ingredients = ingredientDetailsDTOs,
                 Image = newRecipe.Image,
                 CreatedAt = newRecipe.CreatedAt,
+                ServingSize = newRecipe.ServingSize,
+                PreperationTime = newRecipe.PreperationTime,
             };
         }
 
@@ -163,7 +169,10 @@ namespace BackEngin.Services
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDTOs,
                 Image = recipe.Image,
-                CreatedAt = recipe.CreatedAt
+                CreatedAt = recipe.CreatedAt,
+                ServingSize = recipe.ServingSize,
+                PreperationTime = recipe.PreperationTime,
+
             };
         }
 
@@ -180,6 +189,8 @@ namespace BackEngin.Services
             recipe.Header = updateRecipeDTO.Header;
             recipe.BodyText = updateRecipeDTO.BodyText;
             recipe.Image = updateRecipeDTO.Image;
+            recipe.ServingSize = updateRecipeDTO.ServingSize;
+            recipe.PreperationTime = updateRecipeDTO.PreperationTime;
 
             // Fetch existing ingredients for the recipe
             var existingIngredients = (await _unitOfWork.Recipes_Ingredients
@@ -267,6 +278,8 @@ namespace BackEngin.Services
                 Ingredients = ingredientDTOs,
                 Image = recipe.Image,
                 CreatedAt = recipe.CreatedAt,
+                ServingSize = recipe.ServingSize,
+                PreperationTime = recipe.PreperationTime,
             };
         }
 

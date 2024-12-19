@@ -27,6 +27,12 @@ namespace Models
         public byte[]? Image { get; set; }
 
         [Required]
+        public int ServingSize { get; set; }
+
+        [Required]
+        public int PreperationTime { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
 
         // Navigation property for Recipes_Ingredients

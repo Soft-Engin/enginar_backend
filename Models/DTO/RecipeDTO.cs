@@ -10,6 +10,8 @@ namespace Models.DTO
         public string UserId { get; set; }
         public string UserName { get; set; }
         public byte[]? Image { get; set; }
+        public int ServingSize { get; set; }
+        public int PreperationTime { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -21,6 +23,8 @@ namespace Models.DTO
         public string UserId { get; set; }
         public string UserName { get; set; }
         public byte[]? Image { get; set; }
+        public int ServingSize { get; set; }
+        public int PreperationTime { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public List<RecipeIngredientDetailsDTO> Ingredients { get; set; }
@@ -31,6 +35,8 @@ namespace Models.DTO
         public string Header { get; set; }
         public string BodyText { get; set; }
         public byte[]? Image { get; set; }
+        public int ServingSize { get; set; }
+        public int PreperationTime { get; set; }
         public List<RecipeIngredientRequestDTO> Ingredients { get; set; }
     }
 
@@ -54,6 +60,8 @@ namespace Models.DTO
         [Required]
         public string BodyText { get; set; }
         public byte[]? Image { get; set; }
+        public int ServingSize { get; set; }
+        public int PreperationTime { get; set; }
         public List<RecipeIngredientRequestDTO> Ingredients { get; set; }
 
     }
