@@ -23,7 +23,7 @@ namespace BackEngin.Controllers
         }
 
         // Get all users
-        [HttpGet("GetAllUsers")]
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -37,7 +37,7 @@ namespace BackEngin.Controllers
         }
 
         // Get a user by ID
-        [HttpGet("GetUser/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -48,8 +48,23 @@ namespace BackEngin.Controllers
             return Ok(user);
         }
 
+        // Get self user
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var id = await GetActiveUserId();
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+
         // Update an existing user
-        [HttpPut("UpdateUser/{id}")]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDTO)
         {
@@ -58,8 +73,8 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!await CanUserAccess(id)) 
-            { 
+            if (!await CanUserAccess(id))
+            {
                 return Unauthorized();
             }
 
@@ -73,7 +88,7 @@ namespace BackEngin.Controllers
         }
 
         // Delete a user
-        [HttpDelete("DeleteUser/{id}")]
+        [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -91,7 +106,7 @@ namespace BackEngin.Controllers
             return Ok(new { Message = "User successfully deleted." });
         }
 
-        [HttpGet("followers")]
+        [HttpGet("{userId}/followers")]
         public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
@@ -114,7 +129,7 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpGet("following")]
+        [HttpGet("{userId}/following")]
         public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
