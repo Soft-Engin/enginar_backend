@@ -4,6 +4,7 @@ using Models;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BackEngin.Services
 {
@@ -95,7 +96,7 @@ namespace BackEngin.Services
                 await _unitOfWork.Blog_Bookmarks.AddAsync(bookmark);
                 await _unitOfWork.CompleteAsync();
                 return true; // bookmark
-            }            
+            }
         }
 
         // Toggle Bookmark for Recipe
@@ -129,9 +130,14 @@ namespace BackEngin.Services
         // Comment on Blog
         public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, CommentRequestDTO commentRequest)
         {
-            if((commentRequest.Image ==  null) && (commentRequest.Text == null))
+            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
+            }
+
+            if (!(await _unitOfWork.Blogs.FindAsync(b => b.Id == blogId)).Any())
+            {
+                throw new Exception("Blog with the provided blogId does not exits");
             }
 
             var comment = new Blog_Comments
@@ -159,10 +165,16 @@ namespace BackEngin.Services
         // Comment on Recipe
         public async Task<CommentDTO> CommentOnRecipe(string userId, int recipeId, CommentRequestDTO commentRequest)
         {
-            if ((commentRequest.Image == null) && (commentRequest.Text == null))
+            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
             }
+
+            if (!(await _unitOfWork.Recipes.FindAsync(r => r.Id == recipeId)).Any())
+            {
+                throw new Exception("Recipe with the provided recipeId does not exits");
+            }
+
 
             var comment = new Recipe_Comments
             {
@@ -193,6 +205,11 @@ namespace BackEngin.Services
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
+            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            {
+                throw new ArgumentException("The comment must have text or image");
+            }
+
             comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
             comment.ImageBlob = commentRequest.Image;
@@ -216,6 +233,11 @@ namespace BackEngin.Services
             var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
+
+            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            {
+                throw new ArgumentException("The comment must have text or image");
+            }
 
             comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
