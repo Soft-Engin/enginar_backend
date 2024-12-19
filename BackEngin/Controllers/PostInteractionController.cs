@@ -4,11 +4,13 @@ using Models;
 using System.Security.Claims;
 using BackEngin.Services.Interfaces;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/interactions")]
+    [Authorize]
     [ApiController]
     public class PostInteractionController : ApiControllerBase
     {
