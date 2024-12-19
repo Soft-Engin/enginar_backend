@@ -25,5 +25,19 @@ namespace BackEngin.Services.Interfaces
         Task DeleteBlogComment(string userId, int commentId);
         Task DeleteRecipeComment(string userId, int commentId);
 
+        // New methods
+        Task<bool> IsBlogLiked(string userId, int blogId);
+        Task<bool> IsBlogBookmarked(string userId, int blogId);
+        Task<bool> IsRecipeLiked(string userId, int recipeId);
+        Task<bool> IsRecipeBookmarked(string userId, int recipeId);
+
+        // Count methods
+        Task<int> GetBlogLikeCount(int blogId);
+        Task<int> GetBlogBookmarkCount(int blogId);
+        Task<int> GetRecipeLikeCount(int recipeId);
+        Task<int> GetRecipeBookmarkCount(int recipeId);
+
+        Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize);
+        Task<PaginatedResponseDTO<CommentDTO>> GetRecipeComments(int recipeId, int pageNumber, int pageSize);
     }
 }

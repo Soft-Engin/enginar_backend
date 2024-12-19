@@ -189,6 +189,107 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // Check if the user has liked a blog post and the like count of the post
+        [HttpGet("blogs/{blogId}/is-liked")]
+        public async Task<IActionResult> IsBlogLiked(int blogId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isLiked = await _interactionService.IsBlogLiked(userId, blogId);
+                int likeCount = await _interactionService.GetBlogLikeCount(blogId);
+                return Ok(new { isLiked, likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Check if the user has bookmarked a blog post and bookmark count of the post
+        [HttpGet("blogs/{blogId}/is-bookmarked")]
+        public async Task<IActionResult> IsBlogBookmarked(int blogId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isBookmarked = await _interactionService.IsBlogBookmarked(userId, blogId);
+                int bookmarkCount = await _interactionService.GetBlogBookmarkCount(blogId);
+                return Ok(new { isBookmarked, bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+        // Get comments under a blog post with pagination
+        [HttpGet("blogs/{blogId}/comments")]
+        public async Task<IActionResult> GetBlogComments(int blogId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var comments = await _interactionService.GetBlogComments(blogId, page, pageSize);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Check if the user has liked a Recipe post and the like count of the recipe
+        [HttpGet("recipes/{recipeId}/is-liked")]
+        public async Task<IActionResult> IsRecipeLiked(int recipeId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isLiked = await _interactionService.IsRecipeLiked(userId, recipeId);
+                int likeCount = await _interactionService.GetRecipeLikeCount(recipeId);
+                return Ok(new { isLiked, likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Check if the user has bookmarked a Recipe post and the bookmark count of the recipe
+        [HttpGet("recipes/{recipeId}/is-bookmarked")]
+        public async Task<IActionResult> IsRecipeBookmarked(int recipeId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isBookmarked = await _interactionService.IsRecipeBookmarked(userId, recipeId);
+                int bookmarkCount = await _interactionService.GetRecipeBookmarkCount(recipeId);
+                return Ok(new { isBookmarked, bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Get comments under a Recipe post with pagination
+        [HttpGet("recipes/{recipeId}/comments")]
+        public async Task<IActionResult> GetRecipeComments(int recipeId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var comments = await _interactionService.GetRecipeComments(recipeId, page, pageSize);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
     }
 
 }

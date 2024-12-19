@@ -10,6 +10,7 @@ namespace BackEngin.Services
     public class PostInteractionService : IPostInteractionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmcxIiwianRpIjoiYzg0ZDM4MjAtMmE2OS00ZThkLWFiODctNWJmNDRmYTY1M2U4IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIyZTA5ZjZkNS1kYWQwLTQ5YTQtODdlNi1jNTRjMTAwOGY3ZTgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoic3RyaW5nMSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3MzQ2NDY3MDgsImlzcyI6IkVuZ2luIiwiYXVkIjoiYXVkaWVuY2UifQ.MRTSP0a3DMLmyTGsOAdK8PK9Eo2_FxIvH0TCYX8fQFs
 
         public PostInteractionService(IUnitOfWork unitOfWork)
         {
@@ -254,6 +255,114 @@ namespace BackEngin.Services
             _unitOfWork.Recipe_Comments.Delete(comment);
             await _unitOfWork.CompleteAsync();
         }
+
+        // Check if the user has liked a blog
+        public async Task<bool> IsBlogLiked(string userId, int blogId)
+        {
+            var existingLike = await _unitOfWork.Blog_Likes.FindAsync(l => l.UserId == userId && l.BlogId == blogId);
+            return existingLike.Any();
+        }
+
+        // Check if the user has bookmarked a blog
+        public async Task<bool> IsBlogBookmarked(string userId, int blogId)
+        {
+            var existingBookmark = await _unitOfWork.Blog_Bookmarks.FindAsync(b => b.UserId == userId && b.BlogId == blogId);
+            return existingBookmark.Any();
+        }
+
+        // Check if the user has liked a recipe
+        public async Task<bool> IsRecipeLiked(string userId, int recipeId)
+        {
+            var existingLike = await _unitOfWork.Recipe_Likes.FindAsync(l => l.UserId == userId && l.RecipeId == recipeId);
+            return existingLike.Any();
+        }
+
+        // Check if the user has bookmarked a recipe
+        public async Task<bool> IsRecipeBookmarked(string userId, int recipeId)
+        {
+            var existingBookmark = await _unitOfWork.Recipe_Bookmarks.FindAsync(b => b.UserId == userId && b.RecipeId == recipeId);
+            return existingBookmark.Any();
+        }
+
+        // Get the number of likes for a blog
+        public async Task<int> GetBlogLikeCount(int blogId)
+        {
+            return await _unitOfWork.Blog_Likes.CountAsync(l => l.BlogId == blogId);
+        }
+
+        // Get the number of bookmarks for a blog
+        public async Task<int> GetBlogBookmarkCount(int blogId)
+        {
+            return await _unitOfWork.Blog_Bookmarks.CountAsync(b => b.BlogId == blogId);
+        }
+
+        // Get the number of likes for a recipe
+        public async Task<int> GetRecipeLikeCount(int recipeId)
+        {
+            return await _unitOfWork.Recipe_Likes.CountAsync(l => l.RecipeId == recipeId);
+        }
+
+        // Get the number of bookmarks for a recipe
+        public async Task<int> GetRecipeBookmarkCount(int recipeId)
+        {
+            return await _unitOfWork.Recipe_Bookmarks.CountAsync(b => b.RecipeId == recipeId);
+        }
+
+
+        // Get paginated comments for a blog
+        public async Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize)
+        {
+            var (comments, totalCount) = await _unitOfWork.Blog_Comments.GetPaginatedAsync(
+                filter: c => c.BlogId == blogId, // Filter by blog ID
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            var commentDtos = comments.Select(c => new CommentDTO
+            {
+                Id = c.Id,
+                Recipe_blog_id = c.BlogId,
+                Text = c.CommentText,
+                Image = c.ImageBlob,
+                Timestamp = c.CreatedAt
+            }).ToList();
+
+            return new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = commentDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        // Get paginated comments for a recipe
+        public async Task<PaginatedResponseDTO<CommentDTO>> GetRecipeComments(int recipeId, int pageNumber, int pageSize)
+        {
+            var (comments, totalCount) = await _unitOfWork.Recipe_Comments.GetPaginatedAsync(
+                filter: c => c.RecipeId == recipeId, // Filter by recipe ID
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            var commentDtos = comments.Select(c => new CommentDTO
+            {
+                Id = c.Id,
+                Recipe_blog_id = c.RecipeId,
+                Text = c.CommentText,
+                Image = c.ImageBlob,
+                Timestamp = c.CreatedAt
+            }).ToList();
+
+            return new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = commentDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
 
     }
 
