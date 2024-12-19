@@ -5,6 +5,9 @@ using Models.DTO;
 using Models.InteractionModels;
 using DataAccess.Repositories;
 using BackEngin.Services;
+using System.Linq.Expressions;
+using Models;
+using System.Reflection.Metadata;
 
 namespace BackEngin.Tests.Services
 {
@@ -65,7 +68,6 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }
 
-        // Test for CommentOnBlog
         [Fact]
         public async Task CommentOnBlog_ShouldAddComment()
         {
@@ -74,8 +76,28 @@ namespace BackEngin.Tests.Services
             var blogId = 1;
             var commentRequest = new CommentRequestDTO { Text = "Great blog!", Image = null };
 
-            _mockUnitOfWork.Setup(u => u.Blog_Comments.AddAsync(It.IsAny<Blog_Comments>())).Verifiable();
+            // Mock the Blog existence check
+            _mockUnitOfWork.Setup(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+                           .ReturnsAsync(new List<Blogs> { new Blogs { Id = blogId } });
+
+            // Mock adding the comment
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.AddAsync(It.IsAny<Blog_Comments>()))
+                           .Verifiable();
+
+            // Mock completing the transaction
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            // Mock returned comment ID
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(It.IsAny<int>()))
+                           .ReturnsAsync(new Blog_Comments
+                           {
+                               Id = 1,
+                               BlogId = blogId,
+                               UserId = userId,
+                               CommentText = "Great blog!",
+                               ImageBlob = null,
+                               CreatedAt = DateTime.UtcNow
+                           });
 
             // Act
             var result = await _service.CommentOnBlog(userId, blogId, commentRequest);
@@ -84,9 +106,11 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Text.Should().Be("Great blog!");
             result.Recipe_blog_id.Should().Be(blogId);
+            _mockUnitOfWork.Verify(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.Blog_Comments.AddAsync(It.IsAny<Blog_Comments>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }
+
 
         // Test for UpdateBlogComment
         [Fact]
@@ -188,6 +212,164 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Recipe_Bookmarks.Delete(existingBookmark), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }
+
+        [Fact]
+        public async Task IsBlogLiked_ShouldReturnTrue_WhenLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var blogId = 1;
+
+            _mockUnitOfWork.Setup(u => u.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()))
+                .ReturnsAsync(new List<Blog_Likes> { new Blog_Likes { BlogId = blogId, UserId = userId } });
+
+            // Act
+            var result = await _service.IsBlogLiked(userId, blogId);
+
+            // Assert
+            result.Should().BeTrue();
+            _mockUnitOfWork.Verify(u => u.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task IsBlogLiked_ShouldReturnFalse_WhenNotLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var blogId = 1;
+
+            _mockUnitOfWork.Setup(u => u.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()))
+                .ReturnsAsync(new List<Blog_Likes>());
+
+            // Act
+            var result = await _service.IsBlogLiked(userId, blogId);
+
+            // Assert
+            result.Should().BeFalse();
+            _mockUnitOfWork.Verify(u => u.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task IsRecipeLiked_ShouldReturnTrue_WhenLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var recipeId = 1;
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()))
+                .ReturnsAsync(new List<Recipe_Likes> { new Recipe_Likes { RecipeId = recipeId, UserId = userId } });
+
+            // Act
+            var result = await _service.IsRecipeLiked(userId, recipeId);
+
+            // Assert
+            result.Should().BeTrue();
+            _mockUnitOfWork.Verify(u => u.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task IsRecipeLiked_ShouldReturnFalse_WhenNotLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var recipeId = 1;
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()))
+                .ReturnsAsync(new List<Recipe_Likes>());
+
+            // Act
+            var result = await _service.IsRecipeLiked(userId, recipeId);
+
+            // Assert
+            result.Should().BeFalse();
+            _mockUnitOfWork.Verify(u => u.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogLikeCount_ShouldReturnCorrectCount()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockUnitOfWork.Setup(u => u.Blog_Likes.CountAsync(It.IsAny<Expression<Func<Blog_Likes, bool>>>()))
+                .ReturnsAsync(5);
+
+            // Act
+            var result = await _service.GetBlogLikeCount(blogId);
+
+            // Assert
+            result.Should().Be(5);
+            _mockUnitOfWork.Verify(u => u.Blog_Likes.CountAsync(It.IsAny<Expression<Func<Blog_Likes, bool>>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeLikeCount_ShouldReturnCorrectCount()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockUnitOfWork.Setup(u => u.Recipe_Likes.CountAsync(It.IsAny<Expression<Func<Recipe_Likes, bool>>>()))
+                .ReturnsAsync(3);
+
+            // Act
+            var result = await _service.GetRecipeLikeCount(recipeId);
+
+            // Assert
+            result.Should().Be(3);
+            _mockUnitOfWork.Verify(u => u.Recipe_Likes.CountAsync(It.IsAny<Expression<Func<Recipe_Likes, bool>>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogComments_ShouldReturnPaginatedComments()
+        {
+            // Arrange
+            var blogId = 1;
+            var pageNumber = 1;
+            var pageSize = 2;
+            var comments = new List<Blog_Comments>
+    {
+        new Blog_Comments { Id = 1, BlogId = blogId, CommentText = "Comment 1" },
+        new Blog_Comments { Id = 2, BlogId = blogId, CommentText = "Comment 2" }
+    };
+
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize))
+                .ReturnsAsync((comments, 10));
+
+            // Act
+            var result = await _service.GetBlogComments(blogId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Count().Should().Be(2);
+            result.TotalCount.Should().Be(10);
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeComments_ShouldReturnPaginatedComments()
+        {
+            // Arrange
+            var recipeId = 1;
+            var pageNumber = 1;
+            var pageSize = 2;
+            var comments = new List<Recipe_Comments>
+    {
+        new Recipe_Comments { Id = 1, RecipeId = recipeId, CommentText = "Comment 1" },
+        new Recipe_Comments { Id = 2, RecipeId = recipeId, CommentText = "Comment 2" }
+    };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize))
+                .ReturnsAsync((comments, 8));
+
+            // Act
+            var result = await _service.GetRecipeComments(recipeId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Count().Should().Be(2);
+            result.TotalCount.Should().Be(8);
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+        }
+
     }
 
 }

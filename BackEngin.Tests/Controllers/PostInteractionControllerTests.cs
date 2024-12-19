@@ -10,7 +10,7 @@ using Xunit;
 
 
 namespace BackEngin.Tests.Controllers
-{    
+{
     public class PostInteractionControllerTests
     {
         private readonly Mock<IPostInteractionService> _mockInteractionService;
@@ -174,6 +174,295 @@ namespace BackEngin.Tests.Controllers
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(new { message = "Recipe comment deleted successfully." });
             _mockInteractionService.Verify(s => s.DeleteRecipeComment("currentUserId", commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task IsBlogLiked_ShouldReturnOk_WithIsLikedAndLikeCount()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.IsBlogLiked("currentUserId", blogId))
+                                   .ReturnsAsync(true);
+            _mockInteractionService.Setup(s => s.GetBlogLikeCount(blogId))
+                                   .ReturnsAsync(5);
+
+            // Act
+            var result = await _postInteractionController.IsBlogLiked(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { isLiked = true, likeCount = 5 });
+        }
+
+        [Fact]
+        public async Task IsBlogBookmarked_ShouldReturnOk_WithIsBookmarkedAndBookmarkCount()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.IsBlogBookmarked("currentUserId", blogId))
+                                   .ReturnsAsync(true);
+            _mockInteractionService.Setup(s => s.GetBlogBookmarkCount(blogId))
+                                   .ReturnsAsync(3);
+
+            // Act
+            var result = await _postInteractionController.IsBlogBookmarked(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { isBookmarked = true, bookmarkCount = 3 });
+        }
+
+        [Fact]
+        public async Task IsRecipeLiked_ShouldReturnOk_WithIsLikedAndLikeCount()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.IsRecipeLiked("currentUserId", recipeId))
+                                   .ReturnsAsync(false);
+            _mockInteractionService.Setup(s => s.GetRecipeLikeCount(recipeId))
+                                   .ReturnsAsync(7);
+
+            // Act
+            var result = await _postInteractionController.IsRecipeLiked(recipeId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { isLiked = false, likeCount = 7 });
+        }
+
+        [Fact]
+        public async Task IsRecipeBookmarked_ShouldReturnOk_WithIsBookmarkedAndBookmarkCount()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.IsRecipeBookmarked("currentUserId", recipeId))
+                                   .ReturnsAsync(false);
+            _mockInteractionService.Setup(s => s.GetRecipeBookmarkCount(recipeId))
+                                   .ReturnsAsync(2);
+
+            // Act
+            var result = await _postInteractionController.IsRecipeBookmarked(recipeId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { isBookmarked = false, bookmarkCount = 2 });
+        }
+
+        [Fact]
+        public async Task GetBlogComments_ShouldReturnOk_WithPaginatedComments()
+        {
+            // Arrange
+            var blogId = 1;
+            var pageNumber = 1;
+            var pageSize = 10;
+            var paginatedComments = new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = new List<CommentDTO>
+        {
+            new CommentDTO { Id = 1, Recipe_blog_id = blogId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
+            new CommentDTO { Id = 2, Recipe_blog_id = blogId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
+        },
+                TotalCount = 20,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            _mockInteractionService.Setup(s => s.GetBlogComments(blogId, pageNumber, pageSize))
+                                   .ReturnsAsync(paginatedComments);
+
+            // Act
+            var result = await _postInteractionController.GetBlogComments(blogId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedComments);
+        }
+
+        [Fact]
+        public async Task GetRecipeComments_ShouldReturnOk_WithPaginatedComments()
+        {
+            // Arrange
+            var recipeId = 1;
+            var pageNumber = 1;
+            var pageSize = 10;
+            var paginatedComments = new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = new List<CommentDTO>
+        {
+            new CommentDTO { Id = 1, Recipe_blog_id = recipeId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
+            new CommentDTO { Id = 2, Recipe_blog_id = recipeId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
+        },
+                TotalCount = 15,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            _mockInteractionService.Setup(s => s.GetRecipeComments(recipeId, pageNumber, pageSize))
+                                   .ReturnsAsync(paginatedComments);
+
+            // Act
+            var result = await _postInteractionController.GetRecipeComments(recipeId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedComments);
+        }
+
+        [Fact]
+        public async Task IsBlogLiked_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.IsBlogLiked("currentUserId", blogId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.IsBlogLiked(blogId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task IsBlogBookmarked_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.IsBlogBookmarked("currentUserId", blogId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.IsBlogBookmarked(blogId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task IsRecipeLiked_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.IsRecipeLiked("currentUserId", recipeId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.IsRecipeLiked(recipeId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task IsRecipeBookmarked_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.IsRecipeBookmarked("currentUserId", recipeId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.IsRecipeBookmarked(recipeId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task GetBlogComments_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var blogId = 1;
+            var pageNumber = 1;
+            var pageSize = 10;
+            _mockInteractionService.Setup(s => s.GetBlogComments(blogId, pageNumber, pageSize))
+                                   .ThrowsAsync(new Exception("Unable to fetch comments"));
+
+            // Act
+            var result = await _postInteractionController.GetBlogComments(blogId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Unable to fetch comments" });
+        }
+
+        [Fact]
+        public async Task GetRecipeComments_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var recipeId = 1;
+            var pageNumber = 1;
+            var pageSize = 10;
+            _mockInteractionService.Setup(s => s.GetRecipeComments(recipeId, pageNumber, pageSize))
+                                   .ThrowsAsync(new Exception("Unable to fetch comments"));
+
+            // Act
+            var result = await _postInteractionController.GetRecipeComments(recipeId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Unable to fetch comments" });
+        }
+
+        [Fact]
+        public async Task ToggleLikeBlog_ShouldReturnInternalServerError_OnUnexpectedException()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.ToggleLikeBlog("currentUserId", blogId))
+                                   .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _postInteractionController.ToggleLikeBlog(blogId);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var internalServerErrorResult = result as ObjectResult;
+            internalServerErrorResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            internalServerErrorResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", error = "Unexpected error" });
+        }
+
+        [Fact]
+        public async Task GetBlogComments_ShouldReturnEmpty_WhenPageOutOfRange()
+        {
+            // Arrange
+            var blogId = 1;
+            var pageNumber = 100;
+            var pageSize = 10;
+            var emptyPaginatedResponse = new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = new List<CommentDTO>(),
+                TotalCount = 50,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            _mockInteractionService.Setup(s => s.GetBlogComments(blogId, pageNumber, pageSize))
+                                   .ReturnsAsync(emptyPaginatedResponse);
+
+            // Act
+            var result = await _postInteractionController.GetBlogComments(blogId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(emptyPaginatedResponse);
         }
     }
 
