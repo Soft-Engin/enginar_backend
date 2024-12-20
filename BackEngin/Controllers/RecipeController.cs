@@ -49,6 +49,16 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Invalid recipe data." });
             }
 
+            if (recipeDto.PreperationTime <= 0)
+            {
+                return BadRequest(new { message = "Preperation time must be greater than 0." });
+            }
+
+            if (recipeDto.ServingSize <= 0)
+            {
+                return BadRequest(new { message = "Serving size must be greater than 0." });
+            }
+
             try
             {
                 var recipe = new CreateRecipeDTO
