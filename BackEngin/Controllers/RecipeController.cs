@@ -49,7 +49,7 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Invalid recipe data." });
             }
 
-            if (recipeDto.PreperationTime <= 0)
+            if (recipeDto.PreparationTime <= 0)
             {
                 return BadRequest(new { message = "Preperation time must be greater than 0." });
             }
@@ -78,7 +78,7 @@ namespace BackEngin.Controllers
                     Ingredients = recipeDto.Ingredients,
                     Image = recipeDto.Image,
                     ServingSize = recipeDto.ServingSize,
-                    PreperationTime = recipeDto.PreperationTime
+                    PreparationTime = recipeDto.PreparationTime
 
                 };
 

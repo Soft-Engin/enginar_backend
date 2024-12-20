@@ -38,7 +38,7 @@ namespace BackEngin.Services
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
                 Image = r.Image,
                 CreatedAt = r.CreatedAt,
-                PreperationTime = r.PreperationTime,
+                PreparationTime = r.PreparationTime,
                 ServingSize = r.ServingSize,
             }).ToList();
 
@@ -64,7 +64,7 @@ namespace BackEngin.Services
                 Image = createRecipeDTO.Image,
                 CreatedAt = DateTime.UtcNow,
                 ServingSize = createRecipeDTO.ServingSize,
-                PreperationTime = createRecipeDTO.PreperationTime,
+                PreparationTime = createRecipeDTO.PreparationTime,
             };
 
             await _unitOfWork.Recipes.AddAsync(newRecipe);
@@ -125,7 +125,7 @@ namespace BackEngin.Services
                 Image = newRecipe.Image,
                 CreatedAt = newRecipe.CreatedAt,
                 ServingSize = newRecipe.ServingSize,
-                PreperationTime = newRecipe.PreperationTime,
+                PreparationTime = newRecipe.PreparationTime,
             };
         }
 
@@ -171,7 +171,7 @@ namespace BackEngin.Services
                 Image = recipe.Image,
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
-                PreperationTime = recipe.PreperationTime,
+                PreparationTime = recipe.PreparationTime,
 
             };
         }
@@ -190,7 +190,7 @@ namespace BackEngin.Services
             recipe.BodyText = updateRecipeDTO.BodyText;
             recipe.Image = updateRecipeDTO.Image;
             recipe.ServingSize = updateRecipeDTO.ServingSize;
-            recipe.PreperationTime = updateRecipeDTO.PreperationTime;
+            recipe.PreparationTime = updateRecipeDTO.PreparationTime;
 
             // Fetch existing ingredients for the recipe
             var existingIngredients = (await _unitOfWork.Recipes_Ingredients
@@ -279,7 +279,7 @@ namespace BackEngin.Services
                 Image = recipe.Image,
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
-                PreperationTime = recipe.PreperationTime,
+                PreparationTime = recipe.PreparationTime,
             };
         }
 
