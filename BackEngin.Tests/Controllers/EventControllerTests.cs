@@ -354,7 +354,7 @@ namespace BackEngin.Tests.Controllers
                 CreatedAt = DateTime.Now,
                 CreatorUserName = "user1",
                 Address = new Addresses { /* Mock Address details here */ },
-                Participants = new List<Users>(), // Add participants if needed
+                Participants = new List<ParticipantDto>(), // Add participants if needed
                 Requirements = new List<RequirementDto>() // Add requirements if needed
             };
 
@@ -417,9 +417,9 @@ namespace BackEngin.Tests.Controllers
                 CreatedAt = DateTime.Now,
                 CreatorUserName = "user1",
                 Address = new Addresses { /* Mock Address details here */ },
-                Participants = new List<Users>
+                Participants = new List<ParticipantDto>
                 {
-                    new Users { Id = userId.ToString(), UserName = "user1" } // Add the user as a participant
+                    new ParticipantDto {FirstName = "John", LastName = "Doe", UserName = "user1", UserId = userId.ToString()} // Add the user as a participant
                 },
                 Requirements = new List<RequirementDto>() // Add requirements if needed
             };
@@ -439,7 +439,7 @@ namespace BackEngin.Tests.Controllers
                         CreatedAt = eventDto.CreatedAt,
                         CreatorUserName = eventDto.CreatorUserName,
                         Address = eventDto.Address,
-                        Participants = new List<Users>(), // User is removed from participants
+                        Participants = new List<ParticipantDto>(), // User is removed from participants
                         Requirements = eventDto.Requirements
                     };
                     return updatedEventDto;
@@ -465,7 +465,7 @@ namespace BackEngin.Tests.Controllers
 
             // Ensure the user is removed from the participants list in the mock event
             var updatedEvent = (await _mockEventService.Object.GetEventByIdAsync(eventId)).Participants;
-            Assert.DoesNotContain(updatedEvent, p => p.Id == userId.ToString()); // User should no longer be in the list
+            Assert.DoesNotContain(updatedEvent, p => p.UserId == userId.ToString()); // User should no longer be in the list
         }
 
 

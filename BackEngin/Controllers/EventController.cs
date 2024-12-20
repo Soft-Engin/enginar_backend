@@ -27,11 +27,13 @@ namespace BackEngin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEvents([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
             try
             {
-                if (pageNumber <= 0) pageNumber = 1;
-                if (pageSize <= 0) pageSize = 10;
-
                 var events = await _eventService.GetAllEventsAsync(pageNumber, pageSize);
                 return Ok(events);
             }
@@ -45,13 +47,20 @@ namespace BackEngin.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {
-            var evt = await _eventService.GetEventByIdAsync(id);
-
-            if (evt == null)
+            try
             {
-                return NotFound(new { Message = "The event does not exist." });
+                var evt = await _eventService.GetEventByIdAsync(id);
+
+                if (evt == null)
+                {
+                    return NotFound(new { Message = "The event does not exist." });
+                }
+                return Ok(evt);
             }
-            return Ok(evt);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Update an existing event
@@ -97,20 +106,28 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
-            var user_id = await _eventService.GetEventOwnerId(id);
-
-            if (!await CanUserAccess(user_id))
+            try
             {
-                return Unauthorized();
-            }
+                var user_id = await _eventService.GetEventOwnerId(id);
 
-            var result = await _eventService.DeleteEventAsync(id);
-            if (!result)
+                if (!await CanUserAccess(user_id))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _eventService.DeleteEventAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { Message = "Event not found." });
+                }
+
+                return Ok(new { Message = "Event successfully deleted." });
+
+            }
+            catch (Exception ex)
             {
-                return NotFound(new { Message = "Event not found." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-
-            return Ok(new { Message = "Event successfully deleted." });
         }
 
         // Create an event
@@ -198,8 +215,20 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<ActionResult<PaginatedResponseDTO<RequirementDto>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
         {
-            var requirements = await _eventService.GetAllRequirementsAsync(pageNumber, pageSize);
-            return Ok(requirements);
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            try
+            {
+                var requirements = await _eventService.GetAllRequirementsAsync(pageNumber, pageSize);
+                return Ok(requirements);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
 
