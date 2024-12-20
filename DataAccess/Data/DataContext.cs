@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Reflection.Emit;
-using DataAccess.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Models.InteractionModels;
 
 namespace BackEngin.Data
 {
@@ -39,6 +39,13 @@ namespace BackEngin.Data
 
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
         public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
+
+        public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
+        public DbSet<Blog_Comments> Blog_Comments { get; set; }
+        public DbSet<Blog_Likes> Blog_Likes { get; set; }
+        public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
+        public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
+        public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -119,11 +126,6 @@ namespace BackEngin.Data
 
             modelBuilder.Entity<Recipes>().HasData(
                 new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
-            );
-
-            modelBuilder.Entity<Recipes_Ingredients>().HasData(
-                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
-                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
@@ -315,6 +317,42 @@ namespace BackEngin.Data
                 .WithMany()
                 .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Bookmarks>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Comments>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Likes>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Bookmarks>()
+              .HasOne(rb => rb.Blog)
+              .WithMany()
+              .HasForeignKey(rb => rb.BlogId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Comments>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Likes>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)

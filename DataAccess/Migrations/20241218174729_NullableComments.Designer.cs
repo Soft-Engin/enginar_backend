@@ -3,6 +3,7 @@ using System;
 using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241218174729_NullableComments")]
+    partial class NullableComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,22 +254,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("DistrictId");
 
                     b.ToTable("Addresses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DistrictId = 1,
-                            Name = "Office Address",
-                            Street = "Main Avenue"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DistrictId = 2,
-                            Name = "Home Address",
-                            Street = "Second Street"
-                        });
                 });
 
             modelBuilder.Entity("Models.Blogs", b =>
@@ -331,20 +318,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Cities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CountryId = 1,
-                            Name = "Istanbul"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CountryId = 2,
-                            Name = "New York"
-                        });
                 });
 
             modelBuilder.Entity("Models.Countries", b =>
@@ -362,18 +335,6 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Turkey"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "USA"
-                        });
                 });
 
             modelBuilder.Entity("Models.Districts", b =>
@@ -399,115 +360,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("CityId");
 
                     b.ToTable("Districts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CityId = 1,
-                            Name = "Kadikoy",
-                            PostCode = 34710
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CityId = 1,
-                            Name = "Besiktas",
-                            PostCode = 34353
-                        });
-                });
-
-            modelBuilder.Entity("Models.Events", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AddressId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("CreatorId");
-
-                    b.ToTable("Events");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AddressId = 1,
-                            BodyText = "Celebrate the New Year with us!",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorId = "1",
-                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "New Year's Eve Party"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RequirementId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("RequirementId");
-
-                    b.ToTable("Events_Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EventId = 1,
-                            RequirementId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EventId = 1,
-                            RequirementId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EventId = 1,
-                            RequirementId = 3
-                        });
                 });
 
             modelBuilder.Entity("Models.IngredientTypes", b =>
@@ -664,7 +516,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -695,7 +547,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
                         .HasColumnType("bytea");
@@ -725,7 +577,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -749,7 +601,7 @@ namespace DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("integer");
@@ -780,7 +632,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
                         .HasColumnType("bytea");
@@ -810,7 +662,7 @@ namespace DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("integer");
@@ -1078,47 +930,6 @@ namespace DataAccess.Migrations
                     b.ToTable("Recipes_Ingredients");
                 });
 
-            modelBuilder.Entity("Models.Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Guests must confirm attendance before the event.",
-                            Name = "RSVP Required"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Guests are required to follow the formal dress code.",
-                            Name = "Dress Code"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Only guests aged 18 and above are allowed to attend.",
-                            Name = "Age Limit"
-                        });
-                });
-
             modelBuilder.Entity("Models.Roles", b =>
                 {
                     b.Property<int>("Id")
@@ -1151,38 +962,6 @@ namespace DataAccess.Migrations
                             Id = 2,
                             Description = "Admin role",
                             Name = "Admin"
-                        });
-                });
-
-            modelBuilder.Entity("Models.User_Event_Participations", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("User_Event_Participations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EventId = 1,
-                            UserId = "1"
                         });
                 });
 
@@ -1303,11 +1082,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0fd0da34-4a22-446f-be83-a3a821966f80",
+                            ConcurrencyStamp = "251e6142-6459-4edc-a4b9-e6b65b7f1d6f",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e7314c7e-b3db-4329-b3d8-9c50e857d877",
+                            SecurityStamp = "ffd84a1c-0955-4776-a71d-fca5bbaa90bf",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Adam",
@@ -1317,11 +1096,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "67cf5d86-65b5-45a5-a49b-c5bbf124506e",
+                            ConcurrencyStamp = "c1b0fe9e-a4c9-49b6-a9c4-62ec31bbe10b",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6843c1ec-0549-437a-9d25-5795d371c6ef",
+                            SecurityStamp = "c8bbbc8b-dc3e-4e9e-9b67-4a102bc8d845",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Kadın",
@@ -1331,11 +1110,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c26e06ce-1ffe-423b-a8f2-6ca8e5014e03",
+                            ConcurrencyStamp = "08a93889-8c49-435b-a2c4-60a6fdd39dcd",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "63445c64-877a-4c91-b617-cc1bfc241a03",
+                            SecurityStamp = "6ab3c1e7-02cc-48bf-8747-0a570d9eb87d",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Çocuk",
@@ -1345,11 +1124,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "accc4cfa-cc12-47d5-ac10-12320b199b97",
+                            ConcurrencyStamp = "68e2ed19-ed3e-492f-8651-365dc4000b7d",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c4677851-0934-4591-89a8-4a635c93e735",
+                            SecurityStamp = "b6363b58-8fd5-444b-a65d-f4a56b4c0d23",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Yaşlı",
@@ -1359,11 +1138,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a2c91313-f97b-4d60-bd91-8db9d9b472af",
+                            ConcurrencyStamp = "d6665f3d-5302-4266-b120-597730bbafaa",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9524fc73-d73e-45fe-bde8-8775a5a780fa",
+                            SecurityStamp = "babd920a-b8fc-41a8-93d7-d6295dd088a8",
                             TwoFactorEnabled = false,
                             FirstName = "Engin",
                             LastName = "Enginar",
@@ -1470,44 +1249,6 @@ namespace DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("City");
-                });
-
-            modelBuilder.Entity("Models.Events", b =>
-                {
-                    b.HasOne("Models.Addresses", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.HasOne("Models.Events", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Requirements", "Requirement")
-                        .WithMany()
-                        .HasForeignKey("RequirementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Requirement");
                 });
 
             modelBuilder.Entity("Models.Ingredients", b =>
@@ -1684,25 +1425,6 @@ namespace DataAccess.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("Models.User_Event_Participations", b =>
-                {
-                    b.HasOne("Models.Events", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
                 {
                     b.HasOne("Models.Blogs", "Blog")
@@ -1788,8 +1510,7 @@ namespace DataAccess.Migrations
                 {
                     b.HasOne("Models.Addresses", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("Models.Roles", "Role")
                         .WithMany()

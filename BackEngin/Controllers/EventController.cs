@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using BackEngin.Services;
 using BackEngin.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,26 +15,34 @@ namespace BackEngin.Controllers
     {
         private readonly IEventService _eventService;
 
+        //Implement try catch and exception throwing in the service.
+
+
         public EventController(IEventService eventService)
         {
             _eventService = eventService;
         }
 
         // Get all events
-        [HttpGet("GetAllEvents")]
-        public async Task<IActionResult> GetEvents([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet]
+        public async Task<IActionResult> GetEvents([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            if (page <= 0 || pageSize <= 0)
+            try
             {
-                return BadRequest("Page and pageSize must be positive integers.");
-            }
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
 
-            var events = await _eventService.GetAllEventsAsync(page, pageSize);
-            return Ok(events);
+                var events = await _eventService.GetAllEventsAsync(pageNumber, pageSize);
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Get an event by ID
-        [HttpGet("GetEvent/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {
             var evt = await _eventService.GetEventByIdAsync(id);
@@ -46,7 +55,7 @@ namespace BackEngin.Controllers
         }
 
         // Update an existing event
-        [HttpPut("UpdateEvent/{id}")]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto eventDTO)
         {
@@ -84,7 +93,7 @@ namespace BackEngin.Controllers
         }
 
         // Delete an event
-        [HttpDelete("DeleteEvent/{id}")]
+        [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
@@ -105,7 +114,7 @@ namespace BackEngin.Controllers
         }
 
         // Create an event
-        [HttpPost("CreateEvent")]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto createEventDto)
         {
@@ -185,7 +194,7 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpGet("api/requirements")]
+        [HttpGet("requirements")]
         [Authorize]
         public async Task<ActionResult<PaginatedResponseDTO<RequirementDto>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
         {

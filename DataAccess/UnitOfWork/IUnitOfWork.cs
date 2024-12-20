@@ -29,6 +29,12 @@ namespace DataAccess.Repositories
         IUsers_InteractionsRepository Users_Interactions { get; }
         IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         IUsersRepository Users { get; }
+        IBlog_LikesRepository Blog_Likes { get; }
+        IBlog_CommentsRepository Blog_Comments { get; }
+        IBlog_BookmarksRepository Blog_Bookmarks { get; }
+        IRecipe_LikesRepository Recipe_Likes { get; }
+        IRecipe_CommentsRepository Recipe_Comments { get; }
+        IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
         IUser_Event_ParticipationsRepository User_Event_Participations { get; }
 
         Task<int> CompleteAsync();

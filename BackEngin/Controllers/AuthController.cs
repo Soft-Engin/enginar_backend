@@ -107,11 +107,16 @@ namespace BackEngin.Controllers
         }
 
         [HttpPost("make-admin")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> MakeUserAdmin([FromBody] MakeAdminDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            if (!HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+            {
+                if (!User.IsInRole("Admin"))
+                    return StatusCode(StatusCodes.Status403Forbidden, new { message = "User is not authorized to access this endpoint." });
+            }
 
             try
             {

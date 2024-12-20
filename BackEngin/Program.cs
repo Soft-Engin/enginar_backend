@@ -11,10 +11,10 @@ using BackEngin.Services.Interfaces;
 using BackEngin.Services;
 using DotNetEnv;
 
-var builder = WebApplication.CreateBuilder(args);
-
 // Add environment variables.
 Env.Load("../.env");
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWTSecretKey")))
         };
     });
 
@@ -83,8 +83,8 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IIngredientsService, IngredientsService>();
 builder.Services.AddScoped<IIngredientTypesService, IngredientTypesService>();
+builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
 builder.Services.AddScoped<IEventService, EventService>();
-
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
