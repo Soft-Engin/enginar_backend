@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class RecipeBlogTableUpdate : Migration
+    public partial class blog_recipe_column_change : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,6 +24,20 @@ namespace DataAccess.Migrations
                 type: "bytea",
                 nullable: true);
 
+            migrationBuilder.AddColumn<int>(
+                name: "PreperationTime",
+                table: "Recipes",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "ServingSize",
+                table: "Recipes",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "Blogs",
@@ -41,36 +55,36 @@ namespace DataAccess.Migrations
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "1",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "5bb2b362-6920-4596-a1b7-a011f61f0881", "d4b2d6bd-b096-4eaf-85de-05bb214fd3b2" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "dbcfaa40-14a8-4678-95ed-40b86cf28899", "9c0a2ef4-220a-4c75-974a-daa30a222035", "EnginarAdam" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "66e7468b-a04a-407e-bce8-983d524fc64e", "9c6baae5-4fc9-428d-8f97-842f36664049" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "cd9226a4-b234-4029-b761-7dd01fae91f8", "75acaee1-4d3c-441e-be52-846bd6759073", "EnginarKadın" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "3",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "19bff6c4-265a-49b3-803c-3e11ddd4ec70", "b17632a8-e2cb-49e5-b8e1-f8f650468b6d" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "e40605bb-4591-4fca-8f81-3c29ed07cbb7", "0cb1e2e3-afde-46d2-98a8-3ccfde032d22", "EnginarÇocuk" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "4",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "1fef66d8-56e3-4ce8-bb94-c8ab6ebd1fab", "d9c268ac-91e7-4f3f-8888-28cfee5453e8" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "833366ae-2dec-46a5-b2a2-3b771dbf66aa", "fbdb9e4b-5d46-4caa-a17d-53e9c63ab6b7", "EnginarYaşlı" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "5",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "4a9da2f0-f478-4f67-99ae-8019e705706f", "9de5aa5b-9035-4cfd-8afb-35153720f7e3" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "e747c990-98e4-4631-908c-13e3c332b63a", "96013185-c77b-4dd9-b489-9737d5d91804", "EnginarDouble" });
 
             migrationBuilder.UpdateData(
                 table: "Blogs",
@@ -83,8 +97,8 @@ namespace DataAccess.Migrations
                 table: "Recipes",
                 keyColumn: "Id",
                 keyValue: 2,
-                columns: new[] { "CreatedAt", "Image" },
-                values: new object[] { new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null });
+                columns: new[] { "CreatedAt", "Image", "PreperationTime", "ServingSize" },
+                values: new object[] { new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 45, 2 });
         }
 
         /// <inheritdoc />
@@ -99,6 +113,14 @@ namespace DataAccess.Migrations
                 table: "Recipes");
 
             migrationBuilder.DropColumn(
+                name: "PreperationTime",
+                table: "Recipes");
+
+            migrationBuilder.DropColumn(
+                name: "ServingSize",
+                table: "Recipes");
+
+            migrationBuilder.DropColumn(
                 name: "CreatedAt",
                 table: "Blogs");
 
@@ -110,36 +132,36 @@ namespace DataAccess.Migrations
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "1",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "87fe00bb-3470-4d4a-8cff-2f1b068efefc", "070455e1-503a-488c-9650-ac8414d58a9e" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "251e6142-6459-4edc-a4b9-e6b65b7f1d6f", "ffd84a1c-0955-4776-a71d-fca5bbaa90bf", null });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "ff015020-b6d4-48a1-aa14-41455a138afa", "d1b01a88-6de0-4d8e-9c06-3885edb81385" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "c1b0fe9e-a4c9-49b6-a9c4-62ec31bbe10b", "c8bbbc8b-dc3e-4e9e-9b67-4a102bc8d845", null });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "3",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "2a34591b-59be-488d-a092-09e74b03e65a", "ca36665b-d769-43e1-aecf-e673518fdbea" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "08a93889-8c49-435b-a2c4-60a6fdd39dcd", "6ab3c1e7-02cc-48bf-8747-0a570d9eb87d", null });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "4",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "855b9a24-1d85-404e-a44a-1b1b90277c27", "121c145a-5f5f-4842-a7e9-d693d6be49a6" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "68e2ed19-ed3e-492f-8651-365dc4000b7d", "b6363b58-8fd5-444b-a65d-f4a56b4c0d23", null });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "5",
-                columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "3b0a24d9-bf61-4c44-8bc4-5de1d37ec310", "00d980d2-aafa-49f7-b1f0-e8bf139fe5b9" });
+                columns: new[] { "ConcurrencyStamp", "SecurityStamp", "UserName" },
+                values: new object[] { "d6665f3d-5302-4266-b120-597730bbafaa", "babd920a-b8fc-41a8-93d7-d6295dd088a8", null });
         }
     }
 }

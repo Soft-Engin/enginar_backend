@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241219190201_SizeTimeColumnsRecipe")]
-    partial class SizeTimeColumnsRecipe
+    [Migration("20241220181343_blog_recipe_column_change")]
+    partial class blog_recipe_column_change
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -511,6 +511,182 @@ namespace DataAccess.Migrations
                     b.ToTable("Ingredients_Preferences");
                 });
 
+            modelBuilder.Entity("Models.InteractionModels.Blog_Bookmarks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Blog_Bookmarks");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Blog_Comments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CommentText")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("ImageBlob")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Blog_Comments");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Blog_Likes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Blog_Likes");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Bookmarks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Recipe_Bookmarks");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Comments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CommentText")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("ImageBlob")
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Recipe_Comments");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Likes", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Recipe_Likes");
+                });
+
             modelBuilder.Entity("Models.Interactions", b =>
                 {
                     b.Property<int>("Id")
@@ -774,24 +950,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("Recipes_Ingredients");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 3,
-                            IngredientId = 3,
-                            Quantity = 2.0,
-                            RecipeId = 2,
-                            Unit = "adet"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            IngredientId = 4,
-                            Quantity = 3.0,
-                            RecipeId = 2,
-                            Unit = "yemek kaşığı"
-                        });
                 });
 
             modelBuilder.Entity("Models.Roles", b =>
@@ -946,11 +1104,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ae7f2868-8869-4368-8671-416475758f5c",
+                            ConcurrencyStamp = "dbcfaa40-14a8-4678-95ed-40b86cf28899",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c1075fe1-0a82-499e-8a47-20af72dcab20",
+                            SecurityStamp = "9c0a2ef4-220a-4c75-974a-daa30a222035",
                             TwoFactorEnabled = false,
                             UserName = "EnginarAdam",
                             FirstName = "Engin",
@@ -961,11 +1119,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "52f86069-fa74-453d-a316-e4467e7de884",
+                            ConcurrencyStamp = "cd9226a4-b234-4029-b761-7dd01fae91f8",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a444e79d-4cd3-47de-8825-81794dd1108f",
+                            SecurityStamp = "75acaee1-4d3c-441e-be52-846bd6759073",
                             TwoFactorEnabled = false,
                             UserName = "EnginarKadın",
                             FirstName = "Engin",
@@ -976,11 +1134,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7e452018-a16b-4846-8215-cb8fed0f431e",
+                            ConcurrencyStamp = "e40605bb-4591-4fca-8f81-3c29ed07cbb7",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a611a7ef-3716-4827-b7d8-4cf9b0266422",
+                            SecurityStamp = "0cb1e2e3-afde-46d2-98a8-3ccfde032d22",
                             TwoFactorEnabled = false,
                             UserName = "EnginarÇocuk",
                             FirstName = "Engin",
@@ -991,11 +1149,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "314e1db6-b2be-4e5b-b7f5-304df91651a4",
+                            ConcurrencyStamp = "833366ae-2dec-46a5-b2a2-3b771dbf66aa",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4d1397ea-a0c9-48d2-87e4-81fa8aaf2d40",
+                            SecurityStamp = "fbdb9e4b-5d46-4caa-a17d-53e9c63ab6b7",
                             TwoFactorEnabled = false,
                             UserName = "EnginarYaşlı",
                             FirstName = "Engin",
@@ -1006,11 +1164,11 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4c0a2a3d-7235-4aee-acdf-3c273610915e",
+                            ConcurrencyStamp = "e747c990-98e4-4631-908c-13e3c332b63a",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c6cb7f0e-c3dc-4954-9b43-4d0b38cf711a",
+                            SecurityStamp = "96013185-c77b-4dd9-b489-9737d5d91804",
                             TwoFactorEnabled = false,
                             UserName = "EnginarDouble",
                             FirstName = "Engin",
@@ -1148,6 +1306,120 @@ namespace DataAccess.Migrations
                     b.Navigation("Ingredient");
 
                     b.Navigation("Preference");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Blog_Bookmarks", b =>
+                {
+                    b.HasOne("Models.Blogs", "Blog")
+                        .WithMany()
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Blog_Comments", b =>
+                {
+                    b.HasOne("Models.Blogs", "Blog")
+                        .WithMany()
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Blog_Likes", b =>
+                {
+                    b.HasOne("Models.Blogs", "Blog")
+                        .WithMany()
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Bookmarks", b =>
+                {
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Comments", b =>
+                {
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.InteractionModels.Recipe_Likes", b =>
+                {
+                    b.HasOne("Models.Recipes", "Recipe")
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Recipes", b =>
