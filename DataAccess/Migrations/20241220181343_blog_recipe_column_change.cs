@@ -25,7 +25,7 @@ namespace DataAccess.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "PreperationTime",
+                name: "PreparationTime",
                 table: "Recipes",
                 type: "integer",
                 nullable: false,
@@ -97,7 +97,7 @@ namespace DataAccess.Migrations
                 table: "Recipes",
                 keyColumn: "Id",
                 keyValue: 2,
-                columns: new[] { "CreatedAt", "Image", "PreperationTime", "ServingSize" },
+                columns: new[] { "CreatedAt", "Image", "PreparationTime", "ServingSize" },
                 values: new object[] { new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 45, 2 });
         }
 
@@ -113,7 +113,7 @@ namespace DataAccess.Migrations
                 table: "Recipes");
 
             migrationBuilder.DropColumn(
-                name: "PreperationTime",
+                name: "PreparationTime",
                 table: "Recipes");
 
             migrationBuilder.DropColumn(

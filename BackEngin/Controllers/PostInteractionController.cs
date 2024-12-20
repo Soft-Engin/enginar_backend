@@ -10,7 +10,6 @@ namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/interactions")]
-    [Authorize]
     [ApiController]
     public class PostInteractionController : ApiControllerBase
     {
@@ -25,6 +24,7 @@ namespace BackEngin.Controllers
 
         // Toggle Like for Blog
         [HttpPost("blogs/{blogId}/toggle-like")]
+        [Authorize]
         public async Task<IActionResult> ToggleLikeBlog(int blogId)
         {
             try
@@ -43,6 +43,7 @@ namespace BackEngin.Controllers
 
         // Toggle Like for Recipe
         [HttpPost("recipes/{recipeId}/toggle-like")]
+        [Authorize]
         public async Task<IActionResult> ToggleLikeRecipe(int recipeId)
         {
             try
@@ -62,6 +63,7 @@ namespace BackEngin.Controllers
 
         // Bookmark a Blog
         [HttpPost("blogs/{blogId}/bookmark")]
+        [Authorize]
         public async Task<IActionResult> BookmarkBlog(int blogId)
         {
             try
@@ -79,6 +81,7 @@ namespace BackEngin.Controllers
 
         // Bookmark a Recipe
         [HttpPost("recipes/{recipeId}/bookmark")]
+        [Authorize]
         public async Task<IActionResult> BookmarkRecipe(int recipeId)
         {
             try
@@ -96,6 +99,7 @@ namespace BackEngin.Controllers
 
         // Comment on Blog
         [HttpPost("blogs/{blogId}/comment")]
+        [Authorize]
         public async Task<IActionResult> CommentOnBlog(int blogId, [FromBody] CommentRequestDTO commentDto)
         {
             try
@@ -112,6 +116,7 @@ namespace BackEngin.Controllers
 
         // Comment on Recipe
         [HttpPost("recipes/{recipeId}/comment")]
+        [Authorize]
         public async Task<IActionResult> CommentOnRecipe(int recipeId, [FromBody] CommentRequestDTO commentDto)
         {
             try
@@ -128,6 +133,7 @@ namespace BackEngin.Controllers
 
         // Update Blog Comment
         [HttpPut("blogs/comments/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateBlogComment(int commentId, [FromBody] CommentRequestDTO commentDto)
         {
             try
@@ -144,6 +150,7 @@ namespace BackEngin.Controllers
 
         // Update Recipe Comment
         [HttpPut("recipes/comments/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateRecipeComment(int commentId, [FromBody] CommentRequestDTO commentDto)
         {
             try
@@ -160,6 +167,7 @@ namespace BackEngin.Controllers
 
         // Delete Blog Comment
         [HttpDelete("blogs/comments/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteBlogComment(int commentId)
         {
             try
@@ -176,6 +184,7 @@ namespace BackEngin.Controllers
 
         // Delete Recipe Comment
         [HttpDelete("recipes/comments/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteRecipeComment(int commentId)
         {
             try
@@ -190,8 +199,23 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("blogs/{blogId}/like-count")]
+        public async Task<IActionResult> GetBlogLikeCount(int blogId)
+        {
+            try
+            {
+                int likeCount = await _interactionService.GetBlogLikeCount(blogId);
+                return Ok(new { likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Check if the user has liked a blog post and the like count of the post
         [HttpGet("blogs/{blogId}/is-liked")]
+        [Authorize]
         public async Task<IActionResult> IsBlogLiked(int blogId)
         {
             try
@@ -207,8 +231,23 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("blogs/{blogId}/bookmark-count")]
+        public async Task<IActionResult> GetBlogBookmarkCount(int blogId)
+        {
+            try
+            {
+                int bookmarkCount = await _interactionService.GetBlogBookmarkCount(blogId);
+                return Ok(new { bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Check if the user has bookmarked a blog post and bookmark count of the post
         [HttpGet("blogs/{blogId}/is-bookmarked")]
+        [Authorize]
         public async Task<IActionResult> IsBlogBookmarked(int blogId)
         {
             try
@@ -240,8 +279,24 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("recipes/{recipeId}/like-count")]
+        [Authorize]
+        public async Task<IActionResult> GetRecipeLikeCount(int recipeId)
+        {
+            try
+            {
+                int likeCount = await _interactionService.GetRecipeLikeCount(recipeId);
+                return Ok(new { likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Check if the user has liked a Recipe post and the like count of the recipe
         [HttpGet("recipes/{recipeId}/is-liked")]
+        [Authorize]
         public async Task<IActionResult> IsRecipeLiked(int recipeId)
         {
             try
@@ -257,8 +312,24 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("recipes/{recipeId}/bookmark-count")]
+        public async Task<IActionResult> GetRecipeBookmarkCount(int recipeId)
+        {
+            try
+            {
+                int bookmarkCount = await _interactionService.GetRecipeBookmarkCount(recipeId);
+                return Ok(new { bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
         // Check if the user has bookmarked a Recipe post and the bookmark count of the recipe
         [HttpGet("recipes/{recipeId}/is-bookmarked")]
+        [Authorize]
         public async Task<IActionResult> IsRecipeBookmarked(int recipeId)
         {
             try

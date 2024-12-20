@@ -893,7 +893,7 @@ namespace DataAccess.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("bytea");
 
-                    b.Property<int>("PreperationTime")
+                    b.Property<int>("PreparationTime")
                         .HasColumnType("integer");
 
                     b.Property<int>("ServingSize")
@@ -916,7 +916,7 @@ namespace DataAccess.Migrations
                             BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Header = "Enginar Şöleni",
-                            PreperationTime = 45,
+                            PreparationTime = 45,
                             ServingSize = 2,
                             UserId = "1"
                         });

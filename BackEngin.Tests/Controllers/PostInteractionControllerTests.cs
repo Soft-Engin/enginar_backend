@@ -464,6 +464,147 @@ namespace BackEngin.Tests.Controllers
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(emptyPaginatedResponse);
         }
+
+        [Fact]
+        public async Task GetBlogLikeCount_ShouldReturnOk_WithLikeCount()
+        {
+            // Arrange
+            var blogId = 1;
+            var likeCount = 10;
+            _mockInteractionService.Setup(s => s.GetBlogLikeCount(blogId))
+                                   .ReturnsAsync(likeCount);
+
+            // Act
+            var result = await _postInteractionController.GetBlogLikeCount(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { likeCount });
+        }
+
+        [Fact]
+        public async Task GetBlogBookmarkCount_ShouldReturnOk_WithBookmarkCount()
+        {
+            // Arrange
+            var blogId = 1;
+            var bookmarkCount = 5;
+            _mockInteractionService.Setup(s => s.GetBlogBookmarkCount(blogId))
+                                   .ReturnsAsync(bookmarkCount);
+
+            // Act
+            var result = await _postInteractionController.GetBlogBookmarkCount(blogId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { bookmarkCount });
+        }
+
+        [Fact]
+        public async Task GetRecipeLikeCount_ShouldReturnOk_WithLikeCount()
+        {
+            // Arrange
+            var recipeId = 1;
+            var likeCount = 15;
+            _mockInteractionService.Setup(s => s.GetRecipeLikeCount(recipeId))
+                                   .ReturnsAsync(likeCount);
+
+            // Act
+            var result = await _postInteractionController.GetRecipeLikeCount(recipeId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { likeCount });
+        }
+
+        [Fact]
+        public async Task GetRecipeBookmarkCount_ShouldReturnOk_WithBookmarkCount()
+        {
+            // Arrange
+            var recipeId = 1;
+            var bookmarkCount = 8;
+            _mockInteractionService.Setup(s => s.GetRecipeBookmarkCount(recipeId))
+                                   .ReturnsAsync(bookmarkCount);
+
+            // Act
+            var result = await _postInteractionController.GetRecipeBookmarkCount(recipeId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { bookmarkCount });
+        }
+
+        [Fact]
+        public async Task GetBlogLikeCount_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.GetBlogLikeCount(blogId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.GetBlogLikeCount(blogId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task GetBlogBookmarkCount_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockInteractionService.Setup(s => s.GetBlogBookmarkCount(blogId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.GetBlogBookmarkCount(blogId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task GetRecipeLikeCount_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.GetRecipeLikeCount(recipeId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.GetRecipeLikeCount(recipeId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
+        [Fact]
+        public async Task GetRecipeBookmarkCount_ShouldReturnBadRequest_OnException()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockInteractionService.Setup(s => s.GetRecipeBookmarkCount(recipeId))
+                                   .ThrowsAsync(new Exception("Some error occurred"));
+
+            // Act
+            var result = await _postInteractionController.GetRecipeBookmarkCount(recipeId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
+        }
+
     }
 
 }

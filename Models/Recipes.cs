@@ -30,7 +30,7 @@ namespace Models
         public int ServingSize { get; set; }
 
         [Required]
-        public int PreperationTime { get; set; }
+        public int PreparationTime { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
