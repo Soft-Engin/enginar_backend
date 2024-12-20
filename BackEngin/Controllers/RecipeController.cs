@@ -59,6 +59,16 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Serving size must be greater than 0." });
             }
 
+            if (recipeDto.Ingredients == null || recipeDto.Ingredients.Count == 0)
+            {
+                return BadRequest(new { message = "Recipe must have at least one ingredient." });
+            }
+
+            if (recipeDto.Ingredients.Any(i => i.Quantity <= 0))
+            {
+                return BadRequest(new { message = "Ingredient quantity must be greater than 0." });
+            }
+
             try
             {
                 var recipe = new CreateRecipeDTO
