@@ -55,7 +55,11 @@ namespace BackEngin.Controllers
                 {
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
-                    Ingredients = recipeDto.Ingredients
+                    Ingredients = recipeDto.Ingredients,
+                    Image = recipeDto.Image,
+                    ServingSize = recipeDto.ServingSize,
+                    PreperationTime = recipeDto.PreperationTime
+
                 };
 
                 string userId = await GetActiveUserId();
