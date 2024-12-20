@@ -76,9 +76,11 @@ namespace BackEngin.Tests.Controllers
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 Ingredients = new List<RecipeIngredientRequestDTO>
-        {
-            new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-        }
+                                {
+                                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                                },
+                ServingSize = 1,
+                PreperationTime = 1
             };
 
             var createdRecipe = new RecipeDetailsDTO
@@ -87,15 +89,17 @@ namespace BackEngin.Tests.Controllers
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
                 Ingredients = new List<RecipeIngredientDetailsDTO>
-        {
-            new RecipeIngredientDetailsDTO
-            {
-                IngredientId = 1,
-                Quantity = 2,
-                Unit = "cups",
-                IngredientName = "Flour" // Mocked response from service
-            }
-        }
+                                {
+                                    new RecipeIngredientDetailsDTO
+                                    {
+                                        IngredientId = 1,
+                                        Quantity = 2,
+                                        Unit = "cups",
+                                        IngredientName = "Flour" // Mocked response from service
+                                    }
+                                },
+                ServingSize = 1,
+                PreperationTime = 1
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))

@@ -24,11 +24,22 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = recipes.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
                 Header = r.Header,
-                BodyText = r.BodyText
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
+                Image = r.Image,
+                CreatedAt = r.CreatedAt,
+                PreperationTime = r.PreperationTime,
+                ServingSize = r.ServingSize,
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -49,7 +60,11 @@ namespace BackEngin.Services
             {
                 Header = createRecipeDTO.Header,
                 BodyText = createRecipeDTO.BodyText,
-                UserId = userId
+                UserId = userId,
+                Image = createRecipeDTO.Image,
+                CreatedAt = DateTime.UtcNow,
+                ServingSize = createRecipeDTO.ServingSize,
+                PreperationTime = createRecipeDTO.PreperationTime,
             };
 
             await _unitOfWork.Recipes.AddAsync(newRecipe);
@@ -96,13 +111,21 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             // Return the created recipe with ingredients
             return new RecipeDetailsDTO
             {
                 Id = newRecipe.Id,
                 Header = newRecipe.Header,
                 BodyText = newRecipe.BodyText,
-                Ingredients = ingredientDetailsDTOs
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+                Ingredients = ingredientDetailsDTOs,
+                Image = newRecipe.Image,
+                CreatedAt = newRecipe.CreatedAt,
+                ServingSize = newRecipe.ServingSize,
+                PreperationTime = newRecipe.PreperationTime,
             };
         }
 
@@ -135,12 +158,21 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == recipe.UserId);
+
             return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,
                 BodyText = recipe.BodyText,
-                Ingredients = ingredientDTOs
+                UserId = recipe.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+                Ingredients = ingredientDTOs,
+                Image = recipe.Image,
+                CreatedAt = recipe.CreatedAt,
+                ServingSize = recipe.ServingSize,
+                PreperationTime = recipe.PreperationTime,
+
             };
         }
 
@@ -156,6 +188,9 @@ namespace BackEngin.Services
             // Update the recipe details
             recipe.Header = updateRecipeDTO.Header;
             recipe.BodyText = updateRecipeDTO.BodyText;
+            recipe.Image = updateRecipeDTO.Image;
+            recipe.ServingSize = updateRecipeDTO.ServingSize;
+            recipe.PreperationTime = updateRecipeDTO.PreperationTime;
 
             // Fetch existing ingredients for the recipe
             var existingIngredients = (await _unitOfWork.Recipes_Ingredients
@@ -230,13 +265,21 @@ namespace BackEngin.Services
                 };
             }).ToList();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == recipe.UserId);
+
             // Return updated recipe details
             return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
                 Header = recipe.Header,
                 BodyText = recipe.BodyText,
-                Ingredients = ingredientDTOs
+                UserId = recipe.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+                Ingredients = ingredientDTOs,
+                Image = recipe.Image,
+                CreatedAt = recipe.CreatedAt,
+                ServingSize = recipe.ServingSize,
+                PreperationTime = recipe.PreperationTime,
             };
         }
 

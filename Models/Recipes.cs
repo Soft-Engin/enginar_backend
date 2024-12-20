@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,16 @@ namespace Models
 
         [Required]
         public string BodyText { get; set; }
+        public byte[]? Image { get; set; }
+
+        [Required]
+        public int ServingSize { get; set; }
+
+        [Required]
+        public int PreperationTime { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         // Navigation property for Recipes_Ingredients
         public ICollection<Recipes_Ingredients> Recipes_Ingredients { get; set; }

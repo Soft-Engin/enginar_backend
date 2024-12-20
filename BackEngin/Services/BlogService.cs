@@ -25,13 +25,21 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the blogs users
+            var userIds = blogs.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var blogDtos = blogs.Select(b => new BlogDTO
             {
                 Id = b.Id,
                 Header = b.Header,
                 BodyText = b.BodyText,
                 UserId = b.UserId,
-                RecipeId = b.RecipeId
+                UserName = userDictionary.ContainsKey(b.UserId) ? userDictionary[b.UserId] : "Unknown",
+                RecipeId = b.RecipeId,
+                Image = b.Image,
+                CreatedAt = b.CreatedAt,
             }).ToList();
 
             return new PaginatedResponseDTO<BlogDTO>
@@ -68,7 +76,8 @@ namespace BackEngin.Services
                     {
                         Header = createBlogDTO.Recipe.Header,
                         BodyText = createBlogDTO.Recipe.BodyText,
-                        Ingredients = createBlogDTO.Recipe.Ingredients
+                        Ingredients = createBlogDTO.Recipe.Ingredients,
+                        Image = createBlogDTO.Recipe.Image,
                     };
 
                     var createdRecipe = await _recipeService.CreateRecipe(userId, createRecipeDTO);
@@ -82,7 +91,9 @@ namespace BackEngin.Services
                 Header = createBlogDTO.Header,
                 BodyText = createBlogDTO.BodyText,
                 UserId = userId,
-                RecipeId = recipeId // This will be null if no recipe is provided
+                RecipeId = recipeId, // This will be null if no recipe is provided
+                Image = createBlogDTO.Image,
+                CreatedAt = DateTime.UtcNow,
             };
 
             await _unitOfWork.Blogs.AddAsync(newBlog);
@@ -95,7 +106,9 @@ namespace BackEngin.Services
                 Header = newBlog.Header,
                 BodyText = newBlog.BodyText,
                 UserId = newBlog.UserId,
-                RecipeId = newBlog.RecipeId // This will be null if no recipe was linked
+                RecipeId = newBlog.RecipeId, // This will be null if no recipe was linked
+                Image = newBlog.Image, // This will be null if no image added
+                CreatedAt = newBlog.CreatedAt,
             };
         }
 
@@ -109,6 +122,7 @@ namespace BackEngin.Services
             blog.Header = updateBlogDTO.Header;
             blog.BodyText = updateBlogDTO.BodyText;
             blog.UserId = blog.UserId; // its stupid but the owner does not change hehe
+            blog.Image = updateBlogDTO.Image;
 
             // Handle recipe updates
             if (updateBlogDTO.Recipe != null)
@@ -125,6 +139,7 @@ namespace BackEngin.Services
                     {
                         Header = updateBlogDTO.Recipe.Header,
                         BodyText = updateBlogDTO.Recipe.BodyText,
+                        Image = updateBlogDTO.Recipe.Image,
                         Ingredients = updateBlogDTO.Recipe.Ingredients
                     };
 
@@ -147,6 +162,8 @@ namespace BackEngin.Services
             _unitOfWork.Blogs.Update(blog);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == blog.UserId);
+
             // Return the updated blog details
             return new BlogDTO
             {
@@ -154,7 +171,10 @@ namespace BackEngin.Services
                 Header = blog.Header,
                 BodyText = blog.BodyText,
                 UserId = blog.UserId,
-                RecipeId = blog.RecipeId
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+                RecipeId = blog.RecipeId,
+                Image = blog.Image,
+                CreatedAt = blog.CreatedAt,
             };
         }
 
@@ -167,6 +187,8 @@ namespace BackEngin.Services
             // Fetch recipe details if associated
             RecipeDetailsDTO recipeDetails = await GetRecipeOfBlog(blogId);
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == blog.UserId);
+
             // Map and return the blog details along with recipe details
             return new BlogDetailDTO
             {
@@ -174,9 +196,12 @@ namespace BackEngin.Services
                 Header = blog.Header,
                 BodyText = blog.BodyText,
                 UserId = blog.UserId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 RecipeId = blog.RecipeId,
                 RecipeHeader = recipeDetails?.Header,
-                Recipe = recipeDetails // Include the full recipe details
+                Recipe = recipeDetails ,// Include the full recipe details
+                Image = blog.Image,
+                CreatedAt = blog.CreatedAt,
             };
         }
 
