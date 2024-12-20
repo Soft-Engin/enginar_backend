@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.DTO;
 using Moq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Dynamic;
@@ -89,8 +90,15 @@ namespace BackEngin.Tests.Controllers
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal(new { Message = "The event does not exist." },notFoundResult.Value);
+            Assert.NotNull(notFoundResult.Value);
+
+            var expectedJson = JsonConvert.SerializeObject(new { Message = "The event does not exist." });
+            var actualJson = JsonConvert.SerializeObject(notFoundResult.Value);
+
+            Assert.Equal(expectedJson, actualJson);
         }
+
+
 
         [Fact]
         public async Task GetEventById_ShouldReturnOk_WhenEventExists()
@@ -236,39 +244,23 @@ namespace BackEngin.Tests.Controllers
                 User = user
             };
 
-            // Create a mock event with EventDto where the user is the event creator
-            var eventDto = new EventDto
-            {
-                Title = "Test Event",
-                BodyText = "Event details",
-                Date = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now,
-                CreatorUserName = "user1",
-                Address = new Addresses { /* Mock Address details */ },
-                Participants = new List<Users>(), // No participants
-                Requirements = new List<RequirementDto>() // No requirements
-            };
-
-            // Mock service methods
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync(eventDto); // Mock event retrieval
-            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(userId.ToString()); // Mock event owner check
-            _mockEventService.Setup(s => s.DeleteEventAsync(eventId)).ReturnsAsync(true); // Mock event deletion
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(userId.ToString());
+            _mockEventService.Setup(s => s.DeleteEventAsync(eventId)).ReturnsAsync(true);
 
             // Act
             var result = await _controller.DeleteEvent(eventId);
 
-            // Assert the response type
+            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
 
-            // Ensure the result value is not null
-            Assert.NotNull(okResult.Value);  // This ensures that the result value is not null.
+            var expected = JsonConvert.SerializeObject(new { Message = "Event successfully deleted." });
+            var actual = JsonConvert.SerializeObject(okResult.Value);
 
-            // Check that the value is a string and matches the expected message
-            Assert.Equal(new { Message = "Event successfully deleted." }, okResult.Value);
+            Assert.Equal(expected, actual);
+
+            //Assert.NotNull(okResult.Value);
+            //Assert.Equal("Event successfully deleted.", okResult.Value);
         }
-
-
-
 
 
 
@@ -277,45 +269,21 @@ namespace BackEngin.Tests.Controllers
         public async Task CreateEvent_ShouldReturnBadRequest_WhenEventDtoIsNull()
         {
             // Arrange
-            CreateEventDto createEventDto = null; // Simulate the case where the event DTO is null
-
-            // Mock an unauthorized user (user without proper authorization)
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-        new Claim(ClaimTypes.NameIdentifier, "2"), // Simulate a user with ID 2
-        new Claim(ClaimTypes.Role, "User") // Add a dummy role to avoid errors related to missing role claims
-    }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user
-            };
+            CreateEventDto createEventDto = null;
 
             // Act
             var result = await _controller.CreateEvent(createEventDto);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result); // We expect a BadRequest response when DTO is null
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.NotNull(badRequestResult.Value);
 
-            // Check if the response is a string or an object with the 'message' property
-            var response = badRequestResult.Value;
+            // Serialize expected and actual values to JSON for comparison
+            var expectedJson = JsonConvert.SerializeObject(new { message = "Invalid event data." });
+            var actualJson = JsonConvert.SerializeObject(badRequestResult.Value);
 
-            // If the response is a string
-            if (response is string errorMessage)
-            {
-                Assert.Equal("Invalid event data.", errorMessage); // Check that the error message is correct
-            }
-            // If the response is a dictionary or a complex object, check for a 'message' property
-            else if (response is IDictionary<string, object> errorDict && errorDict.ContainsKey("message"))
-            {
-                Assert.Equal("Invalid event data.", errorDict["message"]);
-            }
-            else
-            {
-                // In case the response format doesn't match either of the expected types
-                Assert.Fail("Unexpected error response format.");
-            }
+            Assert.Equal(expectedJson, actualJson);
         }
-
 
 
 

@@ -12,6 +12,7 @@ namespace BackEngin.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public DbSet<Roles> Roles { get; set; }
@@ -156,7 +157,22 @@ namespace BackEngin.Data
             // Events Table
             modelBuilder.Entity<Events>(entity =>
             {
+                // Ensure Date is stored as 'timestamp with time zone' in PostgreSQL
                 entity.Property(e => e.Date).HasColumnType("timestamptz");
+                entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+
+                // Apply value converter for Date and CreatedAt to convert to UTC automatically
+                entity.Property(e => e.Date)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
+
+                entity.Property(e => e.CreatedAt)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
 
                 entity.HasKey(e => e.Id);
 

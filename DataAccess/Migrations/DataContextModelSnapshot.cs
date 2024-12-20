@@ -23,1527 +23,1203 @@ namespace DataAccess.Migrations
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("Name")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                b.HasIndex("NormalizedName")
+                    .IsUnique()
+                    .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
-                });
+                b.ToTable("AspNetRoles", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("RoleId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
+                b.ToTable("AspNetRoleClaims", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("text");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
+                b.Property<int>("AccessFailedCount")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                b.Property<string>("Discriminator")
+                    .IsRequired()
+                    .HasMaxLength(13)
+                    .HasColumnType("character varying(13)");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("Email")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
+                b.Property<bool>("EmailConfirmed")
+                    .HasColumnType("boolean");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
+                b.Property<bool>("LockoutEnabled")
+                    .HasColumnType("boolean");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTimeOffset?>("LockoutEnd")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedEmail")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedUserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                b.Property<string>("PasswordHash")
+                    .HasColumnType("text");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                b.Property<string>("PhoneNumber")
+                    .HasColumnType("text");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
+                b.Property<bool>("PhoneNumberConfirmed")
+                    .HasColumnType("boolean");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
+                b.Property<string>("SecurityStamp")
+                    .HasColumnType("text");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                b.Property<bool>("TwoFactorEnabled")
+                    .HasColumnType("boolean");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("UserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                b.HasIndex("NormalizedEmail")
+                    .HasDatabaseName("EmailIndex");
 
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                b.HasIndex("NormalizedUserName")
+                    .IsUnique()
+                    .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                b.ToTable("AspNetUsers", (string)null);
 
-                    b.HasDiscriminator().HasValue("IdentityUser");
+                b.HasDiscriminator().HasValue("IdentityUser");
 
-                    b.UseTphMappingStrategy();
-                });
+                b.UseTphMappingStrategy();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
+                b.ToTable("AspNetUserClaims", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                b.Property<string>("ProviderKey")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
+                b.Property<string>("ProviderDisplayName")
+                    .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("LoginProvider", "ProviderKey");
+                b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
+                b.ToTable("AspNetUserLogins", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("UserId")
+                    .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                b.Property<string>("RoleId")
+                    .HasColumnType("text");
 
-                    b.HasKey("UserId", "RoleId");
+                b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
+                b.ToTable("AspNetUserRoles", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("UserId")
+                    .HasColumnType("text");
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
+                b.Property<string>("Value")
+                    .HasColumnType("text");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
+                b.ToTable("AspNetUserTokens", (string)null);
+            });
 
             modelBuilder.Entity("Models.Addresses", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DistrictId")
-                        .HasColumnType("integer");
+                b.Property<int>("DistrictId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Street")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("DistrictId");
+                b.HasIndex("DistrictId");
 
-                    b.ToTable("Addresses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DistrictId = 1,
-                            Name = "Office Address",
-                            Street = "Main Avenue"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DistrictId = 2,
-                            Name = "Home Address",
-                            Street = "Second Street"
-                        });
-                });
+                b.ToTable("Addresses");
+            });
 
             modelBuilder.Entity("Models.Blogs", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("BodyText")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Header")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Header")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int?>("RecipeId")
-                        .HasColumnType("integer");
+                b.Property<int?>("RecipeId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RecipeId");
+                b.HasIndex("RecipeId");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("Blogs");
+                b.ToTable("Blogs");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
-                            Header = "ENGINAR YOLCULUĞU",
-                            RecipeId = 2,
-                            UserId = "1"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
+                        Header = "ENGINAR YOLCULUĞU",
+                        RecipeId = 2,
+                        UserId = "1"
+                    });
+            });
 
             modelBuilder.Entity("Models.Cities", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CountryId")
-                        .HasColumnType("integer");
+                b.Property<int>("CountryId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                b.HasIndex("CountryId");
 
-                    b.ToTable("Cities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CountryId = 1,
-                            Name = "Istanbul"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CountryId = 2,
-                            Name = "New York"
-                        });
-                });
+                b.ToTable("Cities");
+            });
 
             modelBuilder.Entity("Models.Countries", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Turkey"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "USA"
-                        });
-                });
+                b.ToTable("Countries");
+            });
 
             modelBuilder.Entity("Models.Districts", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CityId")
-                        .HasColumnType("integer");
+                b.Property<int>("CityId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("PostCode")
-                        .HasColumnType("integer");
+                b.Property<int>("PostCode")
+                    .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("CityId");
+                b.HasIndex("CityId");
 
-                    b.ToTable("Districts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CityId = 1,
-                            Name = "Kadikoy",
-                            PostCode = 34710
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CityId = 1,
-                            Name = "Besiktas",
-                            PostCode = 34353
-                        });
-                });
-
-            modelBuilder.Entity("Models.Events", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AddressId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("CreatorId");
-
-                    b.ToTable("Events");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AddressId = 1,
-                            BodyText = "Celebrate the New Year with us!",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatorId = "1",
-                            Date = new DateTime(2024, 12, 31, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "New Year's Eve Party"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RequirementId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("RequirementId");
-
-                    b.ToTable("Events_Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EventId = 1,
-                            RequirementId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EventId = 1,
-                            RequirementId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EventId = 1,
-                            RequirementId = 3
-                        });
-                });
+                b.ToTable("Districts");
+            });
 
             modelBuilder.Entity("Models.IngredientTypes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("IngredientTypes");
+                b.ToTable("IngredientTypes");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Edible plants or their parts, intended for cooking or eating raw.",
-                            Name = "Vegetable"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food.",
-                            Name = "Fruit"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Animal flesh that is eaten as food.",
-                            Name = "Meat"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "Food produced from or containing the milk of mammals.",
-                            Name = "Dairy"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Description = "Small, hard, dry seeds harvested for human or animal consumption.",
-                            Name = "Grain"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "Sea life regarded as food by humans, includes fish and shellfish.",
-                            Name = "Seafood"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark.",
-                            Name = "Spice"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Description = "Plants with savory or aromatic properties used for flavoring and garnishing food.",
-                            Name = "Herb"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Description = "Dry, edible fruits or seeds that usually have a high fat content.",
-                            Name = "Nuts & Seeds"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Description = "Drinkable liquids other than water, may be hot or cold.",
-                            Name = "Beverage"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        Description = "Edible plants or their parts, intended for cooking or eating raw.",
+                        Name = "Vegetable"
+                    },
+                    new
+                    {
+                        Id = 2,
+                        Description = "Sweet or savory product of a plant that contains seeds and can be eaten as food.",
+                        Name = "Fruit"
+                    },
+                    new
+                    {
+                        Id = 3,
+                        Description = "Animal flesh that is eaten as food.",
+                        Name = "Meat"
+                    },
+                    new
+                    {
+                        Id = 4,
+                        Description = "Food produced from or containing the milk of mammals.",
+                        Name = "Dairy"
+                    },
+                    new
+                    {
+                        Id = 5,
+                        Description = "Small, hard, dry seeds harvested for human or animal consumption.",
+                        Name = "Grain"
+                    },
+                    new
+                    {
+                        Id = 6,
+                        Description = "Sea life regarded as food by humans, includes fish and shellfish.",
+                        Name = "Seafood"
+                    },
+                    new
+                    {
+                        Id = 7,
+                        Description = "Substance used to flavor food, typically dried seeds, fruits, roots, or bark.",
+                        Name = "Spice"
+                    },
+                    new
+                    {
+                        Id = 8,
+                        Description = "Plants with savory or aromatic properties used for flavoring and garnishing food.",
+                        Name = "Herb"
+                    },
+                    new
+                    {
+                        Id = 9,
+                        Description = "Dry, edible fruits or seeds that usually have a high fat content.",
+                        Name = "Nuts & Seeds"
+                    },
+                    new
+                    {
+                        Id = 10,
+                        Description = "Drinkable liquids other than water, may be hot or cold.",
+                        Name = "Beverage"
+                    });
+            });
 
             modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("TypeId")
-                        .HasColumnType("integer");
+                b.Property<int>("TypeId")
+                    .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("TypeId");
+                b.HasIndex("TypeId");
 
-                    b.ToTable("Ingredients");
+                b.ToTable("Ingredients");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 3,
-                            Name = "Enginar",
-                            TypeId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Zeytinyağı",
-                            TypeId = 2
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 3,
+                        Name = "Enginar",
+                        TypeId = 1
+                    },
+                    new
+                    {
+                        Id = 4,
+                        Name = "Zeytinyağı",
+                        TypeId = 2
+                    });
+            });
 
             modelBuilder.Entity("Models.Ingredients_Preferences", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("integer");
+                b.Property<int>("IngredientId")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("PreferenceId")
-                        .HasColumnType("integer");
+                b.Property<int>("PreferenceId")
+                    .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("IngredientId");
+                b.HasIndex("IngredientId");
 
-                    b.HasIndex("PreferenceId");
+                b.HasIndex("PreferenceId");
 
-                    b.ToTable("Ingredients_Preferences");
-                });
+                b.ToTable("Ingredients_Preferences");
+            });
 
             modelBuilder.Entity("Models.Interactions", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Interactions");
+                b.ToTable("Interactions");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "User follows another user",
-                            Name = "Follow"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "User bookmarks a recipe",
-                            Name = "BookmarkRecipe"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "User bookmarks a blog",
-                            Name = "BookmarkBlog"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        Description = "User follows another user",
+                        Name = "Follow"
+                    },
+                    new
+                    {
+                        Id = 2,
+                        Description = "User bookmarks a recipe",
+                        Name = "BookmarkRecipe"
+                    },
+                    new
+                    {
+                        Id = 3,
+                        Description = "User bookmarks a blog",
+                        Name = "BookmarkBlog"
+                    });
+            });
 
             modelBuilder.Entity("Models.Preferences", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Preferences");
+                b.ToTable("Preferences");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "A type of protein commonly found in wheat, barley, and rye.",
-                            Name = "Gluten"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Milk and products derived from milk, such as cheese and yogurt.",
-                            Name = "Dairy"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Tree nuts including almonds, cashews, and walnuts; excludes peanuts.",
-                            Name = "Nuts"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "A type of legume that is a common allergen, distinct from tree nuts.",
-                            Name = "Peanuts"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Description = "A legume used in products like tofu, soy milk, and many processed foods.",
-                            Name = "Soy"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "A common ingredient in baking and cooking derived from chicken eggs.",
-                            Name = "Eggs"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Description = "Seafood including cod, salmon, and tuna.",
-                            Name = "Fish"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Description = "Crustaceans and mollusks like shrimp, crab, and clams.",
-                            Name = "Shellfish"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Description = "Seeds and oils derived from sesame plants, found in many cuisines.",
-                            Name = "Sesame"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Description = "A diet that excludes all animal products, including meat, dairy, and honey.",
-                            Name = "Vegan"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Description = "A diet that excludes meat and fish but may include dairy and eggs.",
-                            Name = "Vegetarian"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Description = "Avoidance of dairy products due to difficulty digesting lactose.",
-                            Name = "Lactose Intolerant"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Description = "A diet that includes fish but excludes other forms of meat.",
-                            Name = "Pescatarian"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Description = "Dietary requirements based on Islamic law, including avoidance of pork and alcohol.",
-                            Name = "Halal"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Description = "Food prepared in compliance with Jewish dietary laws, avoiding non-kosher animals and mixing meat with dairy.",
-                            Name = "Kosher"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Description = "A diet that limits fermentable oligosaccharides, disaccharides, monosaccharides, and polyols to manage digestive symptoms.",
-                            Name = "Low FODMAP"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Description = "Avoidance of all nuts, including peanuts and tree nuts.",
-                            Name = "Nut-Free"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Description = "A diet primarily focused on consuming plant-derived foods, minimizing or excluding animal products.",
-                            Name = "Plant-Based"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Description = "A low-carb, high-fat diet focused on inducing ketosis for energy.",
-                            Name = "Keto"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods.",
-                            Name = "Paleo"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        Description = "A type of protein commonly found in wheat, barley, and rye.",
+                        Name = "Gluten"
+                    },
+                    new
+                    {
+                        Id = 2,
+                        Description = "Milk and products derived from milk, such as cheese and yogurt.",
+                        Name = "Dairy"
+                    },
+                    new
+                    {
+                        Id = 3,
+                        Description = "Tree nuts including almonds, cashews, and walnuts; excludes peanuts.",
+                        Name = "Nuts"
+                    },
+                    new
+                    {
+                        Id = 4,
+                        Description = "A type of legume that is a common allergen, distinct from tree nuts.",
+                        Name = "Peanuts"
+                    },
+                    new
+                    {
+                        Id = 5,
+                        Description = "A legume used in products like tofu, soy milk, and many processed foods.",
+                        Name = "Soy"
+                    },
+                    new
+                    {
+                        Id = 6,
+                        Description = "A common ingredient in baking and cooking derived from chicken eggs.",
+                        Name = "Eggs"
+                    },
+                    new
+                    {
+                        Id = 7,
+                        Description = "Seafood including cod, salmon, and tuna.",
+                        Name = "Fish"
+                    },
+                    new
+                    {
+                        Id = 8,
+                        Description = "Crustaceans and mollusks like shrimp, crab, and clams.",
+                        Name = "Shellfish"
+                    },
+                    new
+                    {
+                        Id = 9,
+                        Description = "Seeds and oils derived from sesame plants, found in many cuisines.",
+                        Name = "Sesame"
+                    },
+                    new
+                    {
+                        Id = 10,
+                        Description = "A diet that excludes all animal products, including meat, dairy, and honey.",
+                        Name = "Vegan"
+                    },
+                    new
+                    {
+                        Id = 11,
+                        Description = "A diet that excludes meat and fish but may include dairy and eggs.",
+                        Name = "Vegetarian"
+                    },
+                    new
+                    {
+                        Id = 12,
+                        Description = "Avoidance of dairy products due to difficulty digesting lactose.",
+                        Name = "Lactose Intolerant"
+                    },
+                    new
+                    {
+                        Id = 13,
+                        Description = "A diet that includes fish but excludes other forms of meat.",
+                        Name = "Pescatarian"
+                    },
+                    new
+                    {
+                        Id = 14,
+                        Description = "Dietary requirements based on Islamic law, including avoidance of pork and alcohol.",
+                        Name = "Halal"
+                    },
+                    new
+                    {
+                        Id = 15,
+                        Description = "Food prepared in compliance with Jewish dietary laws, avoiding non-kosher animals and mixing meat with dairy.",
+                        Name = "Kosher"
+                    },
+                    new
+                    {
+                        Id = 16,
+                        Description = "A diet that limits fermentable oligosaccharides, disaccharides, monosaccharides, and polyols to manage digestive symptoms.",
+                        Name = "Low FODMAP"
+                    },
+                    new
+                    {
+                        Id = 17,
+                        Description = "Avoidance of all nuts, including peanuts and tree nuts.",
+                        Name = "Nut-Free"
+                    },
+                    new
+                    {
+                        Id = 18,
+                        Description = "A diet primarily focused on consuming plant-derived foods, minimizing or excluding animal products.",
+                        Name = "Plant-Based"
+                    },
+                    new
+                    {
+                        Id = 19,
+                        Description = "A low-carb, high-fat diet focused on inducing ketosis for energy.",
+                        Name = "Keto"
+                    },
+                    new
+                    {
+                        Id = 20,
+                        Description = "A diet based on the presumed eating patterns of ancient humans, focusing on whole, unprocessed foods.",
+                        Name = "Paleo"
+                    });
+            });
 
             modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BodyText")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("BodyText")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Header")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Header")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("Recipes");
+                b.ToTable("Recipes");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 2,
-                            BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
-                            Header = "Enginar Şöleni",
-                            UserId = "1"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 2,
+                        BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
+                        Header = "Enginar Şöleni",
+                        UserId = "1"
+                    });
+            });
 
             modelBuilder.Entity("Models.Recipes_Ingredients", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("integer");
+                b.Property<int>("IngredientId")
+                    .HasColumnType("integer");
 
-                    b.Property<double>("Quantity")
-                        .HasColumnType("double precision");
+                b.Property<double>("Quantity")
+                    .HasColumnType("double precision");
 
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("integer");
+                b.Property<int>("RecipeId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Unit")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("IngredientId");
+                b.HasIndex("IngredientId");
 
-                    b.HasIndex("RecipeId");
+                b.HasIndex("RecipeId");
 
-                    b.ToTable("Recipes_Ingredients");
+                b.ToTable("Recipes_Ingredients");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 3,
-                            IngredientId = 3,
-                            Quantity = 2.0,
-                            RecipeId = 2,
-                            Unit = "adet"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            IngredientId = 4,
-                            Quantity = 3.0,
-                            RecipeId = 2,
-                            Unit = "yemek kaşığı"
-                        });
-                });
-
-            modelBuilder.Entity("Models.Requirements", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Requirements");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Guests must confirm attendance before the event.",
-                            Name = "RSVP Required"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Guests are required to follow the formal dress code.",
-                            Name = "Dress Code"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Only guests aged 18 and above are allowed to attend.",
-                            Name = "Age Limit"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 3,
+                        IngredientId = 3,
+                        Quantity = 2.0,
+                        RecipeId = 2,
+                        Unit = "adet"
+                    },
+                    new
+                    {
+                        Id = 4,
+                        IngredientId = 4,
+                        Quantity = 3.0,
+                        RecipeId = 2,
+                        Unit = "yemek kaşığı"
+                    });
+            });
 
             modelBuilder.Entity("Models.Roles", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                b.ToTable("Roles");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Default user role",
-                            Name = "User"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Admin role",
-                            Name = "Admin"
-                        });
-                });
-
-            modelBuilder.Entity("Models.User_Event_Participations", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("User_Event_Participations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EventId = 1,
-                            UserId = "1"
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        Description = "Default user role",
+                        Name = "User"
+                    },
+                    new
+                    {
+                        Id = 2,
+                        Description = "Admin role",
+                        Name = "Admin"
+                    });
+            });
 
             modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BlogId")
-                        .HasColumnType("integer");
+                b.Property<int>("BlogId")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("InteractionId")
-                        .HasColumnType("integer");
+                b.Property<int>("InteractionId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("BlogId");
+                b.HasIndex("BlogId");
 
-                    b.HasIndex("InteractionId");
+                b.HasIndex("InteractionId");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("Users_Blogs_Interactions");
-                });
+                b.ToTable("Users_Blogs_Interactions");
+            });
 
             modelBuilder.Entity("Models.Users_Interactions", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("InitiatorUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("InitiatorUserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("InteractionId")
-                        .HasColumnType("integer");
+                b.Property<int>("InteractionId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("TargetUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("TargetUserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("InitiatorUserId");
+                b.HasIndex("InitiatorUserId");
 
-                    b.HasIndex("InteractionId");
+                b.HasIndex("InteractionId");
 
-                    b.HasIndex("TargetUserId");
+                b.HasIndex("TargetUserId");
 
-                    b.ToTable("Users_Interactions");
-                });
+                b.ToTable("Users_Interactions");
+            });
 
             modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("InteractionId")
-                        .HasColumnType("integer");
+                b.Property<int>("InteractionId")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("integer");
+                b.Property<int>("RecipeId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("InteractionId");
+                b.HasIndex("InteractionId");
 
-                    b.HasIndex("RecipeId");
+                b.HasIndex("RecipeId");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("Users_Recipes_Interactions");
-                });
+                b.ToTable("Users_Recipes_Interactions");
+            });
 
             modelBuilder.Entity("Models.Users", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+            {
+                b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("integer");
+                b.Property<int?>("AddressId")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("FirstName")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("LastName")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                b.Property<int>("RoleId")
+                    .HasColumnType("integer");
 
-                    b.HasIndex("AddressId");
+                b.HasIndex("AddressId");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.HasDiscriminator().HasValue("Users");
+                b.HasDiscriminator().HasValue("Users");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "6a2ca518-92e1-432e-b267-edd8f800f6c3",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "5221282a-37a4-4b33-9dd9-3f906daf2aa5",
-                            TwoFactorEnabled = false,
-                            FirstName = "Engin",
-                            LastName = "Adam",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "1f9c16a5-8fce-4871-949b-7fc781331efe",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "5fea988a-18df-441b-8dc0-0c43270078ed",
-                            TwoFactorEnabled = false,
-                            FirstName = "Engin",
-                            LastName = "Kadın",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "1e136567-8ab2-4e04-8f58-fb73924994b6",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "ee4d89bb-63f0-4c46-be71-aa36a01c1f8b",
-                            TwoFactorEnabled = false,
-                            FirstName = "Engin",
-                            LastName = "Çocuk",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = "4",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "244c76db-225f-4e2c-aa27-2ab7b30baf69",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "99e9fb50-a3df-48f4-b75f-e45df597bcb4",
-                            TwoFactorEnabled = false,
-                            FirstName = "Engin",
-                            LastName = "Yaşlı",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = "5",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "a3cda023-1d77-4eae-8c17-969fad32eb0d",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "28b3d5b6-1d09-47ff-b407-17bd00b82d10",
-                            TwoFactorEnabled = false,
-                            FirstName = "Engin",
-                            LastName = "Enginar",
-                            RoleId = 2
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = "1",
+                        AccessFailedCount = 0,
+                        ConcurrencyStamp = "09a48430-5dba-49a3-96b6-ee01398f48ff",
+                        EmailConfirmed = false,
+                        LockoutEnabled = false,
+                        PhoneNumberConfirmed = false,
+                        SecurityStamp = "33f0d857-c578-4004-86d6-cf4f9e636a4b",
+                        TwoFactorEnabled = false,
+                        FirstName = "Engin",
+                        LastName = "Adam",
+                        RoleId = 1
+                    },
+                    new
+                    {
+                        Id = "2",
+                        AccessFailedCount = 0,
+                        ConcurrencyStamp = "d4998fb3-7788-4478-81d1-2da059e32419",
+                        EmailConfirmed = false,
+                        LockoutEnabled = false,
+                        PhoneNumberConfirmed = false,
+                        SecurityStamp = "8ef5ef2d-c01e-4350-87e6-2a118baf9b24",
+                        TwoFactorEnabled = false,
+                        FirstName = "Engin",
+                        LastName = "Kadın",
+                        RoleId = 1
+                    });
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Models.Addresses", b =>
-                {
-                    b.HasOne("Models.Districts", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Districts", "District")
+                    .WithMany()
+                    .HasForeignKey("DistrictId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("District");
-                });
+                b.Navigation("District");
+            });
 
             modelBuilder.Entity("Models.Blogs", b =>
-                {
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId");
+            {
+                b.HasOne("Models.Recipes", "Recipe")
+                    .WithMany()
+                    .HasForeignKey("RecipeId");
 
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("Models.Users", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Recipe");
+                b.Navigation("Recipe");
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
             modelBuilder.Entity("Models.Cities", b =>
-                {
-                    b.HasOne("Models.Countries", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Countries", "Country")
+                    .WithMany()
+                    .HasForeignKey("CountryId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Country");
-                });
+                b.Navigation("Country");
+            });
 
             modelBuilder.Entity("Models.Districts", b =>
-                {
-                    b.HasOne("Models.Cities", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Cities", "City")
+                    .WithMany()
+                    .HasForeignKey("CityId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("City");
-                });
-
-            modelBuilder.Entity("Models.Events", b =>
-                {
-                    b.HasOne("Models.Addresses", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("Models.Events_Requirements", b =>
-                {
-                    b.HasOne("Models.Events", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Requirements", "Requirement")
-                        .WithMany()
-                        .HasForeignKey("RequirementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Requirement");
-                });
+                b.Navigation("City");
+            });
 
             modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.HasOne("Models.IngredientTypes", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.IngredientTypes", "Type")
+                    .WithMany()
+                    .HasForeignKey("TypeId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Type");
-                });
+                b.Navigation("Type");
+            });
 
             modelBuilder.Entity("Models.Ingredients_Preferences", b =>
-                {
-                    b.HasOne("Models.Ingredients", "Ingredient")
-                        .WithMany("Ingredients_Preferences")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Ingredients", "Ingredient")
+                    .WithMany("Ingredients_Preferences")
+                    .HasForeignKey("IngredientId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("Models.Preferences", "Preference")
-                        .WithMany("Ingredients_Preferences")
-                        .HasForeignKey("PreferenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("Models.Preferences", "Preference")
+                    .WithMany("Ingredients_Preferences")
+                    .HasForeignKey("PreferenceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Ingredient");
+                b.Navigation("Ingredient");
 
-                    b.Navigation("Preference");
-                });
+                b.Navigation("Preference");
+            });
 
             modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Users", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
             modelBuilder.Entity("Models.Recipes_Ingredients", b =>
-                {
-                    b.HasOne("Models.Ingredients", "Ingredient")
-                        .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Ingredients", "Ingredient")
+                    .WithMany()
+                    .HasForeignKey("IngredientId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany("Recipes_Ingredients")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("Models.Recipes", "Recipe")
+                    .WithMany("Recipes_Ingredients")
+                    .HasForeignKey("RecipeId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Ingredient");
+                b.Navigation("Ingredient");
 
-                    b.Navigation("Recipe");
-                });
-
-            modelBuilder.Entity("Models.User_Event_Participations", b =>
-                {
-                    b.HasOne("Models.Events", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
-                });
+                b.Navigation("Recipe");
+            });
 
             modelBuilder.Entity("Models.Users_Blogs_Interaction", b =>
-                {
-                    b.HasOne("Models.Blogs", "Blog")
-                        .WithMany()
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Blogs", "Blog")
+                    .WithMany()
+                    .HasForeignKey("BlogId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Interactions", "Interaction")
-                        .WithMany()
-                        .HasForeignKey("InteractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Interactions", "Interaction")
+                    .WithMany()
+                    .HasForeignKey("InteractionId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Users", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("Blog");
+                b.Navigation("Blog");
 
-                    b.Navigation("Interaction");
+                b.Navigation("Interaction");
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
             modelBuilder.Entity("Models.Users_Interactions", b =>
-                {
-                    b.HasOne("Models.Users", "InitiatorUser")
-                        .WithMany()
-                        .HasForeignKey("InitiatorUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Users", "InitiatorUser")
+                    .WithMany()
+                    .HasForeignKey("InitiatorUserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Interactions", "Interaction")
-                        .WithMany()
-                        .HasForeignKey("InteractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Interactions", "Interaction")
+                    .WithMany()
+                    .HasForeignKey("InteractionId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Users", "TargetUser")
-                        .WithMany()
-                        .HasForeignKey("TargetUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Users", "TargetUser")
+                    .WithMany()
+                    .HasForeignKey("TargetUserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("InitiatorUser");
+                b.Navigation("InitiatorUser");
 
-                    b.Navigation("Interaction");
+                b.Navigation("Interaction");
 
-                    b.Navigation("TargetUser");
-                });
+                b.Navigation("TargetUser");
+            });
 
             modelBuilder.Entity("Models.Users_Recipes_Interaction", b =>
-                {
-                    b.HasOne("Models.Interactions", "Interaction")
-                        .WithMany()
-                        .HasForeignKey("InteractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            {
+                b.HasOne("Models.Interactions", "Interaction")
+                    .WithMany()
+                    .HasForeignKey("InteractionId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Recipes", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Recipes", "Recipe")
+                    .WithMany()
+                    .HasForeignKey("RecipeId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("Models.Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("Models.Users", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("Interaction");
+                b.Navigation("Interaction");
 
-                    b.Navigation("Recipe");
+                b.Navigation("Recipe");
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
             modelBuilder.Entity("Models.Users", b =>
-                {
-                    b.HasOne("Models.Addresses", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
+            {
+                b.HasOne("Models.Addresses", "Address")
+                    .WithMany()
+                    .HasForeignKey("AddressId");
 
-                    b.HasOne("Models.Roles", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("Models.Roles", "Role")
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Address");
+                b.Navigation("Address");
 
-                    b.Navigation("Role");
-                });
+                b.Navigation("Role");
+            });
 
             modelBuilder.Entity("Models.Ingredients", b =>
-                {
-                    b.Navigation("Ingredients_Preferences");
-                });
+            {
+                b.Navigation("Ingredients_Preferences");
+            });
 
             modelBuilder.Entity("Models.Preferences", b =>
-                {
-                    b.Navigation("Ingredients_Preferences");
-                });
+            {
+                b.Navigation("Ingredients_Preferences");
+            });
 
             modelBuilder.Entity("Models.Recipes", b =>
-                {
-                    b.Navigation("Recipes_Ingredients");
-                });
+            {
+                b.Navigation("Recipes_Ingredients");
+            });
 #pragma warning restore 612, 618
         }
     }
