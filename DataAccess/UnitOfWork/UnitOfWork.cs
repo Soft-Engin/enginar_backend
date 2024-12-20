@@ -34,6 +34,12 @@ namespace DataAccess.Repositories
         public IUsers_InteractionsRepository Users_Interactions { get; }
         public IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         public IUsersRepository Users { get; }
+        public IBlog_LikesRepository Blog_Likes { get; }
+        public IBlog_CommentsRepository Blog_Comments { get; }
+        public IBlog_BookmarksRepository Blog_Bookmarks { get; }
+        public IRecipe_LikesRepository Recipe_Likes { get; }
+        public IRecipe_CommentsRepository Recipe_Comments { get; }
+        public IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
 
         public UnitOfWork(DataContext db)
         {
@@ -61,7 +67,12 @@ namespace DataAccess.Repositories
             Users_Interactions = new Users_InteractionsRepository(_db);
             Users_Recipes_Interactions = new Users_Recipes_InteractionsRepository(_db);
             Users = new UsersRepository(_db);
-
+            Blog_Likes = new Blog_LikesRepository(_db);
+            Blog_Comments = new Blog_CommentsRepository(_db);
+            Blog_Bookmarks = new Blog_BookmarksRepository(_db);
+            Recipe_Likes = new Recipe_LikesRepository(_db);
+            Recipe_Comments = new Recipe_CommentsRepository(_db);
+            Recipe_Bookmarks = new Recipe_BookmarksRepository(_db);
 
         }
 

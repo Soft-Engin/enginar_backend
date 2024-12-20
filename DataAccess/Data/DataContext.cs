@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Reflection.Emit;
-using DataAccess.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Models.InteractionModels;
 
 namespace BackEngin.Data
 {
@@ -22,16 +22,19 @@ namespace BackEngin.Data
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Blogs> Blogs { get; set; }
-
-
-
-
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
 
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
+
+        public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
+        public DbSet<Blog_Comments> Blog_Comments { get; set; }
+        public DbSet<Blog_Likes> Blog_Likes { get; set; }
+        public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
+        public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
+        public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,24 +51,19 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", RoleId = 1 },
-                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", RoleId = 1 },
-                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", RoleId = 1 },
-                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", RoleId = 1 },
-                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", RoleId = 2 }
+                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 },
+                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 },
+                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 },
+                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 },
+                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 }
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
-            );
-
-            modelBuilder.Entity<Recipes_Ingredients>().HasData(
-                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },
-                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreparationTime= 45,  UserId = "1", CreatedAt = new DateTime() }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
-                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" }
+                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" , CreatedAt = new DateTime()}
             );
             // Configure many-to-many relationship between Ingredients and Preferences
             modelBuilder.Entity<Ingredients_Preferences>()
@@ -177,6 +175,42 @@ namespace BackEngin.Data
                 .WithMany()
                 .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Bookmarks>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Comments>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipe_Likes>()
+               .HasOne(rb => rb.Recipe)
+               .WithMany()
+               .HasForeignKey(rb => rb.RecipeId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Bookmarks>()
+              .HasOne(rb => rb.Blog)
+              .WithMany()
+              .HasForeignKey(rb => rb.BlogId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Comments>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Blog_Likes>()
+               .HasOne(rb => rb.Blog)
+               .WithMany()
+               .HasForeignKey(rb => rb.BlogId)
+               .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)

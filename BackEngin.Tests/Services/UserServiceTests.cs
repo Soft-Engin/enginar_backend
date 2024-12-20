@@ -8,6 +8,11 @@ using BackEngin.Tests.Helpers;
 using Models.DTO;
 using BackEngin.Tests.Utils;
 using MockQueryable.Moq;
+using System.Data;
+using System.Diagnostics.Metrics;
+using System.Net;
+using System.Collections.Generic;
+using BackEngin.Services.Interfaces;
 
 namespace BackEngin.Tests.Services
 {

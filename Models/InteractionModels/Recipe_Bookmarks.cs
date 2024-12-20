@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models
+namespace Models.InteractionModels
 {
-    public class Blogs
+    public class Recipe_Bookmarks
     {
         [Key]
         public int Id { get; set; }
@@ -20,18 +19,12 @@ namespace Models
         public Users User { get; set; }
 
         [Required]
-        public string Header { get; set; }
-
-        [Required]
-        public string BodyText { get; set; }
-
-        public byte[]? Image { get; set; }
-
-        public int? RecipeId { get; set; }
+        public int RecipeId { get; set; }
         [ForeignKey("RecipeId")]
-        public Recipes? Recipe { get; set; }
+        public Recipes Recipe { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
+
 }

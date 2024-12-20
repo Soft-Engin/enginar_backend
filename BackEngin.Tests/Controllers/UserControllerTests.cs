@@ -437,8 +437,8 @@ namespace BackEngin.Tests.Controllers
             // Act
             var result = await _userController.SearchUsers(
                 searchParams,
-                pageNumber:1,
-                pageSize:10
+                pageNumber: 1,
+                pageSize: 10
                 ) as OkObjectResult;
 
             // Assert
@@ -447,5 +447,41 @@ namespace BackEngin.Tests.Controllers
             result.Value.Should().BeEquivalentTo(paginatedUsers);
         }
 
+        [Fact]
+        public async Task GetCurrentUser_ShouldReturnOk_WithCurrentUserDetails()
+        {
+            // Arrange
+            var userId = "currentUserId";
+            var currentUserDto = new GetUserByIdDTO
+            {
+                UserName = "current_user",
+                Email = "current.user@example.com",
+                FirstName = "Current",
+                LastName = "User",
+                AddressName = "Current Address",
+                Street = "123 Current St",
+                District = "Current District",
+                City = "Current City",
+                Country = "Current Country",
+                PostCode = 12345,
+                RoleName = "User"
+            };
+
+            // Mock the user context to simulate the current user's claims
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.NameIdentifier))
+                     .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+
+            _mockUserService.Setup(us => us.GetUserByIdAsync(userId))
+                            .ReturnsAsync(currentUserDto);
+
+            // Act
+            var result = await _userController.GetCurrentUser();
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(currentUserDto);
+
+            _mockUserService.Verify(us => us.GetUserByIdAsync(userId), Times.Once);
+        }
     }
 }

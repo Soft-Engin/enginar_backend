@@ -3,6 +3,7 @@ using System;
 using BackEngin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241218151642_InteractionsTables")]
+    partial class InteractionsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,15 +268,9 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Header")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("bytea");
 
                     b.Property<int?>("RecipeId")
                         .HasColumnType("integer");
@@ -295,7 +292,6 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Header = "ENGINAR YOLCULUĞU",
                             RecipeId = 2,
                             UserId = "1"
@@ -547,6 +543,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("CommentText")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -554,6 +551,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<string>("UserId")
@@ -632,6 +630,7 @@ namespace DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CommentText")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -639,6 +638,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("ImageBlob")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<int>("RecipeId")
@@ -880,21 +880,9 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Header")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("PreparationTime")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ServingSize")
-                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -911,10 +899,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 2,
                             BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Header = "Enginar Şöleni",
-                            PreparationTime = 45,
-                            ServingSize = 2,
                             UserId = "1"
                         });
                 });
@@ -1101,13 +1086,12 @@ namespace DataAccess.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "dbcfaa40-14a8-4678-95ed-40b86cf28899",
+                            ConcurrencyStamp = "c85a82d4-12cb-4fa1-8550-e7cdea70a628",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9c0a2ef4-220a-4c75-974a-daa30a222035",
+                            SecurityStamp = "d0916b18-e36f-47f0-9628-d65644d6ad4e",
                             TwoFactorEnabled = false,
-                            UserName = "EnginarAdam",
                             FirstName = "Engin",
                             LastName = "Adam",
                             RoleId = 1
@@ -1116,13 +1100,12 @@ namespace DataAccess.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cd9226a4-b234-4029-b761-7dd01fae91f8",
+                            ConcurrencyStamp = "d5a1c5b7-4e34-48c4-a061-63bb4179474c",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "75acaee1-4d3c-441e-be52-846bd6759073",
+                            SecurityStamp = "4915fcd5-b3b6-4f86-9b08-af0bc4b359ba",
                             TwoFactorEnabled = false,
-                            UserName = "EnginarKadın",
                             FirstName = "Engin",
                             LastName = "Kadın",
                             RoleId = 1
@@ -1131,13 +1114,12 @@ namespace DataAccess.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e40605bb-4591-4fca-8f81-3c29ed07cbb7",
+                            ConcurrencyStamp = "1f409006-dbd1-4064-a4f6-c94375a4ca5a",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0cb1e2e3-afde-46d2-98a8-3ccfde032d22",
+                            SecurityStamp = "2dcd5905-0b82-47c8-9b57-3d76004d1f4c",
                             TwoFactorEnabled = false,
-                            UserName = "EnginarÇocuk",
                             FirstName = "Engin",
                             LastName = "Çocuk",
                             RoleId = 1
@@ -1146,13 +1128,12 @@ namespace DataAccess.Migrations
                         {
                             Id = "4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "833366ae-2dec-46a5-b2a2-3b771dbf66aa",
+                            ConcurrencyStamp = "d4707db1-bfbe-4329-8a7b-39aa9742b6d2",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fbdb9e4b-5d46-4caa-a17d-53e9c63ab6b7",
+                            SecurityStamp = "6c00c55c-e825-4062-bea9-a384c651727a",
                             TwoFactorEnabled = false,
-                            UserName = "EnginarYaşlı",
                             FirstName = "Engin",
                             LastName = "Yaşlı",
                             RoleId = 1
@@ -1161,13 +1142,12 @@ namespace DataAccess.Migrations
                         {
                             Id = "5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e747c990-98e4-4631-908c-13e3c332b63a",
+                            ConcurrencyStamp = "51316e86-1fe0-4ccc-9703-b5914b8faf47",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "96013185-c77b-4dd9-b489-9737d5d91804",
+                            SecurityStamp = "a3256b78-6a11-4ae2-a284-ff3d73cb6ae3",
                             TwoFactorEnabled = false,
-                            UserName = "EnginarDouble",
                             FirstName = "Engin",
                             LastName = "Enginar",
                             RoleId = 2
