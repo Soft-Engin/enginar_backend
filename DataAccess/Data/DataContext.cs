@@ -59,7 +59,7 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreperationTime=45,  UserId = "1", CreatedAt = new DateTime() }
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreparationTime= 45,  UserId = "1", CreatedAt = new DateTime() }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
