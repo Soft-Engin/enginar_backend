@@ -3,6 +3,7 @@ using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Models;
 using Models.DTO;
@@ -14,12 +15,10 @@ namespace BackEngin.Services
     public class EventService : IEventService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IUserService _userService;
 
-        public EventService(IUnitOfWork unitOfWork, IUserService userService)
+        public EventService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userService = userService;
         }
 
         // Get all events (paginated)
@@ -32,70 +31,7 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
-            // Retrieve the participants for each event using GetQueryable to optimize the query
-            var eventIds = items.Select(e => e.Id).ToList();
-            var participantsQueryable = _unitOfWork.User_Event_Participations
-                .GetQueryable()
-                .Where(uep => eventIds.Contains(uep.EventId))
-                .Include(uep => uep.User) // Eager load the User to avoid N+1 query issue
-                .ThenInclude(user => user.Role); // Eager load Role from the User table
-
-            var participants = await participantsQueryable.ToListAsync();
-
-            // Group participants by EventId and project to ParticipantDto
-            var participantsGrouped = participants
-                .GroupBy(uep => uep.EventId)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(uep => new ParticipantDto
-                    {
-                        FirstName = uep.User.FirstName,
-                        LastName = uep.User.LastName,
-                        UserId = uep.User.Id.ToString(),
-                        Role = uep.User.Role.Name, // Access Role from the User
-                        RoleId = uep.User.RoleId, // Access RoleId from the User
-                        UserName = uep.User.UserName
-                    }).ToList()
-                );
-
-            // Get the total participants count for each event
-            var totalParticipantsCountGrouped = participantsGrouped
-                .ToDictionary(k => k.Key, v => v.Value.Count);
-
-            // Fetch the requirements for each event using GetQueryable
-            var eventRequirementsQueryable = _unitOfWork.Events_Requirements
-                .GetQueryable()
-                .Where(er => eventIds.Contains(er.EventId))
-                .Include(er => er.Requirement); // Eager load the Requirement to avoid N+1 query issue
-
-            var eventRequirements = await eventRequirementsQueryable.ToListAsync();
-
-            // Group requirements by EventId
-            var requirementsGrouped = eventRequirements
-                .GroupBy(er => er.EventId)
-                .ToDictionary(g => g.Key, g => g.Select(er => er.Requirement).ToList());
-
-            // Transform events to DTOs and include participants, requirements, and total participant count
-            var events = items.Select(e => new EventDto
-            {
-                Title = e.Title,
-                Date = e.Date,
-                EventId = e.Id,
-                BodyText = e.BodyText,
-                CreatorUserName = e.Creator.UserName,
-                Address = e.Address,
-                CreatedAt = e.CreatedAt,
-                Participants = participantsGrouped.ContainsKey(e.Id) ? participantsGrouped[e.Id] : new List<ParticipantDto>(),
-                Requirements = requirementsGrouped.ContainsKey(e.Id)
-                    ? requirementsGrouped[e.Id].Select(r => new RequirementDto
-                    {
-                        Id = r.Id,
-                        Name = r.Name,
-                        Description = r.Description
-                    }).ToList()
-                    : new List<RequirementDto>(),
-                TotalParticipantsCount = totalParticipantsCountGrouped.ContainsKey(e.Id) ? totalParticipantsCountGrouped[e.Id] : 0 // Add the total participants count
-            }).ToList();
+            var events = items.Select(MapEventToDto);
 
             // Return the paginated response
             return new PaginatedResponseDTO<EventDto>
@@ -104,6 +40,32 @@ namespace BackEngin.Services
                 TotalCount = totalCount,
                 PageNumber = page,
                 PageSize = pageSize
+            };
+        }
+
+        public EventDto MapEventToDto(Events e)
+        {
+            if(e.Creator == null)
+            {
+                e.Creator = _unitOfWork.Users.FindAsync(u => u.Id == e.CreatorId).Result.First();
+            }
+            return new EventDto
+            {
+                Title = e.Title,
+                Date = e.Date,
+                EventId = e.Id,
+                BodyText = e.BodyText,
+                CreatorUserName = e.Creator.UserName,
+                Address = e.Address,
+                CreatedAt = e.CreatedAt,
+                Requirements =  _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement").Result
+                                .Select(er => new RequirementDto
+                                {
+                                    Id = er.Requirement.Id,
+                                    Name = er.Requirement.Name,
+                                    Description = er.Requirement.Description
+                                }).ToList(),
+                TotalParticipantsCount = _unitOfWork.User_Event_Participations.CountAsync(r => r.EventId == e.Id).Result
             };
         }
 
@@ -117,62 +79,11 @@ namespace BackEngin.Services
             if (eventEntity == null)
                 return null;
 
-            // Fetch participants for the event, limiting to the required fields using GetQueryable
-            var participantsQueryable = _unitOfWork.User_Event_Participations
-                .GetQueryable()
-                .Where(uep => uep.EventId == eventId)
-                .Include(uep => uep.User) // Include the User for access to firstName, lastName, role, etc.
-                .ThenInclude(user => user.Role); // Eager load the Role from the User table
-
-            var participants = await participantsQueryable.ToListAsync();
-
-            // Group participants and project to ParticipantDto
-            var participantDtos = participants.Select(uep => new ParticipantDto
-            {
-                FirstName = uep.User.FirstName,
-                LastName = uep.User.LastName,
-                UserId = uep.User.Id.ToString(),
-                Role = uep.User.Role.Name, // Access Role from the User
-                RoleId = uep.User.RoleId, // Access RoleId from the User
-                UserName = uep.User.UserName
-            }).ToList();
-
-            // Get the total count of participants
-            var totalParticipantsCount = participantDtos.Count;
-
-            // Fetch the event requirements for the specific event
-            var eventRequirementsQueryable = _unitOfWork.Events_Requirements
-                .GetQueryable()
-                .Where(er => er.EventId == eventId)
-                .Include(er => er.Requirement); // Eager load the Requirement to avoid N+1 query issue
-
-            var eventRequirements = await eventRequirementsQueryable.ToListAsync();
-
-            // Project the event requirements to RequirementDto
-            var requirementsDtos = eventRequirements.Select(er => new RequirementDto
-            {
-                Id = er.Requirement.Id,
-                Name = er.Requirement.Name,
-                Description = er.Requirement.Description
-            }).ToList();
-
             // Return the event DTO with populated participants and requirements
-            return new EventDto
-            {
-                Title = eventEntity.Title,
-                Date = eventEntity.Date,
-                CreatedAt = eventEntity.CreatedAt,
-                EventId = eventId,
-                BodyText = eventEntity.BodyText,
-                CreatorUserName = eventEntity.Creator.UserName,
-                Address = eventEntity.Address,
-                Participants = participantDtos, // Populate the Participants list with ParticipantDto
-                Requirements = requirementsDtos, // Populate the Requirements list with RequirementDto
-                TotalParticipantsCount = totalParticipantsCount // Add the total count of participants
-            };
+            return MapEventToDto(eventEntity);
         }
 
-        public async Task<EventDto?> CreateEventAsync(CreateEventDto createEventDto, string creatorId)
+        public async Task<EventDto?> CreateEventAsync(CreateEventDto createEventDto, string creatorId, string creatorName)
         {
             // Validate the district exists
             var district = await _unitOfWork.Districts.GetByIdAsync(createEventDto.DistrictId);
@@ -181,16 +92,18 @@ namespace BackEngin.Services
                 throw new ArgumentException("The specified district does not exist.");
             }
 
-            // Fetch the creator's details
-
-
-            // Fetch the creator's details
-            var creator = await _userService.GetUserByIdAsync(creatorId);
-            if (creator == null)
+            if (createEventDto.Date < DateTime.UtcNow)
             {
-                throw new ArgumentException("The specified creator does not exist.");
+                throw new ArgumentException("The event can not be set for the past.");
             }
 
+            if (createEventDto.RequirementIds != null && createEventDto.RequirementIds.Any())
+            {
+                if (await _unitOfWork.Requirements.CountAsync(r => createEventDto.RequirementIds.Contains(r.Id)) != createEventDto.RequirementIds.Count())
+                {
+                    throw new ArgumentException("One or more requirements do not exist.");
+                }
+            }
 
 
             // Check if the address already exists
@@ -225,8 +138,8 @@ namespace BackEngin.Services
             };
 
             await _unitOfWork.Events.AddAsync(eventEntity);
-            await _unitOfWork.CompleteAsync(); // Ensure event is saved
 
+            await _unitOfWork.CompleteAsync();
             // Add the creator as a participant
             var userEventParticipation = new User_Event_Participations
             {
@@ -234,8 +147,8 @@ namespace BackEngin.Services
                 EventId = eventEntity.Id
             };
             await _unitOfWork.User_Event_Participations.AddAsync(userEventParticipation);
-            await _unitOfWork.CompleteAsync();
 
+            await _unitOfWork.CompleteAsync();
             // If there are requirements to associate with the event
             if (createEventDto.RequirementIds != null && createEventDto.RequirementIds.Any())
             {
@@ -249,62 +162,13 @@ namespace BackEngin.Services
                 }).ToList();
 
                 await _unitOfWork.Events_Requirements.AddRangeAsync(evtReqs);
-                await _unitOfWork.CompleteAsync(); // Ensure event requirements are saved
             }
+            await _unitOfWork.CompleteAsync();
 
-            // Fetch participants
-            var userEventParticipations = await _unitOfWork.User_Event_Participations
-                .FindAllAsync(uep => uep.EventId == eventEntity.Id);
-
-            var userIds = userEventParticipations.Select(uep => uep.UserId).ToList();
-
-            var participants = await _unitOfWork.Users
-                .GetQueryable()
-                .Where(user => userIds.Contains(user.Id))
-                .Select(user => new ParticipantDto
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserId = user.Id.ToString(),
-                    Role = user.Role.Name,
-                    RoleId = user.RoleId,
-                    UserName = creator.UserName
-                }).ToListAsync();
-
-            // Calculate the total number of participants
-            var totalParticipantsCount = participants.Count;
-
-            // Fetch requirements
-            var eventRequirements = await _unitOfWork.Events_Requirements
-                .FindAllAsync(er => er.EventId == eventEntity.Id);
-
-            var requirementIds = eventRequirements.Select(er => er.RequirementId).ToList();
-
-            var requirements = await _unitOfWork.Requirements
-                .FindAllAsync(r => requirementIds.Contains(r.Id));
 
             // Return the event DTO
-            return new EventDto
-            {
-                Title = eventEntity.Title,
-                Date = eventEntity.Date,
-                CreatedAt = eventEntity.CreatedAt,
-                EventId = eventEntity.Id,
-                BodyText = eventEntity.BodyText,
-                CreatorUserName = creator.UserName,
-                Address = eventEntity.Address,
-                Participants = participants,
-                Requirements = requirements.Select(r => new RequirementDto
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Description = r.Description
-                }).ToList(),
-                TotalParticipantsCount = totalParticipantsCount
-            };
+            return MapEventToDto(eventEntity);
         }
-
-
 
 
 
@@ -312,12 +176,11 @@ namespace BackEngin.Services
         public async Task<EventDto?> UpdateEventAsync(int eventId, UpdateEventDto updateEventDto)
         {
             // Fetch the event by its ID
-            var eventEntity = await _unitOfWork.Events.GetByIdAsync(eventId);
+            var eventEntity = _unitOfWork.Events.FindAsync(r => r.Id == eventId, includeProperties: "Creator,Address").Result.First();
 
             if (eventEntity == null)
             {
-                // Return null if the event does not exist
-                return null;
+                throw new Exception("The specified event does not exist.");
             }
 
             // Validate the district exists (use DistrictId from the DTO)
@@ -334,98 +197,60 @@ namespace BackEngin.Services
                 throw new ArgumentException("The specified creator does not exist.");
             }
 
-            var creatorUser = await _userService.GetUserByIdAsync(creatorId);
-
-            if (creatorUser == null)
+            if (updateEventDto.Date < DateTime.UtcNow)
             {
-                throw new ArgumentException("The specified creator does not exist.");
+                throw new ArgumentException("The event can not be set for the past.");
             }
+
+            if (updateEventDto.RequirementIds != null && updateEventDto.RequirementIds.Any())
+            {
+                if (await _unitOfWork.Requirements.CountAsync(r => updateEventDto.RequirementIds.Contains(r.Id)) != updateEventDto.RequirementIds.Count())
+                {
+                    throw new ArgumentException("One or more requirements do not exist.");
+                }
+            }
+
 
             // Check if the address exists in the database
-            var address = await _unitOfWork.Addresses.SingleOrDefaultAsync(a =>
-                a.Name.ToLower() == updateEventDto.AddressName.ToLower() &&
-                a.Street.ToLower() == updateEventDto.Street.ToLower() &&
-                a.DistrictId == updateEventDto.DistrictId);
+            var address = eventEntity.Address;
 
-            // If the address does not exist, create a new one
-            if (address == null)
-            {
-                address = new Addresses
-                {
-                    Name = updateEventDto.AddressName,
-                    Street = updateEventDto.Street,
-                    DistrictId = updateEventDto.DistrictId
-                };
+            address.Name = updateEventDto.AddressName;
+            address.Street = updateEventDto.Street;
+            address.DistrictId = updateEventDto.DistrictId;
 
-                await _unitOfWork.Addresses.AddAsync(address);
-                await _unitOfWork.CompleteAsync(); // Save the new address
-            }
+
+            _unitOfWork.Addresses.Update(address);
+           
 
             // Update the event entity with the new details
             eventEntity.Title = updateEventDto.Title;
             eventEntity.BodyText = updateEventDto.BodyText;
             eventEntity.Date = updateEventDto.Date.ToUniversalTime();
-            eventEntity.AddressId = address.Id; // Set the address for the event
-            eventEntity.Address = address; // Optionally update the address reference
 
 
-            // Fetch participants
-            var userEventParticipations = await _unitOfWork.User_Event_Participations
-                .FindAllAsync(uep => uep.EventId == eventEntity.Id);
-
-            var userIds = userEventParticipations.Select(uep => uep.UserId).ToList();
-
-            var participants = await _unitOfWork.Users
-                .GetQueryable()
-                .Where(user => userIds.Contains(user.Id))
-                .Select(user => new ParticipantDto
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserId = user.Id.ToString(),
-                    Role = user.Role.Name,
-                    RoleId = user.RoleId,
-                    UserName = user.UserName
-                }).ToListAsync();
-
-            // Calculate the total number of participants
-            var totalParticipantsCount = participants.Count;
-
-            // Handle updating the event's requirements
-            // Fetch current event requirements
-            var currentEventRequirements = await _unitOfWork.Events_Requirements
-                .FindAllAsync(er => er.EventId == eventId);
-
-            // Find the requirements that need to be removed (existing requirements not in the provided list)
-            var requirementsToRemove = currentEventRequirements
-                .Where(er => !updateEventDto.RequirementIds.Contains(er.RequirementId))
-                .ToList();
-
-            // Remove the outdated requirements
-            _unitOfWork.Events_Requirements.DeleteRange(requirementsToRemove);
-
-            // Extract Requirement IDs from current requirements
-            var currentRequirementIds = currentEventRequirements
-                .Select(er => er.RequirementId)
-                .ToList();
-
-            // Find the requirements that need to be added (new requirements that are not in the current list)
-            var requirementIdsToAdd = updateEventDto.RequirementIds
-                .Where(id => !currentRequirementIds.Contains(id))
-                .ToList();
+            var currentEventRequirements = _unitOfWork.Events_Requirements
+                .FindAsync(er => er.EventId == eventId).Result.Select(r => r.RequirementId).ToList();
 
             // Add new requirements
-            foreach (var requirementId in requirementIdsToAdd)
+            foreach (var requirementId in updateEventDto.RequirementIds)
             {
-                var requirement = await _unitOfWork.Requirements.GetByIdAsync(requirementId);
-                if (requirement != null)
+                if (!currentEventRequirements.Contains(requirementId))
                 {
                     await _unitOfWork.Events_Requirements.AddAsync(new Events_Requirements
                     {
                         EventId = eventId,
                         RequirementId = requirementId
                     });
+
+                    currentEventRequirements.Remove(requirementId);
                 }
+            }
+
+            // Remove requirements that are not in the updated list
+            foreach (var requirementId in currentEventRequirements)
+            {
+                var er = await _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == eventId && r.RequirementId == requirementId);
+                _unitOfWork.Events_Requirements.Delete(er.First());
             }
 
 
@@ -433,34 +258,8 @@ namespace BackEngin.Services
             _unitOfWork.Events.Update(eventEntity);
             await _unitOfWork.CompleteAsync(); // Save changes
 
-            // Fetch requirements
-            var eventRequirements = await _unitOfWork.Events_Requirements
-                .FindAllAsync(er => er.EventId == eventEntity.Id);
-
-            var requirementIds = eventRequirements.Select(er => er.RequirementId).ToList();
-
-            var requirements = await _unitOfWork.Requirements
-                .FindAllAsync(r => requirementIds.Contains(r.Id));
-
             // Return the updated event as a DTO
-            return new EventDto
-            {
-                Title = eventEntity.Title,
-                Date = eventEntity.Date,
-                CreatedAt = eventEntity.CreatedAt,
-                EventId = eventEntity.Id,
-                BodyText = eventEntity.BodyText,
-                CreatorUserName = creatorUser.UserName,
-                Address = eventEntity.Address,
-                Participants = participants,
-                Requirements = requirements.Select(r => new RequirementDto
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Description = r.Description
-                }).ToList(),
-                TotalParticipantsCount = totalParticipantsCount
-            };
+            return MapEventToDto(eventEntity);
         }
 
 
@@ -492,72 +291,77 @@ namespace BackEngin.Services
         }
 
 
-        public async Task<bool> JoinToEventAsync(int eventId, string userId)
+        public async Task<bool> ToggleAttendToEventAsync(int eventId, string userId)
         {
             // Check if the event exists
             var eventEntity = await _unitOfWork.Events.GetByIdAsync(eventId);
+
             if (eventEntity == null)
             {
                 throw new ArgumentException("Event not found.");
+            }
+
+            if (eventEntity.CreatorId == userId)
+            {
+                throw new ArgumentException("The creator cannot leave their own event.");
+            }   
+
+            if (eventEntity.Date < DateTime.UtcNow)
+            {
+                throw new ArgumentException("The event has already passed.");
             }
 
             // Check if the user has already joined the event
-            var existingParticipation = await _unitOfWork.User_Event_Participations
-                .GetQueryable()
-                .AsNoTracking()  // Prevent tracking to avoid caching issues
-                .FirstOrDefaultAsync(uep => uep.EventId == eventId && uep.UserId == userId);
+            var existingParticipation = _unitOfWork.User_Event_Participations.FindAsync(uep => uep.EventId == eventId && uep.UserId == userId).Result.FirstOrDefault();
 
-            if (existingParticipation != null)
+            if (existingParticipation != default)
             {
                 // The user is already participating in this event
-                return false; // The user cannot join the event again
+                _unitOfWork.User_Event_Participations.Delete(existingParticipation);
+                await _unitOfWork.CompleteAsync();
+
+                return false; // Return false if the user successfully left the event
             }
-
-            // Add the user to the event
-            var userEventParticipation = new User_Event_Participations
+            else
             {
-                EventId = eventId,
-                UserId = userId,
-                Event = eventEntity,
-            };
+                // Add the user to the event
+                var userEventParticipation = new User_Event_Participations
+                {
+                    EventId = eventId,
+                    UserId = userId
+                };
 
-            await _unitOfWork.User_Event_Participations.AddAsync(userEventParticipation);
+                await _unitOfWork.User_Event_Participations.AddAsync(userEventParticipation);
+                await _unitOfWork.CompleteAsync();
 
-            // Save changes to the database
-            await _unitOfWork.CompleteAsync();
-
-            return true; // Return true if the user successfully joined the event
+                return true; // Return true if the user successfully joined the event
+            }
         }
 
-
-        public async Task<bool> LeaveEventAsync(int eventId, string userId)
+        public async Task<PaginatedResponseDTO<ParticipantDto>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize)
         {
-            // Check if the event exists
-            var eventEntity = await _unitOfWork.Events.GetByIdAsync(eventId);
-            if (eventEntity == null)
+            // Get paginated participants for the event
+            var (items, totalCount) = await _unitOfWork.User_Event_Participations.GetPaginatedAsync(
+                includeProperties: "User",
+                uep => uep.EventId == eventId,
+                pageNumber: page,
+                pageSize: pageSize
+                );
+
+            var participants = items.Select(uep => new ParticipantDto
             {
-                throw new ArgumentException("Event not found.");
-            }
+                UserId = uep.UserId,
+                UserName = uep.User.UserName
+            });
 
-            // Check if the user is already a participant in the event
-            var existingParticipation = await _unitOfWork.User_Event_Participations
-                .GetQueryable()
-                .AsNoTracking()  // Prevent tracking to avoid caching issues
-                .FirstOrDefaultAsync(uep => uep.EventId == eventId && uep.UserId == userId);
-
-            if (existingParticipation == null)
+            // Return the paginated response
+            return new PaginatedResponseDTO<ParticipantDto>
             {
-                // The user is not a participant in this event
-                return false; // The user cannot leave an event they are not part of
-            }
-
-            // Remove the user from the event
-            _unitOfWork.User_Event_Participations.Delete(existingParticipation);
-
-            // Save changes to the database
-            await _unitOfWork.CompleteAsync();
-
-            return true; // Return true if the user successfully left the event
+                Items = participants,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
 
 

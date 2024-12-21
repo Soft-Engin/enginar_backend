@@ -7,7 +7,7 @@ using Models;
 using Models.DTO;
 
 namespace BackEngin.Controllers
-{
+{//
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/event")]
     [ApiController]
@@ -97,7 +97,7 @@ namespace BackEngin.Controllers
             catch (Exception ex)
             {
                 // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -137,11 +137,9 @@ namespace BackEngin.Controllers
         {
             if (createEventDto == null) return BadRequest(new { message = "Invalid event data." });
 
-            var creatorId = await GetActiveUserId();
-
             try
             {
-                var result = await _eventService.CreateEventAsync(createEventDto, creatorId);
+                var result = await _eventService.CreateEventAsync(createEventDto, await GetActiveUserId(), await GetActiveUserName());
                 if (result == null)
                     return BadRequest("Failed to create event.");
 
@@ -155,21 +153,23 @@ namespace BackEngin.Controllers
             catch (Exception ex)
             {
                 // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
-        [HttpPost("JoinToEvent/{eventId}")]
+        [HttpPost("AttendToEvent/{eventId}")]
         [Authorize]
         public async Task<IActionResult> JoinToEvent(int eventId)
         {
-            var userId = await GetActiveUserId();
-
             try
             {
-                var result = await _eventService.JoinToEventAsync(eventId, userId);
+                var userId = await GetActiveUserId();
+
+                var result = await _eventService.ToggleAttendToEventAsync(eventId, userId);
                 if (!result)
-                    return BadRequest("Failed to join the event. The user already joined this event.");
+                {
+                    return Ok("Successfully left the event.");
+                }
 
                 return Ok("Successfully joined the event.");
             }
@@ -181,38 +181,12 @@ namespace BackEngin.Controllers
             catch (Exception ex)
             {
                 // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
-        [HttpPost("LeaveEvent/{eventId}")]
-        [Authorize]
-        public async Task<IActionResult> LeaveEvent(int eventId)
-        {
-            var userId = await GetActiveUserId();
-
-            try
-            {
-                var result = await _eventService.LeaveEventAsync(eventId, userId);
-                if (!result)
-                    return BadRequest("Failed to leave the event. The user is not a participant of this event.");
-
-                return Ok("Successfully left the event.");
-            }
-
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception details if necessary
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
-            }
-        }
 
         [HttpGet("requirements")]
-        [Authorize]
         public async Task<ActionResult<PaginatedResponseDTO<RequirementDto>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
@@ -231,6 +205,25 @@ namespace BackEngin.Controllers
             }
         }
 
+        //get event participants
+        [HttpGet("{eventId}/participants")]
+        public async Task<ActionResult<PaginatedResponseDTO<ParticipantDto>>> GetEventParticipants(int eventId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            try
+            {
+                var participants = await _eventService.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize);
+                return Ok(participants);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
 
 
     }
