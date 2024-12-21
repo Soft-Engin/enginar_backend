@@ -60,7 +60,7 @@ namespace BackEngin.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto eventDTO)
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDTO eventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -123,7 +123,7 @@ namespace BackEngin.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto createEventDto)
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDTO createEventDto)
         {
             if (createEventDto == null)
             {
@@ -177,7 +177,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpGet("requirements")]
-        public async Task<ActionResult<PaginatedResponseDTO<RequirementDto>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<PaginatedResponseDTO<RequirementDTO>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
             {
@@ -196,7 +196,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpGet("{eventId}/participants")]
-        public async Task<ActionResult<PaginatedResponseDTO<ParticipantDto>>> GetEventParticipants(int eventId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginatedResponseDTO<ParticipantDTO>>> GetEventParticipants(int eventId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
             {

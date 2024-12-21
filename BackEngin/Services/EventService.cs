@@ -22,7 +22,7 @@ namespace BackEngin.Services
         }
 
         // Get all events (paginated)
-        public async Task<PaginatedResponseDTO<EventDto>> GetAllEventsAsync(int page, int pageSize)
+        public async Task<PaginatedResponseDTO<EventDTO>> GetAllEventsAsync(int page, int pageSize)
         {
             // Get paginated events, including Creator and Address
             var (items, totalCount) = await _unitOfWork.Events.GetPaginatedAsync(
@@ -34,7 +34,7 @@ namespace BackEngin.Services
             var events = items.Select(MapEventToDto);
 
             // Return the paginated response
-            return new PaginatedResponseDTO<EventDto>
+            return new PaginatedResponseDTO<EventDTO>
             {
                 Items = events,
                 TotalCount = totalCount,
@@ -43,7 +43,7 @@ namespace BackEngin.Services
             };
         }
 
-        public EventDto MapEventToDto(Events e)
+        public EventDTO MapEventToDto(Events e)
         {
             //Make sure the DTO is populated with all the required data
             if (e.Creator == null)
@@ -67,7 +67,7 @@ namespace BackEngin.Services
                 e.Address.District.City.Country = _unitOfWork.Countries.FindAsync(u => u.Id == e.Address.District.City.CountryId).Result.First();
             }
 
-            return new EventDto
+            return new EventDTO
             {
                 Title = e.Title,
                 Date = e.Date,
@@ -77,7 +77,7 @@ namespace BackEngin.Services
                 Address = e.Address,
                 CreatedAt = e.CreatedAt,
                 Requirements = _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement").Result
-                                .Select(er => new RequirementDto
+                                .Select(er => new RequirementDTO
                                 {
                                     Id = er.Requirement.Id,
                                     Name = er.Requirement.Name,
@@ -89,7 +89,7 @@ namespace BackEngin.Services
 
 
         // Get an event by ID
-        public async Task<EventDto?> GetEventByIdAsync(int eventId)
+        public async Task<EventDTO?> GetEventByIdAsync(int eventId)
         {
             // Fetch the event entity by ID, including Creator and Address
             var eventEntity = await _unitOfWork.Events.GetByIdAsync(eventId);
@@ -101,7 +101,7 @@ namespace BackEngin.Services
             return MapEventToDto(eventEntity);
         }
 
-        public async Task<EventDto?> CreateEventAsync(CreateEventDto createEventDto, string creatorId, string creatorName)
+        public async Task<EventDTO?> CreateEventAsync(CreateEventDTO createEventDto, string creatorId, string creatorName)
         {
             // Validate the district exists
             var district = await _unitOfWork.Districts.GetByIdAsync(createEventDto.DistrictId);
@@ -191,7 +191,7 @@ namespace BackEngin.Services
 
 
         // Update an existing event
-        public async Task<EventDto?> UpdateEventAsync(int eventId, UpdateEventDto updateEventDto)
+        public async Task<EventDTO?> UpdateEventAsync(int eventId, UpdateEventDTO updateEventDto)
         {
             // Fetch the event by its ID
             var eventEntity = _unitOfWork.Events.FindAsync(r => r.Id == eventId, includeProperties: "Creator,Address").Result.First();
@@ -356,7 +356,7 @@ namespace BackEngin.Services
             }
         }
 
-        public async Task<PaginatedResponseDTO<ParticipantDto>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<ParticipantDTO>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize)
         {
             // Get paginated participants for the event
             var (items, totalCount) = await _unitOfWork.User_Event_Participations.GetPaginatedAsync(
@@ -366,14 +366,14 @@ namespace BackEngin.Services
                 pageSize: pageSize
                 );
 
-            var participants = items.Select(uep => new ParticipantDto
+            var participants = items.Select(uep => new ParticipantDTO
             {
                 UserId = uep.UserId,
                 UserName = uep.User.UserName
             });
 
             // Return the paginated response
-            return new PaginatedResponseDTO<ParticipantDto>
+            return new PaginatedResponseDTO<ParticipantDTO>
             {
                 Items = participants,
                 TotalCount = totalCount,
@@ -383,7 +383,7 @@ namespace BackEngin.Services
         }
 
 
-        public async Task<PaginatedResponseDTO<RequirementDto>> GetAllRequirementsAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResponseDTO<RequirementDTO>> GetAllRequirementsAsync(int pageNumber, int pageSize)
         {
             // Validate page number and page size
             if (pageNumber <= 0) pageNumber = 1;
@@ -398,7 +398,7 @@ namespace BackEngin.Services
                     query => query.Skip((pageNumber - 1) * pageSize).Take(pageSize)); // Skip and Take for pagination
 
             // Map the requirements to RequirementDto
-            var requirementDtos = requirements.Select(r => new RequirementDto
+            var requirementDtos = requirements.Select(r => new RequirementDTO
             {
                 Id = r.Id,
                 Name = r.Name,
@@ -406,7 +406,7 @@ namespace BackEngin.Services
             }).ToList();
 
             // Return the paginated result
-            return new PaginatedResponseDTO<RequirementDto>
+            return new PaginatedResponseDTO<RequirementDTO>
             {
                 Items = requirementDtos,
                 TotalCount = totalRequirements,
@@ -415,10 +415,10 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<IEnumerable<DistrictDto>> GetDistrictsByCityIdAsync(int cityId)
+        public async Task<IEnumerable<DistrictDTO>> GetDistrictsByCityIdAsync(int cityId)
         {
             var districts = await _unitOfWork.Districts.FindAsync(d => d.CityId == cityId, "City");
-            return districts.Select(d => new DistrictDto
+            return districts.Select(d => new DistrictDTO
             {
                 Id = d.Id,
                 Name = d.Name,
@@ -426,48 +426,48 @@ namespace BackEngin.Services
             });
         }
 
-        public async Task<IEnumerable<CityDto>> GetCitiesByCountryIdAsync(int countryId)
+        public async Task<IEnumerable<CityDTO>> GetCitiesByCountryIdAsync(int countryId)
         {
             var cities = await _unitOfWork.Cities.FindAsync(c => c.CountryId == countryId, "Country");
-            return cities.Select(c => new CityDto
+            return cities.Select(c => new CityDTO
             {
                 Id = c.Id,
                 Name = c.Name
             });
         }
 
-        public async Task<IEnumerable<CountryDto>> GetAllCountriesAsync()
+        public async Task<IEnumerable<CountryDTO>> GetAllCountriesAsync()
         {
             var countries = await _unitOfWork.Countries.GetAllAsync();
-            return countries.Select(c => new CountryDto
+            return countries.Select(c => new CountryDTO
             {
                 Id = c.Id,
                 Name = c.Name
             });
         }
 
-        public async Task<CityDto> GetCityByDistrictIdAsync(int districtId)
+        public async Task<CityDTO> GetCityByDistrictIdAsync(int districtId)
         {
             var district = (await _unitOfWork.Districts.FindAsync(d => d.Id == districtId, "City")).FirstOrDefault();
             if (district?.City == null)
             {
                 return null;
             }
-            return new CityDto
+            return new CityDTO
             {
                 Id = district.City.Id,
                 Name = district.City.Name
             };
         }
 
-        public async Task<CountryDto> GetCountryByCityIdAsync(int cityId)
+        public async Task<CountryDTO> GetCountryByCityIdAsync(int cityId)
         {
             var city = (await _unitOfWork.Cities.FindAsync(c => c.Id == cityId, "Country")).FirstOrDefault();
             if (city?.Country == null)
             {
                 return null;
             }
-            return new CountryDto
+            return new CountryDTO
             {
                 Id = city.Country.Id,
                 Name = city.Country.Name

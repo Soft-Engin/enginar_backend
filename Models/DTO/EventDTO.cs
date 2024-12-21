@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Models.DTO
 {
-    public class EventDto
+    public class EventDTO
     {
         public string Title { get; set; }
         public string BodyText { get; set; }
@@ -17,12 +17,12 @@ namespace Models.DTO
         public Addresses Address { get; set; } // Address details
         public int TotalParticipantsCount { get; set; }
 
-        public List<RequirementDto> Requirements { get; set; } // List of requirements for the event
+        public List<RequirementDTO> Requirements { get; set; } // List of requirements for the event
 
         public int EventId { get; set; }
     }
 
-    public class UpdateEventDto
+    public class UpdateEventDTO
     {
 
         public string Title { get; set; }
@@ -36,7 +36,7 @@ namespace Models.DTO
     }
 
 
-    public class CreateEventDto
+    public class CreateEventDTO
     {
         [Required]
         public string Title { get; set; }
@@ -63,26 +63,26 @@ namespace Models.DTO
 
     }
 
-    public class ParticipantDto
+    public class ParticipantDTO
     {
         public string UserId { get; set; }
         public string UserName { get; set; }
     }
 
-    public class DistrictDto
+    public class DistrictDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public int PostCode { get; set; }
     }
 
-    public class CityDto
+    public class CityDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    public class CountryDto
+    public class CountryDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
