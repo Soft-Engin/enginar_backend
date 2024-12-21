@@ -44,6 +44,23 @@ namespace BackEngin.Controllers
             }
         }
 
+        protected async Task<string> GetActiveUserName()
+        {
+            try
+            {
+                var id = User.FindAll(ClaimTypes.Name).FirstOrDefault()?.Value;
+                if (id == null)
+                {
+                    throw new Exception("JWT token is missing NameIdentifier claim.");
+                }
+                return id;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving active user ID: {ex.Message}");
+            }
+        }
+
         protected async Task<string> GetActiveUserRole()
         {
             try

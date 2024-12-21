@@ -12,6 +12,7 @@ namespace BackEngin.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public DbSet<Roles> Roles { get; set; }
@@ -22,11 +23,22 @@ namespace BackEngin.Data
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Blogs> Blogs { get; set; }
+        public DbSet<Events> Events { get; set; }
+        public DbSet<Addresses> Addresses { get; set; }
+        public DbSet<Districts> Districts { get; set; }
+        public DbSet<Cities> Cities { get; set; }
+        public DbSet<Countries> Countries { get; set; }
+        public DbSet<Events_Requirements> Events_Requirements { get; set; }
+        public DbSet<Requirements> Requirements { get; set; }
+
+
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
+        public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
+
         public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
         public DbSet<Blog_Comments> Blog_Comments { get; set; }
         public DbSet<Blog_Likes> Blog_Likes { get; set; }
@@ -37,6 +49,61 @@ namespace BackEngin.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<Countries>().HasData(
+               new Countries { Id = 1, Name = "Turkey" },
+               new Countries { Id = 2, Name = "USA" }
+           );
+
+            modelBuilder.Entity<Cities>().HasData(
+                new Cities { Id = 1, Name = "Istanbul", CountryId = 1 },
+                new Cities { Id = 2, Name = "New York", CountryId = 2 }
+            );
+
+            modelBuilder.Entity<Districts>().HasData(
+                new Districts { Id = 1, Name = "Kadikoy", CityId = 1, PostCode = 34710 },
+                new Districts { Id = 2, Name = "Besiktas", CityId = 1, PostCode = 34353 }
+            );
+
+            modelBuilder.Entity<Addresses>().HasData(
+                new Addresses { Id = 1, Name = "Office Address", DistrictId = 1, Street = "Main Avenue" },
+                new Addresses { Id = 2, Name = "Home Address", DistrictId = 2, Street = "Second Street" }
+            );
+
+            modelBuilder.Entity<Events>().HasData(
+                new Events
+                {
+                    Id = 1,
+                    CreatorId = "1",
+                    AddressId = 1,
+                    Date = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                    Title = "New Year's Eve Party",
+                    BodyText = "Celebrate the New Year with us!"
+                }
+            );
+
+            modelBuilder.Entity<User_Event_Participations>().HasData(
+                new User_Event_Participations
+                {
+                    Id = 1,
+                    UserId = "1",
+                    EventId = 1
+                }
+            );
+
+            modelBuilder.Entity<Requirements>().HasData(
+                new Requirements { Id = 1, Name = "RSVP Required", Description = "Guests must confirm attendance before the event." },
+                new Requirements { Id = 2, Name = "Dress Code", Description = "Guests are required to follow the formal dress code." },
+                new Requirements { Id = 3, Name = "Age Limit", Description = "Only guests aged 18 and above are allowed to attend." }
+            );
+
+            modelBuilder.Entity<Events_Requirements>().HasData(
+                new Events_Requirements { Id = 1, EventId = 1, RequirementId = 1 }, // "RSVP Required" for the "New Year's Eve Party"
+                new Events_Requirements { Id = 2, EventId = 1, RequirementId = 2 }, // "Dress Code" for the "New Year's Eve Party"
+                new Events_Requirements { Id = 3, EventId = 1, RequirementId = 3 }  // "Age Limit" for the "New Year's Eve Party"
+            );
+
 
             modelBuilder.Entity<Roles>().HasData(
                 new Roles { Id = 1, Name = "User", Description = "Default user role" },
@@ -73,6 +140,82 @@ namespace BackEngin.Data
                 .HasOne(ip => ip.Preference)
                 .WithMany(p => p.Ingredients_Preferences)
                 .HasForeignKey(ip => ip.PreferenceId);
+
+            // Users Table
+            modelBuilder.Entity<Users>(entity =>
+            {
+                entity.HasOne(u => u.Address)
+                    .WithMany()
+                    .HasForeignKey(u => u.AddressId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(u => u.Role)
+                    .WithMany()
+                    .HasForeignKey(u => u.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Events Table
+            modelBuilder.Entity<Events>(entity =>
+            {
+                // Ensure Date is stored as 'timestamp with time zone' in PostgreSQL
+                entity.Property(e => e.Date).HasColumnType("timestamptz");
+                entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+
+                // Apply value converter for Date and CreatedAt to convert to UTC automatically
+                entity.Property(e => e.Date)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
+
+                entity.Property(e => e.CreatedAt)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.HasOne(e => e.Creator)
+                    .WithMany()
+                    .HasForeignKey(e => e.CreatorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Address)
+                    .WithMany()
+                    .HasForeignKey(e => e.AddressId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // User_Event_Participations Table
+            modelBuilder.Entity<User_Event_Participations>(entity =>
+            {
+                entity.HasKey(uep => uep.Id);
+
+                entity.HasOne(uep => uep.User)
+                    .WithMany()
+                    .HasForeignKey(uep => uep.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(uep => uep.Event)
+                    .WithMany()
+                    .HasForeignKey(uep => uep.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Addresses Table
+            modelBuilder.Entity<Addresses>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+                entity.HasOne(a => a.District)
+                    .WithMany()
+                    .HasForeignKey(a => a.DistrictId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             PopulatePreferences(modelBuilder);
             ConfigureUserInteractions(modelBuilder);

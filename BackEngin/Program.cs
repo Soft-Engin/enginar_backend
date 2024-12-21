@@ -84,8 +84,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IIngredientsService, IngredientsService>();
 builder.Services.AddScoped<IIngredientTypesService, IngredientTypesService>();
 builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
-
-
+builder.Services.AddScoped<IEventService, EventService>();
 
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
