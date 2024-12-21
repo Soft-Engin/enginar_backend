@@ -23,12 +23,4 @@ namespace Models.DTO
         public DateTime Timestamp { get; set; }
     };
 
-    public class  CommentImagesDTO
-    {
-        public int CommentId { get; set; }
-        public byte[][]? Images { get; set; }
-        public DateTime CreatedAt { get; set; }
-
-    }
-
 }

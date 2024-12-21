@@ -15,20 +15,6 @@ namespace Models.DTO
         public DateTime CreatedAt { get; set; }
     }
 
-    public class RecipeStepImagesDTO
-    {
-        public int RecipeId { get; set; }
-        public byte[][]? StepImages { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    public class RecipeImagesDTO
-    {
-        public int RecipeId { get; set; }
-        public byte[]? BannerImage { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
     public class RecipeDetailsDTO
     {
         public int Id { get; set; }
