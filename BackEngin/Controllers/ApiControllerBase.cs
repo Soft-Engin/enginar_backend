@@ -48,7 +48,7 @@ namespace BackEngin.Controllers
         {
             try
             {
-                var id = User.FindAll(ClaimTypes.NameIdentifier).FirstOrDefault()?.Value;
+                var id = User.FindAll(ClaimTypes.Name).FirstOrDefault()?.Value;
                 if (id == null)
                 {
                     throw new Exception("JWT token is missing NameIdentifier claim.");
