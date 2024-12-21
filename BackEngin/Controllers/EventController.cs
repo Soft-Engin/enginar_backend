@@ -177,7 +177,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpGet("requirements")]
-        public async Task<ActionResult<PaginatedResponseDTO<RequirementDTO>>> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllRequirements(int pageNumber = 1, int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
             {
@@ -196,7 +196,7 @@ namespace BackEngin.Controllers
         }
 
         [HttpGet("{eventId}/participants")]
-        public async Task<ActionResult<PaginatedResponseDTO<ParticipantDTO>>> GetEventParticipants(int eventId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetEventParticipants(int eventId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
             {
