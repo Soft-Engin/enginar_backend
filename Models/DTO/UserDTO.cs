@@ -52,6 +52,8 @@ namespace Models.DTO
         public string? Country { get; set; }
         public int PostCode { get; set; }
         public string? PhoneNumber { get; set; }
+        public byte[]? BannerImage { get; set; }
+        public byte[]? ProfileImage { get; set; }
 
     }
 

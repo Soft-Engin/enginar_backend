@@ -272,5 +272,25 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("{id}/banner")]
+        public async Task<IActionResult> GetUserBanner(string id)
+        {
+            var image = await _userService.GetUserBannerImageAsync(id);
+            if (image == null) 
+                return NotFound(new { message = "No banner image found for this user." });
+            
+            return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+        }
+
+        [HttpGet("{id}/profile")]
+        public async Task<IActionResult> GetUserProfile(string id)
+        {
+            var image = await _userService.GetUserProfileImageAsync(id);
+            if (image == null) 
+                return NotFound(new { message = "No profile image found for this user." });
+            
+            return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+        }
     }
 }
