@@ -32,7 +32,7 @@ namespace BackEngin.Controllers
             {
                 if (page <= 0 || pageSize <= 0)
                 {
-                    return BadRequest( new { message = "Page and pageSize must be positive integers." });
+                    return BadRequest(new { message = "Page and pageSize must be positive integers." });
                 }
 
                 var users = await _userService.GetAllUsersAsync(page, pageSize);
@@ -47,7 +47,7 @@ namespace BackEngin.Controllers
         // Get a user by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
-        {   
+        {
             try
             {
                 var user = await _userService.GetUserByIdAsync(id);
@@ -59,7 +59,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -119,7 +119,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -154,7 +154,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
 
@@ -185,7 +185,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -214,7 +214,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -251,7 +251,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -287,7 +287,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -328,7 +328,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -365,7 +365,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
 
@@ -406,7 +406,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -436,7 +436,7 @@ namespace BackEngin.Controllers
 
                 if (bookmarkedBlogs == null || !bookmarkedBlogs.Items.Any())
                 {
-                    return NotFound(new { message = "No bookmarked blogs found for the given user." }); 
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
                 }
 
                 return Ok(bookmarkedBlogs);
@@ -448,7 +448,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -456,7 +456,7 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
 
-            
+
         }
 
         [HttpGet("{userId}/recipes")]
@@ -485,7 +485,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
@@ -517,7 +517,7 @@ namespace BackEngin.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
             catch (Exception ex)
             {
@@ -552,7 +552,7 @@ namespace BackEngin.Controllers
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
             }
 
             catch (Exception ex)
