@@ -174,8 +174,9 @@ namespace BackEngin.Services
                 City = existingUser.Address != null ? existingUser.Address.District.City.Name : "City",
                 Country = existingUser.Address != null ? existingUser.Address.District.City.Country.Name : "Country",
                 PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15,
-                BannerImage = "Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...",
-                ProfileImage = "Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess..."
+                // Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...
+                BannerImage = null,
+                ProfileImage = null
             };
         }
 
@@ -335,7 +336,7 @@ namespace BackEngin.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return null;
-            
+
             return user.BannerImage;
         }
 
@@ -343,7 +344,7 @@ namespace BackEngin.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return null;
-            
+
             return user.ProfileImage;
         }
     }
