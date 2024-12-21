@@ -605,6 +605,80 @@ namespace BackEngin.Tests.Controllers
             badRequestResult.Value.Should().BeEquivalentTo(new { message = "Some error occurred" });
         }
 
+        [Fact]
+        public async Task GetBlogCommentImage_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetBlogCommentImage_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+        }
+
     }
 
 }
