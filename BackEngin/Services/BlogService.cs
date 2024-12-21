@@ -316,16 +316,12 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<BlogImagesDTO> GetBlogBannerImage(int blogId)
+        public async Task<byte[]?> GetBlogBannerImage(int blogId)
         {
             var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
             if (blog == null) return null;
 
-            return new BlogImagesDTO
-            {
-                BlogId = blog.Id,
-                BannerImage = blog.BannerImage
-            };
+            return blog.BannerImage;
         }
     }
 }

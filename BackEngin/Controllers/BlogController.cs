@@ -158,10 +158,10 @@ namespace BackEngin.Controllers
             try
             {
                 var image = await _blogService.GetBlogBannerImage(blogId);
-                if (image == null || image.BannerImage == null) 
-                    return NotFound("No banner image found for this blog.");
+                if (image == null) 
+                    return NotFound( new { message = "No banner image found for this blog."});
                 
-                return File(image.BannerImage, "image/jpeg"); // Assuming JPEG format, adjust if needed
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
             }
             catch (Exception ex)
             {

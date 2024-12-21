@@ -18,12 +18,6 @@ namespace Models.DTO
         public DateTime CreatedAt { get; set; }
     }
 
-    public class BlogImagesDTO
-    {
-        public int BlogId { get; set; }
-        public byte[]? BannerImage { get; set; }
-    }
-
     public class BlogDetailDTO
     {
         public int Id { get; set; }
