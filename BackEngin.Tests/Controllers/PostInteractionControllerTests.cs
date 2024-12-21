@@ -111,7 +111,7 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var blogId = 1;
-            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Image = null };
+            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Images = null };
             var commentResponse = new CommentDTO
             {
                 Id = 1,
@@ -137,7 +137,7 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var commentId = 1;
-            var commentRequest = new CommentRequestDTO { Text = "Updated comment", Image = null };
+            var commentRequest = new CommentRequestDTO { Text = "Updated comment", Images = null };
             var updatedCommentResponse = new CommentDTO
             {
                 Id = commentId,

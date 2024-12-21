@@ -74,7 +74,7 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user123";
             var blogId = 1;
-            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Image = null };
+            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Images = null };
 
             // Mock the Blog existence check
             _mockUnitOfWork.Setup(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
@@ -95,7 +95,7 @@ namespace BackEngin.Tests.Services
                                BlogId = blogId,
                                UserId = userId,
                                CommentText = "Great blog!",
-                               ImageBlob = null,
+                               Images = null,
                                CreatedAt = DateTime.UtcNow
                            });
 
@@ -119,7 +119,7 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user123";
             var commentId = 1;
-            var updatedComment = new CommentRequestDTO { Text = "Updated comment", Image = null };
+            var updatedComment = new CommentRequestDTO { Text = "Updated comment", Images = null };
 
             var existingComment = new Blog_Comments
             {
