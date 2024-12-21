@@ -483,5 +483,75 @@ namespace BackEngin.Tests.Controllers
 
             _mockUserService.Verify(us => us.GetUserByIdAsync(userId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetUserBanner_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var userId = "1";
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockUserService.Setup(s => s.GetUserBannerImageAsync(userId))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _userController.GetUserBanner(userId);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetUserBanner_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var userId = "1";
+            _mockUserService.Setup(s => s.GetUserBannerImageAsync(userId))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _userController.GetUserBanner(userId);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No banner image found for this user." });
+        }
+
+        [Fact]
+        public async Task GetUserProfile_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var userId = "1";
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockUserService.Setup(s => s.GetUserProfileImageAsync(userId))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _userController.GetUserProfile(userId);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetUserProfile_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var userId = "1";
+            _mockUserService.Setup(s => s.GetUserProfileImageAsync(userId))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _userController.GetUserProfile(userId);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No profile image found for this user." });
+        }
     }
 }

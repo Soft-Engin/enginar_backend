@@ -722,5 +722,74 @@ namespace BackEngin.Tests.Services
             result.Items.Should().HaveCount(5);
         }
 
+        [Fact]
+        public async Task GetUserBannerImageAsync_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var userId = "1";
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var user = new Users { Id = userId, BannerImage = expectedImage };
+
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _userService.GetUserBannerImageAsync(userId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserBannerImageAsync_ShouldReturnNull_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var userId = "1";
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId))
+                .ReturnsAsync((Users)null);
+
+            // Act
+            var result = await _userService.GetUserBannerImageAsync(userId);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserProfileImageAsync_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var userId = "1";
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var user = new Users { Id = userId, ProfileImage = expectedImage };
+
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _userService.GetUserProfileImageAsync(userId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserProfileImageAsync_ShouldReturnNull_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var userId = "1";
+            _mockUserManager.Setup(m => m.FindByIdAsync(userId))
+                .ReturnsAsync((Users)null);
+
+            // Act
+            var result = await _userService.GetUserProfileImageAsync(userId);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
+        }
     }
 }
