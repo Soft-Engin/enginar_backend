@@ -45,11 +45,40 @@ namespace BackEngin.Controllers
         }
 
         // Get a user by ID
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(string id)
+        [HttpGet("{UserName}")]
+        public async Task<IActionResult> GetUserByUserName(string UserName)
         {   
             try
             {
+                var id = await _userService.GetUserIdByUsernameAsync(UserName);
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+        }
+
+        // Get self user
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try 
+            {
+                var id = await GetActiveUserId();
                 var user = await _userService.GetUserByIdAsync(id);
                 if (user == null)
                 {
@@ -63,66 +92,84 @@ namespace BackEngin.Controllers
             }
         }
 
-        // Get self user
-        [HttpGet("me")]
-        [Authorize]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            var id = await GetActiveUserId();
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
-        }
-
 
         // Update an existing user
-        [HttpPut("{id}")]
+        [HttpPut("{UserName}")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDTO)
+        public async Task<IActionResult> UpdateUser(string UserName, [FromBody] UpdateUserDto userDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var id = await _userService.GetUserIdByUsernameAsync(UserName);
 
             if (!await CanUserAccess(id))
             {
                 return Unauthorized();
             }
 
-            var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
-            if (updatedUser == null)
+            try 
             {
-                return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
+                var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
+                if (updatedUser == null)
+                {
+                    return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
+                }
+
+                return Ok(updatedUser);
+            }
+            
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
 
-            return Ok(updatedUser);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Delete a user
-        [HttpDelete("{id}")]
+        [HttpDelete("{UserName}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser(string UserName)
         {
+            var id = await _userService.GetUserIdByUsernameAsync(UserName);
+
             if (!await CanUserAccess(id))
             {
                 return Unauthorized();
             }
 
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
+            try
             {
-                return NotFound(new { message = "User not found." });
+                var result = await _userService.DeleteUserAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+
+                return Ok(new { message = "User successfully deleted." });
             }
 
-            return Ok(new { Message = "User successfully deleted." });
+            
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        [HttpGet("{userId}/followers")]
-        public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("{UserName}/followers")]
+        public async Task<IActionResult> GetFollowers(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -131,6 +178,7 @@ namespace BackEngin.Controllers
 
             try
             {
+                var userId = await _userService.GetUserIdByUsernameAsync(UserName);
                 var followers = await _userService.GetFollowersAsync(userId, page, pageSize);
                 return Ok(followers);
             }
@@ -138,14 +186,18 @@ namespace BackEngin.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
-        [HttpGet("{userId}/following")]
-        public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("{UserName}/following")]
+        public async Task<IActionResult> GetFollowing(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -154,6 +206,7 @@ namespace BackEngin.Controllers
 
             try
             {
+                var userId = await _userService.GetUserIdByUsernameAsync(UserName);
                 var following = await _userService.GetFollowingAsync(userId, page, pageSize);
                 return Ok(following);
             }
@@ -161,6 +214,11 @@ namespace BackEngin.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -170,7 +228,7 @@ namespace BackEngin.Controllers
 
         [HttpPost("follow")]
         [Authorize]
-        public async Task<IActionResult> FollowUser([FromQuery] string targetUserId)
+        public async Task<IActionResult> FollowUser([FromQuery] string targetUserName)
         {
             try
             {
@@ -179,6 +237,7 @@ namespace BackEngin.Controllers
                 {
                     return Unauthorized();
                 }
+                var targetUserId = await _userService.GetUserIdByUsernameAsync(targetUserName);
 
                 var result = await _userService.FollowUserAsync(userId, targetUserId);
 
@@ -193,6 +252,11 @@ namespace BackEngin.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -202,7 +266,7 @@ namespace BackEngin.Controllers
 
         [HttpDelete("unfollow")]
         [Authorize]
-        public async Task<IActionResult> UnfollowUser([FromQuery] string targetUserId)
+        public async Task<IActionResult> UnfollowUser([FromQuery] string targetUserName)
         {
             var userId = await GetActiveUserId();
             if (!await CanUserAccess(userId))
@@ -210,17 +274,34 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.UnfollowUserAsync(userId, targetUserId);
-            if (!result)
-                return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
+            try
+            {
+                var targetUserId = await _userService.GetUserIdByUsernameAsync(targetUserName);
+                var result = await _userService.UnfollowUserAsync(userId, targetUserId);
+                if (!result)
+                    return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
 
-            return Ok(new { message = "Successfully unfollowed user." });
+                return Ok(new { message = "Successfully unfollowed user." });
+            }
+            
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        [HttpGet("{userId}/likes/recipes")]
+        [HttpGet("{UserName}/likes/recipes")]
         [Authorize]
-        public async Task<IActionResult> GetLikedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetLikedRecipes(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
             if (!await CanUserAccess(userId))
             {
                 return Unauthorized();
@@ -257,10 +338,12 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpGet("{userId}/bookmarks/recipes")]
+        [HttpGet("{UserName}/bookmarks/recipes")]
         [Authorize]
-        public async Task<IActionResult> GetBookmarkedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetBookmarkedRecipes(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
             if (!await CanUserAccess(userId))
             {
                 return Unauthorized();
@@ -271,20 +354,36 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
-            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
-
-            if (bookmarks == null || !bookmarks.Items.Any())
+            try
             {
-                return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+                if (bookmarks == null || !bookmarks.Items.Any())
+                {
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                }
+
+                return Ok(bookmarks);
+            }
+            
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
 
-            return Ok(bookmarks);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
-        [HttpGet("{userId}/likes/blogs")]
+        [HttpGet("{UserName}/likes/blogs")]
         [Authorize]
-        public async Task<IActionResult> GetLikedBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetLikedBlogs(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
             if (!await CanUserAccess(userId))
             {
                 return Unauthorized();
@@ -322,10 +421,12 @@ namespace BackEngin.Controllers
 
 
 
-        [HttpGet("{userId}/bookmarks/blogs")]
+        [HttpGet("{UserName}/bookmarks/blogs")]
         [Authorize]
-        public async Task<IActionResult> GetBookmarkedBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetBookmarkedBlogs(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
             if (!await CanUserAccess(userId))
             {
                 return Unauthorized();
@@ -365,8 +466,8 @@ namespace BackEngin.Controllers
             
         }
 
-        [HttpGet("{userId}/recipes")]
-        public async Task<IActionResult> GetUserRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("{UserName}/recipes")]
+        public async Task<IActionResult> GetUserRecipes(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
             {
@@ -375,6 +476,8 @@ namespace BackEngin.Controllers
 
             try
             {
+                var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
                 var result = await _userService.GetUserRecipesAsync(userId, page, pageSize);
 
                 if (result == null || !result.Items.Any())
@@ -401,8 +504,8 @@ namespace BackEngin.Controllers
         }
 
 
-        [HttpGet("{userId}/blogs")]
-        public async Task<IActionResult> GetUserBlogs(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("{UserName}/blogs")]
+        public async Task<IActionResult> GetUserBlogs(string UserName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
 
             if (pageNumber <= 0 || pageSize <= 0)
@@ -412,6 +515,7 @@ namespace BackEngin.Controllers
 
             try
             {
+                var userId = await _userService.GetUserIdByUsernameAsync(UserName);
                 var result = await _userService.GetUserBlogsAsync(userId, pageNumber, pageSize);
 
                 if (result == null || !result.Items.Any())
@@ -431,8 +535,8 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpGet("{userId}/events")]
-        public async Task<IActionResult> GetUserEvents(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("{UserName}/events")]
+        public async Task<IActionResult> GetUserEvents(string UserName, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
 
             if (page <= 0 || pageSize <= 0)
@@ -442,6 +546,8 @@ namespace BackEngin.Controllers
 
             try
             {
+                var userId = await _userService.GetUserIdByUsernameAsync(UserName);
+
                 var result = await _userService.GetUserEventsAsync(userId, page, pageSize);
 
                 if (result == null || !result.Items.Any())

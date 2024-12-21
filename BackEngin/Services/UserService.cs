@@ -1,6 +1,7 @@
 ﻿using BackEngin.Data;
 using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
+using DataAccess.Repositories.IRepositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -651,6 +652,23 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<string> GetUserIdByUsernameAsync(string username)
+        {
+            // Query the Users table for the user with the given username
+            var users = await _unitOfWork.Users.FindAsync(u => u.UserName == username);
+
+            // Check if any user was found
+            var user = users.FirstOrDefault();  // Get the first user, or null if no user is found
+
+            if (user == null)
+            {
+                throw new ArgumentException();
+            }
+
+            return user.Id;  // Return the Id of the found user
+        }
+
 
 
 
