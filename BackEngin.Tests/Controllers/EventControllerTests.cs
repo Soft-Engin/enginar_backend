@@ -1,14 +1,12 @@
 ﻿using BackEngin.Controllers;
 using BackEngin.Services.Interfaces;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Models;
-using Models.DTO;
 using Moq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Models.DTO;
 using System;
-using System.Dynamic;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,8 +16,8 @@ namespace BackEngin.Tests.Controllers
     public class EventControllerTests
     {
         private readonly Mock<IEventService> _mockEventService;
-        private readonly EventController _controller;
         private readonly Mock<ClaimsPrincipal> _mockUser;
+        private readonly EventController _eventController;
 
         public EventControllerTests()
         {
@@ -29,9 +27,13 @@ namespace BackEngin.Tests.Controllers
             _mockUser = new Mock<ClaimsPrincipal>();
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
                      .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.Name))
+                     .Returns(new[] { new Claim(ClaimTypes.Name, "currentUserName") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
 
             // Setup controller with mock user
-            _controller = new EventController(_mockEventService.Object)
+            _eventController = new EventController(_mockEventService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -40,458 +42,701 @@ namespace BackEngin.Tests.Controllers
             };
         }
 
-        // Test GetEvents endpoint
         [Fact]
-        public async Task GetEvents_ShouldReturnBadRequest_WhenPageIsLessThanOrEqualToZero()
+        public async Task GetEvents_ShouldReturnOk_WithPaginatedEvents()
         {
             // Arrange
-            int page = 0;
+            int pageNumber = 1;
             int pageSize = 10;
-
-            // Act
-            var result = await _controller.GetEvents(page, pageSize);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Page and pageSize must be positive integers.", badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task GetEvents_ShouldReturnOk_WhenValidDataIsPassed()
-        {
-            // Arrange
-            int page = 1;
-            int pageSize = 10;
-            var mockEvents = new PaginatedResponseDTO<EventDto>
+            var paginatedEvents = new PaginatedResponseDTO<EventDTO>
             {
-                Items = new[] { new EventDto() },
-                TotalCount = 1
+                Items = new List<EventDTO>
+                {
+                    new EventDTO { EventId = 1, Title = "Event 1" },
+                    new EventDTO { EventId = 2, Title = "Event 2" }
+                },
+                TotalCount = 2,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
-            _mockEventService.Setup(s => s.GetAllEventsAsync(page, pageSize)).ReturnsAsync(mockEvents);
+
+            _mockEventService.Setup(s => s.GetAllEventsAsync(pageNumber, pageSize))
+                             .ReturnsAsync(paginatedEvents);
 
             // Act
-            var result = await _controller.GetEvents(page, pageSize);
+            var result = await _eventController.GetEvents(pageNumber, pageSize);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(mockEvents, okResult.Value);
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedEvents);
         }
 
-        // Test GetEventById endpoint
         [Fact]
-        public async Task GetEventById_ShouldReturnNotFound_WhenEventDoesNotExist()
+        public async Task GetEvents_ShouldReturnBadRequest_WhenPageOrSizeIsInvalid()
         {
             // Arrange
-            int eventId = 1;
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync((EventDto)null);
+            int pageNumber = 0; // invalid
+            int pageSize = 10;
 
             // Act
-            var result = await _controller.GetEventById(eventId);
+            var result = await _eventController.GetEvents(pageNumber, pageSize);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.NotNull(notFoundResult.Value);
-
-            var expectedJson = JsonConvert.SerializeObject(new { Message = "The event does not exist." });
-            var actualJson = JsonConvert.SerializeObject(notFoundResult.Value);
-
-            Assert.Equal(expectedJson, actualJson);
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
         }
 
+        [Fact]
+        public async Task GetEvents_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            _mockEventService.Setup(s => s.GetAllEventsAsync(It.IsAny<int>(), It.IsAny<int>()))
+                             .ThrowsAsync(new Exception("Unexpected error"));
 
+            // Act
+            var result = await _eventController.GetEvents();
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Unexpected error" });
+        }
 
         [Fact]
         public async Task GetEventById_ShouldReturnOk_WhenEventExists()
         {
             // Arrange
             int eventId = 1;
-            var mockEvent = new EventDto();
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync(mockEvent);
+            var eventDto = new EventDTO { EventId = eventId, Title = "Test Event" };
+            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync(eventDto);
 
             // Act
-            var result = await _controller.GetEventById(eventId);
+            var result = await _eventController.GetEventById(eventId);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(mockEvent, okResult.Value);
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(eventDto);
         }
 
-        // Test UpdateEvent endpoint
         [Fact]
-        public async Task UpdateEvent_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        public async Task GetEventById_ShouldReturnNotFound_WhenEventDoesNotExist()
+        {
+            // Arrange
+            int eventId = 99;
+            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync((EventDTO)null);
+
+            // Act
+            var result = await _eventController.GetEventById(eventId);
+
+            // Assert
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "The event does not exist." });
+        }
+
+        [Fact]
+        public async Task GetEventById_ShouldReturnInternalServerError_OnException()
         {
             // Arrange
             int eventId = 1;
-            var updateEventDto = new UpdateEventDto();
-            _controller.ModelState.AddModelError("Error", "Invalid data");
+            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ThrowsAsync(new Exception("Error"));
 
             // Act
-            var result = await _controller.UpdateEvent(eventId, updateEventDto);
+            var result = await _eventController.GetEventById(eventId);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Error" });
         }
 
         [Fact]
-        public async Task UpdateEvent_ShouldReturnUnauthorized_WhenUserIsNotOwner()
+        public async Task CreateEvent_ShouldReturnOk_WhenCreationIsSuccessful()
         {
             // Arrange
-            int eventId = 1;
-            var userId = 2; // Not the event owner
-            var ownerId = 1; // The actual owner of the event
-            var eventDto = new UpdateEventDto();
-
-            // Mock the event service to return a different user ID as the event owner
-            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(ownerId.ToString());
-
-            // Create a ClaimsPrincipal for a user who is not the owner of the event
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate user ID 2
-                new Claim(ClaimTypes.Role, "User") // Add a dummy role to avoid errors related to missing role claims
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
+            var createDto = new CreateEventDTO
             {
-                User = user // Assign the user with the Role claim
-            };
-
-            var result = await _controller.UpdateEvent(eventId, eventDto);
-
-            // Assert
-            var unauthorizedResult = Assert.IsType<UnauthorizedResult>(result);
-        }
-
-
-
-        [Fact]
-        public async Task UpdateEvent_ShouldReturnOk_WhenEventUpdatedSuccessfully()
-        {
-            // Arrange
-            int eventId = 1;
-            var updateEventDto = new UpdateEventDto();
-            var userId = 1; // Event owner
-            var updatedEvent = new EventDto();
-
-            // Mock the event service to return the event owner's ID and the updated event data
-            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(userId.ToString());
-            _mockEventService.Setup(s => s.UpdateEventAsync(eventId, updateEventDto)).ReturnsAsync(updatedEvent);
-
-            // Create a ClaimsPrincipal for the event owner (user with the same ID as the event owner)
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate user ID 1 (event owner)
-                new Claim(ClaimTypes.Role, "User") // Add a role to avoid errors related to missing role claims
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            // Set the ControllerContext with the user
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user // Assign the user with the Role claim
-            };
-
-            // Act
-            var result = await _controller.UpdateEvent(eventId, updateEventDto);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(updatedEvent, okResult.Value);
-        }
-
-
-        // Test DeleteEvent endpoint
-        [Fact]
-        public async Task DeleteEvent_ShouldReturnUnauthorized_WhenUserIsNotOwner()
-        {
-            // Arrange
-            int eventId = 1;
-            var userId = 2; // Not the event owner
-            var ownerId = 1; // The actual owner of the event
-
-            // Mock the event service to return a different user ID as the event owner
-            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(ownerId.ToString());
-
-            // Create a ClaimsPrincipal for a user who is not the owner of the event
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate user ID 2
-                new Claim(ClaimTypes.Role, "User") // Add a dummy role to avoid errors related to missing role claims
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user // Assign the user with the Role claim
-            };
-
-            // Act
-            var result = await _controller.DeleteEvent(eventId);
-
-            // Assert
-            var unauthorizedResult = Assert.IsType<UnauthorizedResult>(result);
-        }
-
-
-        [Fact]
-        public async Task DeleteEvent_ShouldReturnOk_WhenEventDeletedSuccessfully()
-        {
-            // Arrange
-            int eventId = 1;
-            var userId = 1; // Event owner
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate user ID 1
-                new Claim(ClaimTypes.Role, "User") // Add a dummy role to avoid errors related to missing role claims
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user
-            };
-
-            _mockEventService.Setup(s => s.GetEventOwnerId(eventId)).ReturnsAsync(userId.ToString());
-            _mockEventService.Setup(s => s.DeleteEventAsync(eventId)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.DeleteEvent(eventId);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-
-            var expected = JsonConvert.SerializeObject(new { Message = "Event successfully deleted." });
-            var actual = JsonConvert.SerializeObject(okResult.Value);
-
-            Assert.Equal(expected, actual);
-
-            //Assert.NotNull(okResult.Value);
-            //Assert.Equal("Event successfully deleted.", okResult.Value);
-        }
-
-
-
-
-        [Fact]
-        public async Task CreateEvent_ShouldReturnBadRequest_WhenEventDtoIsNull()
-        {
-            // Arrange
-            CreateEventDto createEventDto = null;
-
-            // Act
-            var result = await _controller.CreateEvent(createEventDto);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.NotNull(badRequestResult.Value);
-
-            // Serialize expected and actual values to JSON for comparison
-            var expectedJson = JsonConvert.SerializeObject(new { message = "Invalid event data." });
-            var actualJson = JsonConvert.SerializeObject(badRequestResult.Value);
-
-            Assert.Equal(expectedJson, actualJson);
-        }
-
-
-
-
-
-        [Fact]
-        public async Task CreateEvent_ShouldReturnOk_WhenEventCreatedSuccessfully()
-        {
-            // Arrange
-            var createEventDto = new CreateEventDto();
-            var creatorId = 1;
-            var createdEvent = new EventDto();
-
-            // Mock an authenticated user (user with ID 1) and include the Role claim
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, creatorId.ToString()), // Simulate an authenticated user with ID 1
-                new Claim(ClaimTypes.Role, "User") // Simulate the user's role (adjust to whatever role is required)
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user
-            };
-
-            // Setup the mock for CreateEventAsync
-            _mockEventService.Setup(s => s.CreateEventAsync(createEventDto, creatorId.ToString())).ReturnsAsync(createdEvent);
-
-            // Act
-            var result = await _controller.CreateEvent(createEventDto);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(createdEvent, okResult.Value);
-        }
-
-
-
-        // Test JoinToEvent endpoint
-        [Fact]
-        public async Task JoinToEvent_ShouldReturnBadRequest_WhenUserAlreadyJoined()
-        {
-            // Arrange
-            int eventId = 1;
-            int userId = 1;
-            _mockEventService.Setup(s => s.JoinToEventAsync(eventId, userId.ToString())).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.JoinToEvent(eventId);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Failed to join the event. The user already joined this event.", badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task JoinToEvent_ShouldReturnOk_WhenUserJoinsSuccessfully()
-        {
-            // Arrange
-            var userId = 1;
-            var eventId = 1;
-
-            // Create a mock event with EventDto where the user is the event creator
-            var eventDto = new EventDto
-            {
-                Title = "Test Event",
-                BodyText = "Event details",
+                Title = "New Event",
+                BodyText = "This is a new event",
                 Date = DateTime.Now.AddDays(1),
                 CreatedAt = DateTime.Now,
-                CreatorUserName = "user1",
-                Address = new Addresses { /* Mock Address details here */ },
-                Participants = new List<ParticipantDto>(), // Add participants if needed
-                Requirements = new List<RequirementDto>() // Add requirements if needed
+                DistrictId = 1,
+                AddressName = "Some Place",
+                Street = "123 Main St",
+                RequirementIds = new List<int>()
             };
 
-            // Mock the service methods
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync(eventDto); // Mock event retrieval
-            _mockEventService.Setup(s => s.JoinToEventAsync(eventId, userId.ToString())).ReturnsAsync(true); // Mock joining the event
-
-            // Mock an authenticated user (user with ID 1) and include the Role claim
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate an authenticated user with ID 1
-                new Claim(ClaimTypes.Role, "User") // Simulate the user's role (adjust to whatever role is required)
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user
-            };
+            var createdEventDto = new EventDTO { EventId = 1, Title = "New Event" };
+            _mockEventService.Setup(s => s.CreateEventAsync(createDto, It.IsAny<string>(), It.IsAny<string>()))
+                             .ReturnsAsync(createdEventDto);
 
             // Act
-            var result = await _controller.JoinToEvent(eventId);
+            var result = await _eventController.CreateEvent(createDto);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);  // Ensure the result is OkObjectResult
-            Assert.Equal("Successfully joined the event.", okResult.Value);  // Ensure the message matches
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(createdEventDto);
         }
 
-
-
-
-        // Test LeaveEvent endpoint
         [Fact]
-        public async Task LeaveEvent_ShouldReturnBadRequest_WhenUserIsNotAParticipant()
+        public async Task CreateEvent_ShouldReturnBadRequest_WhenCreateEventDtoIsNull()
+        {
+            // Act
+            var result = await _eventController.CreateEvent(null);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Value.Should().BeEquivalentTo(new { message = "Invalid event data." });
+        }
+
+        [Fact]
+        public async Task CreateEvent_ShouldReturnBadRequest_WhenCreationFails()
+        {
+            // Arrange
+            var createDto = new CreateEventDTO
+            {
+                Title = "New Event",
+                BodyText = "This is a new event",
+                Date = DateTime.Now.AddDays(1),
+                CreatedAt = DateTime.Now,
+                DistrictId = 1,
+                AddressName = "Some Place",
+                Street = "123 Main St"
+            };
+
+            _mockEventService.Setup(s => s.CreateEventAsync(createDto, It.IsAny<string>(), It.IsAny<string>()))
+                             .ReturnsAsync((EventDTO)null);
+
+            // Act
+            var result = await _eventController.CreateEvent(createDto);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Value.Should().BeEquivalentTo(new { message = "Failed to create event." });
+        }
+
+        [Fact]
+        public async Task CreateEvent_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            var createDto = new CreateEventDTO
+            {
+                Title = "New Event",
+                BodyText = "This is a new event",
+                Date = DateTime.Now.AddDays(1),
+                CreatedAt = DateTime.Now,
+                DistrictId = 1,
+                AddressName = "Some Place",
+                Street = "123 Main St"
+            };
+
+            _mockEventService.Setup(s => s.CreateEventAsync(createDto, It.IsAny<string>(), It.IsAny<string>()))
+                             .ThrowsAsync(new Exception("Error"));
+
+            // Act
+            var result = await _eventController.CreateEvent(createDto);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Error" });
+        }
+
+        [Fact]
+        public async Task UpdateEvent_ShouldReturnOk_WhenUpdatedSuccessfully()
         {
             // Arrange
             int eventId = 1;
-            int userId = 1;
-            _mockEventService.Setup(s => s.LeaveEventAsync(eventId, userId.ToString())).ReturnsAsync(false);
+            var updateDto = new UpdateEventDTO
+            {
+                Title = "Updated Event",
+                BodyText = "Updated content",
+                Date = DateTime.Now.AddDays(2),
+                DistrictId = 1,
+                AddressName = "New Place",
+                Street = "456 Other St",
+                RequirementIds = new List<int>()
+            };
+
+            // We need to mock ownership check
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("currentUserId");
+            _mockEventService.Setup(s => s.UpdateEventAsync(eventId, updateDto))
+                             .ReturnsAsync(new EventDTO { EventId = eventId, Title = "Updated Event" });
 
             // Act
-            var result = await _controller.LeaveEvent(eventId);
+            var result = await _eventController.UpdateEvent(eventId, updateDto);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Failed to leave the event. The user is not a participant of this event.", badRequestResult.Value);
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            var updatedEvent = okResult.Value as EventDTO;
+            updatedEvent.Title.Should().Be("Updated Event");
         }
 
         [Fact]
-        public async Task LeaveEvent_ShouldReturnOk_WhenUserLeavesSuccessfully()
+        public async Task UpdateEvent_ShouldReturnNotFound_WhenEventDoesNotExist()
         {
             // Arrange
-            var userId = 1;
-            var eventId = 1;
-
-            // Create a mock event with EventDto where the user is the event participant
-            var eventDto = new EventDto
+            int eventId = 99;
+            var updateDto = new UpdateEventDTO
             {
-                Title = "Test Event",
-                BodyText = "Event details",
-                Date = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now,
-                CreatorUserName = "user1",
-                Address = new Addresses { /* Mock Address details here */ },
-                Participants = new List<ParticipantDto>
+                Title = "Updated Event"
+            };
+
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("currentUserId");
+            _mockEventService.Setup(s => s.UpdateEventAsync(eventId, updateDto))
+                             .ReturnsAsync((EventDTO)null);
+
+            // Act
+            var result = await _eventController.UpdateEvent(eventId, updateDto);
+
+            // Assert
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFound = result as NotFoundObjectResult;
+            notFound.Value.Should().BeEquivalentTo(new { message = "The event could not be updated because it does not exist." });
+        }
+
+        [Fact]
+        public async Task UpdateEvent_ShouldReturnUnauthorized_WhenUserDoesNotOwnEvent()
+        {
+            // Arrange
+            int eventId = 1;
+            var updateDto = new UpdateEventDTO { Title = "Updated Event" };
+
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("someOtherUserId");
+
+            // Act
+            var result = await _eventController.UpdateEvent(eventId, updateDto);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorized = result as UnauthorizedObjectResult;
+            unauthorized.Value.Should().BeEquivalentTo(new { message = "You are not authorized to update this event." });
+        }
+
+        [Fact]
+        public async Task UpdateEvent_ShouldReturnBadRequest_OnArgumentException()
+        {
+            // Arrange
+            int eventId = 1;
+            var updateDto = new UpdateEventDTO { Title = "Updated Event" };
+
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("currentUserId");
+            _mockEventService.Setup(s => s.UpdateEventAsync(eventId, updateDto))
+                             .ThrowsAsync(new ArgumentException("Invalid argument"));
+
+            // Act
+            var result = await _eventController.UpdateEvent(eventId, updateDto);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Invalid argument" });
+        }
+
+        [Fact]
+        public async Task DeleteEvent_ShouldReturnOk_WhenDeletedSuccessfully()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("currentUserId");
+            _mockEventService.Setup(s => s.DeleteEventAsync(eventId))
+                             .ReturnsAsync(true);
+
+            // Act
+            var result = await _eventController.DeleteEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "The event was successfully deleted." });
+        }
+
+        [Fact]
+        public async Task DeleteEvent_ShouldReturnNotFound_WhenEventDoesNotExist()
+        {
+            // Arrange
+            int eventId = 99;
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("currentUserId");
+            _mockEventService.Setup(s => s.DeleteEventAsync(eventId))
+                             .ReturnsAsync(false);
+
+            // Act
+            var result = await _eventController.DeleteEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFound = result as NotFoundObjectResult;
+            notFound.Value.Should().BeEquivalentTo(new { message = "The event does not exist." });
+        }
+
+        [Fact]
+        public async Task DeleteEvent_ShouldReturnUnauthorized_WhenUserDoesNotOwnEvent()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ReturnsAsync("anotherUserId");
+
+            // Act
+            var result = await _eventController.DeleteEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorized = result as UnauthorizedObjectResult;
+            unauthorized.Value.Should().BeEquivalentTo(new { message = "You are not authorized to delete this event." });
+        }
+
+        [Fact]
+        public async Task DeleteEvent_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.GetEventOwnerId(eventId))
+                             .ThrowsAsync(new Exception("Error"));
+
+            // Act
+            var result = await _eventController.DeleteEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Error" });
+        }
+
+        [Fact]
+        public async Task JoinToEvent_ShouldReturnJoinedMessage_WhenUserJoins()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.ToggleAttendToEventAsync(eventId, "currentUserId"))
+                             .ReturnsAsync(true);
+
+            // Act
+            var result = await _eventController.JoinToEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Successfully joined the event." });
+        }
+
+        [Fact]
+        public async Task JoinToEvent_ShouldReturnLeftMessage_WhenUserLeaves()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.ToggleAttendToEventAsync(eventId, "currentUserId"))
+                             .ReturnsAsync(false);
+
+            // Act
+            var result = await _eventController.JoinToEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Successfully left the event." });
+        }
+
+        [Fact]
+        public async Task JoinToEvent_ShouldReturnBadRequest_OnArgumentException()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.ToggleAttendToEventAsync(eventId, "currentUserId"))
+                             .ThrowsAsync(new ArgumentException("Invalid event ID"));
+
+            // Act
+            var result = await _eventController.JoinToEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Invalid event ID" });
+        }
+
+        [Fact]
+        public async Task JoinToEvent_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            int eventId = 1;
+            _mockEventService.Setup(s => s.ToggleAttendToEventAsync(eventId, "currentUserId"))
+                             .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _eventController.JoinToEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objResult = result as ObjectResult;
+            objResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Unexpected error" });
+        }
+
+        [Fact]
+        public async Task GetAllRequirements_ShouldReturnOk_WithPaginatedRequirements()
+        {
+            // Arrange
+            int pageNumber = 1;
+            int pageSize = 10;
+            var requirementsResponse = new PaginatedResponseDTO<RequirementDTO>
+            {
+                Items = new List<RequirementDTO>
                 {
-                    new ParticipantDto {FirstName = "John", LastName = "Doe", UserName = "user1", UserId = userId.ToString()} // Add the user as a participant
+                    new RequirementDTO { Id = 1, Name = "Requirement 1" },
+                    new RequirementDTO { Id = 2, Name = "Requirement 2" }
                 },
-                Requirements = new List<RequirementDto>() // Add requirements if needed
+                TotalCount = 2,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
 
-            // Mock the service methods
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)).ReturnsAsync(eventDto); // Mock event retrieval
-            _mockEventService.Setup(s => s.LeaveEventAsync(eventId, userId.ToString())).ReturnsAsync(true); // Ensure user can leave
-            _mockEventService.Setup(s => s.GetEventByIdAsync(eventId)) // Mock the event retrieval again after the user leaves
-                .ReturnsAsync(() =>
-                {
-                    // Create a new event DTO where the user is no longer a participant
-                    var updatedEventDto = new EventDto
-                    {
-                        Title = eventDto.Title,
-                        BodyText = eventDto.BodyText,
-                        Date = eventDto.Date,
-                        CreatedAt = eventDto.CreatedAt,
-                        CreatorUserName = eventDto.CreatorUserName,
-                        Address = eventDto.Address,
-                        Participants = new List<ParticipantDto>(), // User is removed from participants
-                        Requirements = eventDto.Requirements
-                    };
-                    return updatedEventDto;
-                });
-
-            // Mock an authenticated user (user with ID 1) and include the Role claim
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Simulate an authenticated user with ID 1
-                new Claim(ClaimTypes.Role, "User") // Simulate the user's role (adjust to whatever role is required)
-            }, "mock", ClaimTypes.NameIdentifier, ClaimTypes.Role));
-
-            _controller.ControllerContext.HttpContext = new DefaultHttpContext
-            {
-                User = user
-            };
+            _mockEventService.Setup(s => s.GetAllRequirementsAsync(pageNumber, pageSize))
+                             .ReturnsAsync(requirementsResponse);
 
             // Act
-            var result = await _controller.LeaveEvent(eventId);
+            var result = await _eventController.GetAllRequirements(pageNumber, pageSize);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal("Successfully left the event.", okResult.Value);
-
-            // Ensure the user is removed from the participants list in the mock event
-            var updatedEvent = (await _mockEventService.Object.GetEventByIdAsync(eventId)).Participants;
-            Assert.DoesNotContain(updatedEvent, p => p.UserId == userId.ToString()); // User should no longer be in the list
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(requirementsResponse);
         }
 
-
-
-
-        // Test GetAllRequirements endpoint
         [Fact]
-        public async Task GetAllRequirements_ShouldReturnOk_WhenValidDataIsReturned()
+        public async Task GetAllRequirements_ShouldReturnBadRequest_WhenPageOrSizeInvalid()
         {
             // Arrange
-            var paginatedRequirements = new PaginatedResponseDTO<RequirementDto>
-            {
-                Items = new[] { new RequirementDto() },
-                TotalCount = 1
-            };
-            _mockEventService.Setup(s => s.GetAllRequirementsAsync(1, 10)).ReturnsAsync(paginatedRequirements);
+            int pageNumber = 0;
+            int pageSize = 10;
 
             // Act
-            var result = await _controller.GetAllRequirements(1, 10);
+            var result = await _eventController.GetAllRequirements(pageNumber, pageSize);
 
             // Assert
-            var actionResult = Assert.IsType<ActionResult<PaginatedResponseDTO<RequirementDto>>>(result);
-            var okResult = actionResult.Result as OkObjectResult;
-            Assert.NotNull(okResult);
-            Assert.Equal(paginatedRequirements, okResult.Value);
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
         }
 
+        [Fact]
+        public async Task GetEventParticipants_ShouldReturnOk_WithParticipants()
+        {
+            // Arrange
+            int eventId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            var participantsResponse = new PaginatedResponseDTO<ParticipantDTO>
+            {
+                Items = new List<ParticipantDTO>
+                {
+                    new ParticipantDTO { UserId = "user1", UserName = "User One" },
+                    new ParticipantDTO { UserId = "user2", UserName = "User Two" }
+                },
+                TotalCount = 2,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize))
+                             .ReturnsAsync(participantsResponse);
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(participantsResponse);
+        }
+
+        [Fact]
+        public async Task GetEventParticipants_ShouldReturnBadRequest_WhenInvalidPageOrSize()
+        {
+            // Arrange
+            int eventId = 1;
+            int pageNumber = 0;
+            int pageSize = 10;
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
+        }
+
+        [Fact]
+        public async Task GetDistrictsByCityId_ShouldReturnOk_WithDistricts()
+        {
+            // Arrange
+            int cityId = 1;
+            var districts = new List<DistrictDTO>
+            {
+                new DistrictDTO { Id = 1, Name = "District 1", PostCode = 1000 },
+                new DistrictDTO { Id = 2, Name = "District 2", PostCode = 2000 }
+            };
+
+            _mockEventService.Setup(s => s.GetDistrictsByCityIdAsync(cityId))
+                             .ReturnsAsync(districts);
+
+            // Act
+            var result = await _eventController.GetDistrictsByCityId(cityId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(districts);
+        }
+
+        [Fact]
+        public async Task GetCityByDistrictId_ShouldReturnOk_WhenCityFound()
+        {
+            // Arrange
+            int districtId = 1;
+            var city = new CityDTO { Id = 10, Name = "City Name" };
+            _mockEventService.Setup(s => s.GetCityByDistrictIdAsync(districtId))
+                             .ReturnsAsync(city);
+
+            // Act
+            var result = await _eventController.GetCityByDistrictId(districtId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(city);
+        }
+
+        [Fact]
+        public async Task GetCityByDistrictId_ShouldReturnNotFound_WhenCityNotFound()
+        {
+            // Arrange
+            int districtId = 99;
+            _mockEventService.Setup(s => s.GetCityByDistrictIdAsync(districtId))
+                             .ReturnsAsync((CityDTO)null);
+
+            // Act
+            var result = await _eventController.GetCityByDistrictId(districtId);
+
+            // Assert
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "City not found for the given district." });
+        }
+
+        [Fact]
+        public async Task GetCountryByCityId_ShouldReturnOk_WhenCountryFound()
+        {
+            // Arrange
+            int cityId = 1;
+            var country = new CountryDTO { Id = 100, Name = "Country Name" };
+            _mockEventService.Setup(s => s.GetCountryByCityIdAsync(cityId))
+                             .ReturnsAsync(country);
+
+            // Act
+            var result = await _eventController.GetCountryByCityId(cityId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(country);
+        }
+
+        [Fact]
+        public async Task GetCountryByCityId_ShouldReturnNotFound_WhenCountryNotFound()
+        {
+            // Arrange
+            int cityId = 99;
+            _mockEventService.Setup(s => s.GetCountryByCityIdAsync(cityId))
+                             .ReturnsAsync((CountryDTO)null);
+
+            // Act
+            var result = await _eventController.GetCountryByCityId(cityId);
+
+            // Assert
+            result.Should().BeOfType<NotFoundObjectResult>();
+            var notFoundResult = result as NotFoundObjectResult;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "Country not found for the given city." });
+        }
+
+        [Fact]
+        public async Task GetAllCountries_ShouldReturnOk_WhenCountriesFound()
+        {
+            // Arrange
+            var countries = new List<CountryDTO>
+            {
+                new CountryDTO { Id = 1, Name = "Country1" },
+                new CountryDTO { Id = 2, Name = "Country2" }
+            };
+
+            _mockEventService.Setup(s => s.GetAllCountriesAsync())
+                             .ReturnsAsync(countries);
+
+            // Act
+            var result = await _eventController.GetAllCountries();
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(countries);
+        }
+
+        [Fact]
+        public async Task GetCitiesByCountryId_ShouldReturnOk_WhenCitiesFound()
+        {
+            // Arrange
+            int countryId = 1;
+            var cities = new List<CityDTO>
+            {
+                new CityDTO { Id = 10, Name = "City1" },
+                new CityDTO { Id = 11, Name = "City2" }
+            };
+
+            _mockEventService.Setup(s => s.GetCitiesByCountryIdAsync(countryId))
+                             .ReturnsAsync(cities);
+
+            // Act
+            var result = await _eventController.GetCitiesByCountryId(countryId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(cities);
+        }
+
+        [Fact]
+        public async Task GetDistrictsByCityId_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            int cityId = 1;
+            _mockEventService.Setup(s => s.GetDistrictsByCityIdAsync(cityId))
+                             .ThrowsAsync(new Exception("Error"));
+
+            // Act
+            var result = await _eventController.GetDistrictsByCityId(cityId);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Error" });
+        }
     }
 }

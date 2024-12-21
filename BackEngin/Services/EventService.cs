@@ -195,12 +195,14 @@ namespace BackEngin.Services
         public async Task<EventDTO?> UpdateEventAsync(int eventId, UpdateEventDTO updateEventDto)
         {
             // Fetch the event by its ID
-            var eventEntity = _unitOfWork.Events.FindAsync(r => r.Id == eventId, includeProperties: "Creator,Address").Result.First();
+            var eventQuery = await _unitOfWork.Events.FindAsync(r => r.Id == eventId, includeProperties: "Creator,Address");
 
-            if (eventEntity == null)
+            if (eventQuery.Count() == 0)
             {
                 throw new Exception("The specified event does not exist.");
             }
+
+            var eventEntity = eventQuery.First();
 
             // Validate the district exists (use DistrictId from the DTO)
             var district = await _unitOfWork.Districts.GetByIdAsync(updateEventDto.DistrictId);
