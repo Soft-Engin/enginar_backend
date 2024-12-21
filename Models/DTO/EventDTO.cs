@@ -15,7 +15,6 @@ namespace Models.DTO
         public DateTime CreatedAt { get; set; }
         public string CreatorUserName { get; set; } // Username of the creator
         public Addresses Address { get; set; } // Address details
-        public List<ParticipantDto> Participants { get; set; }
         public int TotalParticipantsCount { get; set; }
 
         public List<RequirementDto> Requirements { get; set; } // List of requirements for the event
@@ -25,7 +24,7 @@ namespace Models.DTO
 
     public class UpdateEventDto
     {
-        
+
         public string Title { get; set; }
         public string BodyText { get; set; }
         public DateTime Date { get; set; }
@@ -66,12 +65,8 @@ namespace Models.DTO
 
     public class ParticipantDto
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public string Role { get; set; }
-        public int RoleId { get; set; }
     }
 
 
