@@ -32,7 +32,7 @@ namespace BackEngin.Controllers
             {
                 if (page <= 0 || pageSize <= 0)
                 {
-                    return BadRequest("Page and pageSize must be positive integers.");
+                    return BadRequest( new { message = "Page and pageSize must be positive integers." });
                 }
 
                 var users = await _userService.GetAllUsersAsync(page, pageSize);
@@ -96,7 +96,7 @@ namespace BackEngin.Controllers
             var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
             if (updatedUser == null)
             {
-                return NotFound(new { Message = "Update failed! Credentials are either not valid or already in use by another user." });
+                return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
             }
 
             return Ok(updatedUser);
@@ -115,7 +115,7 @@ namespace BackEngin.Controllers
             var result = await _userService.DeleteUserAsync(id);
             if (!result)
             {
-                return NotFound(new { Message = "User not found." });
+                return NotFound(new { message = "User not found." });
             }
 
             return Ok(new { Message = "User successfully deleted." });
@@ -126,7 +126,7 @@ namespace BackEngin.Controllers
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -136,11 +136,11 @@ namespace BackEngin.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -149,7 +149,7 @@ namespace BackEngin.Controllers
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." }); ;
             }
 
             try
@@ -159,11 +159,11 @@ namespace BackEngin.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -184,18 +184,18 @@ namespace BackEngin.Controllers
 
                 if (!result)
                 {
-                    return BadRequest(new { Message = "Unable to follow user. Perhaps you already follow them." });
+                    return BadRequest(new { message = "Unable to follow user. Perhaps you already follow them." });
                 }
 
-                return Ok(new { Message = "Successfully followed user." });
+                return Ok(new { message = "Successfully followed user." });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -212,9 +212,9 @@ namespace BackEngin.Controllers
 
             var result = await _userService.UnfollowUserAsync(userId, targetUserId);
             if (!result)
-                return BadRequest(new { Message = "Unable to unfollow user.Perhaps you don't follow them." });
+                return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
 
-            return Ok(new { Message = "Successfully unfollowed user." });
+            return Ok(new { message = "Successfully unfollowed user." });
         }
 
         [HttpGet("{userId}/likes/recipes")]
@@ -228,7 +228,7 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -237,22 +237,22 @@ namespace BackEngin.Controllers
 
                 if (likedRecipes == null || !likedRecipes.Items.Any())
                 {
-                    return NotFound("No liked blogs found for the given user.");
+                    return NotFound(new { message = "No liked blogs found for the given user." });
                 }
 
                 return Ok(likedRecipes);
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -268,14 +268,14 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
 
-            if (bookmarks == null)
+            if (bookmarks == null || !bookmarks.Items.Any())
             {
-                return NotFound("User does not exist");
+                return NotFound(new { message = "No bookmarked blogs found for the given user." });
             }
 
             return Ok(bookmarks);
@@ -292,7 +292,7 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -301,22 +301,22 @@ namespace BackEngin.Controllers
 
                 if (likedBlogs == null || !likedBlogs.Items.Any())
                 {
-                    return NotFound("No liked blogs found for the given user.");
+                    return NotFound(new { message = "No liked blogs found for the given user." });
                 }
 
                 return Ok(likedBlogs);
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -333,33 +333,33 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
             {
                 var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
 
-                if (bookmarkedBlogs == null)
+                if (bookmarkedBlogs == null || !bookmarkedBlogs.Items.Any())
                 {
-                    return NotFound("User does not exist");
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." }); 
                 }
 
                 return Ok(bookmarkedBlogs);
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
 
             
@@ -370,7 +370,7 @@ namespace BackEngin.Controllers
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest(new { Message = "Page and pageSize must be positive integers." });
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -379,24 +379,24 @@ namespace BackEngin.Controllers
 
                 if (result == null || !result.Items.Any())
                 {
-                    return NotFound("No recipes found for the given user.");
+                    return NotFound(new { message = "No recipes found for the given user." });
                 }
 
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -407,7 +407,7 @@ namespace BackEngin.Controllers
 
             if (pageNumber <= 0 || pageSize <= 0)
             {
-                return BadRequest(new { Message = "Page number and page size must be greater than zero." });
+                return BadRequest(new { message = "Page number and page size must be greater than zero." });
             }
 
             try
@@ -416,18 +416,18 @@ namespace BackEngin.Controllers
 
                 if (result == null || !result.Items.Any())
                 {
-                    return NotFound(new { Message = "No blogs found for the given user." });
+                    return NotFound(new { message = "No blogs found for the given user." });
                 }
 
                 return Ok(result);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -437,7 +437,7 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest(new { Message = "Page and pageSize must be positive integers." });
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -446,24 +446,24 @@ namespace BackEngin.Controllers
 
                 if (result == null || !result.Items.Any())
                 {
-                    return NotFound("No events found for the given user.");
+                    return NotFound(new { message = "No events found for the given user." });
                 }
 
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
 
             catch (ArgumentException ex)
             {
-                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
             }
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
