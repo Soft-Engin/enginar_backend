@@ -15,7 +15,6 @@ namespace DataAccess.Repositories
         public Events_RequriementsRepository(DataContext db) : base(db)
         {
             _db = db;
-
         }
     }
 }

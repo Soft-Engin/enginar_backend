@@ -14,7 +14,7 @@ namespace Models
         public int Id { get; set; }
 
         [Required]
-        public int CreatorId { get; set; }
+        public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public Users Creator { get; set; }
 
@@ -25,6 +25,9 @@ namespace Models
 
         [Required]
         public DateTime Date { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         [Required]
         public string Title { get; set; }

@@ -231,34 +231,197 @@ namespace BackEngin.Services
         {
             return await _unitOfWork.Users.UnfollowUserAsync(initiatorUserId, targetUserId);
         }
+
         public async Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize)
         {
-            // Probably not most efficient way to validate targetUserId
-            // but i dont care
-            var user = await _userManager.FindByIdAsync(userId);
+            // Step 1: Fetch the bookmarked recipe IDs for the given user from the Recipe_Bookmarks table
+            var bookmarkedRecipeIds = (await _unitOfWork.Recipe_Bookmarks.FindAsync(rb => rb.UserId == userId))
+                .Select(rb => rb.RecipeId)
+                .ToList();
 
-            if (user == null)
+            if (!bookmarkedRecipeIds.Any())
             {
-                return null;
+                return new PaginatedResponseDTO<BookmarkRecipesItemDTO>
+                {
+                    Items = new List<BookmarkRecipesItemDTO>(),
+                    TotalCount = 0,
+                    PageNumber = page,
+                    PageSize = pageSize
+                };
             }
 
-            return await _unitOfWork.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize);
+            // Step 2: Fetch the recipes with the matching IDs from the Recipes table
+            var recipesQuery = (await _unitOfWork.Recipes.FindAsync(r => bookmarkedRecipeIds.Contains(r.Id))).AsQueryable();
+
+            // Calculate total count and apply pagination
+            var totalCount = recipesQuery.Count();
+            var paginatedRecipes = recipesQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Step 3: Map the data to BookmarkRecipesItemDTO
+            var recipeDtos = paginatedRecipes.Select(r => new BookmarkRecipesItemDTO
+            {
+                UserName = r.User?.UserName ?? "Unknown",
+                Header = r.Header,
+                BodyText = r.BodyText
+            }).ToList();
+
+            // Step 4: Return the paginated response
+            return new PaginatedResponseDTO<BookmarkRecipesItemDTO>
+            {
+                Items = recipeDtos,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
+
+
+        public async Task<PaginatedResponseDTO<LikedRecipesItemDTO>> GetLikedRecipesAsync(string userId, int page, int pageSize)
+        {
+            // Step 1: Fetch the liked recipe IDs for the given user from the Recipe_Likes table
+            var likedRecipeIds = (await _unitOfWork.Recipe_Likes.FindAsync(bl => bl.UserId == userId))
+                .Select(bl => bl.RecipeId)
+                .ToList();
+
+            if (!likedRecipeIds.Any())
+            {
+                return new PaginatedResponseDTO<LikedRecipesItemDTO>
+                {
+                    Items = new List<LikedRecipesItemDTO>(),
+                    TotalCount = 0,
+                    PageNumber = page,
+                    PageSize = pageSize
+                };
+            }
+
+            // Step 2: Fetch the recipes with the matching IDs from the Recipes table
+            var recipesQuery = (await _unitOfWork.Recipes.FindAsync(b => likedRecipeIds.Contains(b.Id))).AsQueryable();
+
+            // Calculate total count and apply pagination
+            var totalCount = recipesQuery.Count();
+            var paginatedRecipes = recipesQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Step 3: Map the data to LikedRecipesItemDTO
+            var recipeDtos = paginatedRecipes.Select(b => new LikedRecipesItemDTO
+            {
+                UserName = b.User?.UserName ?? "Unknown",
+                Header = b.Header,
+                BodyText = b.BodyText
+            }).ToList();
+
+            // Step 4: Return the paginated response
+            return new PaginatedResponseDTO<LikedRecipesItemDTO>
+            {
+                Items = recipeDtos,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
 
 
         public async Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
         {
-            // Probably not most efficient way to validate targetUserId
-            // but i dont care
-            var user = await _userManager.FindByIdAsync(userId);
+            // Step 1: Fetch the bookmarked blog IDs for the given user from the Blog_Bookmarks table
+            var bookmarkedBlogIds = (await _unitOfWork.Blog_Bookmarks.FindAsync(bb => bb.UserId == userId))
+                .Select(bb => bb.BlogId)
+                .ToList();
 
-            if (user == null)
+            if (!bookmarkedBlogIds.Any())
             {
-                return null;
+                return new PaginatedResponseDTO<BookmarkBlogsItemDTO>
+                {
+                    Items = new List<BookmarkBlogsItemDTO>(),
+                    TotalCount = 0,
+                    PageNumber = page,
+                    PageSize = pageSize
+                };
             }
 
-            return await _unitOfWork.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize);
+            // Step 2: Fetch the blogs with the matching IDs from the Blogs table
+            var blogsQuery = (await _unitOfWork.Blogs.FindAsync(b => bookmarkedBlogIds.Contains(b.Id))).AsQueryable();
+
+            // Calculate total count and apply pagination
+            var totalCount = blogsQuery.Count();
+            var paginatedBlogs = blogsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Step 3: Map the data to BookmarkBlogsItemDTO
+            var blogDtos = paginatedBlogs.Select(b => new BookmarkBlogsItemDTO
+            {
+                UserName = b.User?.UserName ?? "Unknown",
+                Header = b.Header,
+                BodyText = b.BodyText
+            }).ToList();
+
+            // Step 4: Return the paginated response
+            return new PaginatedResponseDTO<BookmarkBlogsItemDTO>
+            {
+                Items = blogDtos,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
+
+        public async Task<PaginatedResponseDTO<LikedBlogsItemDTO>> GetLikedBlogsAsync(string userId, int page, int pageSize)
+        {
+            // Step 1: Fetch the liked blog IDs for the given user from the Blog_Likes table
+            var likedBlogIds = (await _unitOfWork.Blog_Likes.FindAsync(bl => bl.UserId == userId))
+                .Select(bl => bl.BlogId)
+                .ToList();
+
+            if (!likedBlogIds.Any())
+            {
+                return new PaginatedResponseDTO<LikedBlogsItemDTO>
+                {
+                    Items = new List<LikedBlogsItemDTO>(),
+                    TotalCount = 0,
+                    PageNumber = page,
+                    PageSize = pageSize
+                };
+            }
+
+            // Step 2: Fetch the blogs with the matching IDs from the Blogs table
+            var blogsQuery = (await _unitOfWork.Blogs.FindAsync(b => likedBlogIds.Contains(b.Id))).AsQueryable();
+
+            // Calculate total count and apply pagination
+            var totalCount = blogsQuery.Count();
+            var paginatedBlogs = blogsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Step 3: Map the data to LikedBlogsItemDTO
+            var blogDtos = paginatedBlogs.Select(b => new LikedBlogsItemDTO
+            {
+                UserName = b.User?.UserName ?? "Unknown",
+                Header = b.Header,
+                BodyText = b.BodyText
+            }).ToList();
+
+            // Step 4: Return the paginated response
+            return new PaginatedResponseDTO<LikedBlogsItemDTO>
+            {
+                Items = blogDtos,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
+
+
+
 
         public async Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize)
         {
@@ -323,5 +486,173 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<PaginatedResponseDTO<RecipeDTO>> GetUserRecipesAsync(string userId, int pageNumber, int pageSize)
+        {
+            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedAsync(
+                filter: r => r.UserId == userId,
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            if (!recipes.Any())
+            {
+                return new PaginatedResponseDTO<RecipeDTO>
+                {
+                    Items = new List<RecipeDTO>(),
+                    TotalCount = 0,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+
+            var relatedUser = await GetUserByIdAsync(userId);
+
+            if (relatedUser == null)
+            {
+                throw new ArgumentException();
+            }
+
+            var recipeDtos = recipes.Select(r => new RecipeDTO
+            {
+                Id = r.Id,
+                Header = r.Header,
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = relatedUser.UserName, 
+                Image = r.Image,
+                CreatedAt = r.CreatedAt,
+                PreparationTime = r.PreparationTime,
+                ServingSize = r.ServingSize,
+            }).ToList();
+
+            return new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = recipeDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PaginatedResponseDTO<BlogDTO>> GetUserBlogsAsync(string userId, int pageNumber, int pageSize)
+        {
+            var (blogs, totalCount) = await _unitOfWork.Blogs.GetPaginatedAsync(
+                filter: b => b.UserId == userId,
+                includeProperties: "User,Recipe",
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            if (!blogs.Any())
+            {
+                return new PaginatedResponseDTO<BlogDTO>
+                {
+                    Items = new List<BlogDTO>(),
+                    TotalCount = 0,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+
+            var relatedUser = await GetUserByIdAsync(userId);
+
+            if (relatedUser == null)
+            {
+                throw new ArgumentException();
+            }
+
+            var blogDtos = blogs.Select(b => new BlogDTO
+            {
+                Id = b.Id,
+                Header = b.Header,
+                BodyText = b.BodyText,
+                UserId = b.UserId,
+                UserName = relatedUser.UserName,
+                RecipeId = b.RecipeId,
+                Image = b.Image,
+                CreatedAt = b.CreatedAt
+            }).ToList();
+
+            return new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = blogDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PaginatedResponseDTO<EventDTO>> GetUserEventsAsync(string userId, int page, int pageSize)
+        {
+            // Step 1: Fetch the events created by the user
+            var (items, totalCount) = await _unitOfWork.Events.GetPaginatedAsync(
+                filter: e => e.CreatorId == userId,
+                includeProperties: "Creator,Address,Address.District,Address.District.City,Address.District.City.Country",
+                pageNumber: page,
+                pageSize: pageSize
+            );
+
+            // Step 2: Map events to EventDTO directly inside the method
+            var events = items.Select(e =>
+            {
+                // Ensure related entities are populated
+                if (e.Creator == null)
+                {
+                    e.Creator = _unitOfWork.Users.FindAsync(u => u.Id == e.CreatorId).Result.First();
+                }
+                if (e.Address == null)
+                {
+                    e.Address = _unitOfWork.Addresses.FindAsync(u => u.Id == e.AddressId).Result.First();
+                }
+                if (e.Address.District == null)
+                {
+                    e.Address.District = _unitOfWork.Districts.FindAsync(u => u.Id == e.Address.DistrictId).Result.First();
+                }
+                if (e.Address.District.City == null)
+                {
+                    e.Address.District.City = _unitOfWork.Cities.FindAsync(u => u.Id == e.Address.District.CityId).Result.First();
+                }
+                if (e.Address.District.City.Country == null)
+                {
+                    e.Address.District.City.Country = _unitOfWork.Countries.FindAsync(u => u.Id == e.Address.District.City.CountryId).Result.First();
+                }
+
+                return new EventDTO
+                {
+                    Title = e.Title,
+                    Date = e.Date,
+                    EventId = e.Id,
+                    BodyText = e.BodyText,
+                    CreatorUserName = e.Creator?.UserName ?? "Unknown",
+                    CreatorId = e.CreatorId,
+                    Address = e.Address,
+                    CreatedAt = e.CreatedAt,
+                    Requirements = _unitOfWork.Events_Requirements
+                        .FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement")
+                        .Result
+                        .Select(er => new RequirementDTO
+                        {
+                            Id = er.Requirement.Id,
+                            Name = er.Requirement.Name,
+                            Description = er.Requirement.Description
+                        })
+                        .ToList(),
+                    TotalParticipantsCount = _unitOfWork.User_Event_Participations.CountAsync(r => r.EventId == e.Id).Result
+                };
+            }).ToList();
+
+            // Step 3: Return paginated response
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = events,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
+
+
     }
 }

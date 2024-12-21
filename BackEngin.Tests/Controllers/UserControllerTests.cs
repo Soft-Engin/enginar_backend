@@ -309,7 +309,7 @@ namespace BackEngin.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            okResult.Value.Should().BeEquivalentTo(new { Message = "Successfully followed user." });
+            okResult.Value.Should().BeEquivalentTo(new { message = "Successfully followed user." });
         }
 
         [Fact]
@@ -330,7 +330,7 @@ namespace BackEngin.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            okResult.Value.Should().BeEquivalentTo(new { Message = "Successfully unfollowed user." });
+            okResult.Value.Should().BeEquivalentTo(new { message = "Successfully unfollowed user." });
         }
 
 

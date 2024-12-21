@@ -6,15 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Models.DTO;
 
 namespace DataAccess.Repositories
 {
-    public class Users_Blogs_InteractionsRepository : Repository<Users_Blogs_Interaction>, IUsers_Blogs_InteractionsRepository
+    public class User_Event_ParticipationsRepository : Repository<User_Event_Participations>, IUser_Event_ParticipationsRepository
     {
         private readonly DataContext _db;
-        public Users_Blogs_InteractionsRepository(DataContext db) : base(db)
+        public User_Event_ParticipationsRepository(DataContext db) : base(db)
         {
             _db = db;
 

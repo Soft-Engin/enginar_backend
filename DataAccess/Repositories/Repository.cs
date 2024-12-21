@@ -113,6 +113,12 @@ namespace DataAccess.Repositories
             await _dbSet.AddAsync(entity);
         }
 
+
+        public async Task AddRangeAsync(IEnumerable<T> eventsRequirements)
+        {
+            await _dbSet.AddRangeAsync(eventsRequirements);
+        }
+
         public void Update(T entity)
         {
             _dbSet.Update(entity);
@@ -132,6 +138,23 @@ namespace DataAccess.Repositories
         {
             return _dbSet.AsQueryable();
         }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, string includeProperties = "")
+{
+    IQueryable<T> query = _dbSet;
+
+    // Add eager loading for included properties
+    if (!string.IsNullOrEmpty(includeProperties))
+    {
+        foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(includeProperty.Trim());
+        }
+    }
+
+    query = query.Where(predicate);
+    return await query.ToListAsync();
+}
 
     }
 }
