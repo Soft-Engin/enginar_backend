@@ -323,6 +323,17 @@ namespace BackEngin.Services
             return recipe.BannerImage;
         }
 
+        public async Task<byte[]?> GetRecipeStepImage(int recipeId, int stepIndex)
+        {
+            var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            if (recipe == null || recipe.StepImages == null) return null;
+
+            // Check if stepIndex is within bounds
+            if (stepIndex < 0 || stepIndex >= recipe.StepImages.Length) return null;
+
+            return recipe.StepImages[stepIndex];
+        }
+
         private async Task<bool> IngredientCheck(List<RecipeIngredientRequestDTO> Ingredients)
         {
             // Check if ingredients are provided

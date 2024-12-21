@@ -139,6 +139,24 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("{recipeId}/steps/{stepIndex}/image")]
+        public async Task<IActionResult> GetRecipeStepImage(int recipeId, int stepIndex)
+        {
+            try
+            {
+                var image = await _recipeService.GetRecipeStepImage(recipeId, stepIndex);
+                if (image == null) 
+                    return NotFound(new { message = $"No image found for step {stepIndex} of recipe {recipeId}." });
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
         // PUT /recipes/{recipeId}
         [HttpPut("{recipeId}")]
         [Authorize]
