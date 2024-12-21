@@ -26,7 +26,7 @@ namespace Models.InteractionModels
         [MaxLength(500)]
         public string? CommentText { get; set; }
 
-        public byte[]? ImageBlob { get; set; }
+        public byte[][]? Images { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

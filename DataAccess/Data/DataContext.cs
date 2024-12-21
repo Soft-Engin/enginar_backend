@@ -26,9 +26,7 @@ namespace BackEngin.Data
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
-
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
-
         public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
         public DbSet<Blog_Comments> Blog_Comments { get; set; }
         public DbSet<Blog_Likes> Blog_Likes { get; set; }

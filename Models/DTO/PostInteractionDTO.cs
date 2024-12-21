@@ -10,7 +10,7 @@ namespace Models.DTO
     public class CommentRequestDTO
     {
         public string? Text { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[][]? Images { get; set; }
     };
 
     public class CommentDTO
@@ -18,8 +18,16 @@ namespace Models.DTO
         public int Id { get; set; }
         public int Recipe_blog_id { get; set; }
         public string? Text { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[][]? Images { get; set; }
         public DateTime Timestamp { get; set; }
     };
+
+    public class  CommentImagesDTO
+    {
+        public int CommentId { get; set; }
+        public byte[][]? Images { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+    }
 
 }

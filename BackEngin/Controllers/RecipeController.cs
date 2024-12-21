@@ -76,7 +76,8 @@ namespace BackEngin.Controllers
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
                     Ingredients = recipeDto.Ingredients,
-                    Image = recipeDto.Image,
+                    BannerImage = recipeDto.BannerImage,
+                    StepImages = recipeDto.StepImages,
                     ServingSize = recipeDto.ServingSize,
                     PreparationTime = recipeDto.PreparationTime
 

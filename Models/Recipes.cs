@@ -24,7 +24,8 @@ namespace Models
 
         [Required]
         public string BodyText { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[]? BannerImage { get; set; }
+        public byte[][]? StepImages { get; set; }
 
         [Required]
         public int ServingSize { get; set; }

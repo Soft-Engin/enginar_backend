@@ -9,9 +9,23 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public byte[]? Image { get; set; }
+        //public byte[][]? Images { get; set; }
         public int ServingSize { get; set; }
         public int PreparationTime { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class RecipeStepImagesDTO
+    {
+        public int RecipeId { get; set; }
+        public byte[][]? StepImages { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class RecipeImagesDTO
+    {
+        public int RecipeId { get; set; }
+        public byte[]? BannerImage { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -22,7 +36,6 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public byte[]? Image { get; set; }
         public int ServingSize { get; set; }
         public int PreparationTime { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -34,7 +47,8 @@ namespace Models.DTO
     {
         public string Header { get; set; }
         public string BodyText { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[]? BannerImage{ get; set; }
+        public byte[][]? StepImages { get; set; }
         public int ServingSize { get; set; }
         public int PreparationTime { get; set; }
         public List<RecipeIngredientRequestDTO> Ingredients { get; set; }
@@ -52,17 +66,18 @@ namespace Models.DTO
         public string IngredientName { get; set; }
     }
 
-
+    // Used at requesting to create or update a recipe.
+    // So it is logical to get images through here
     public class RecipeRequestDTO
     {
         [Required]
         public string Header { get; set; }
         [Required]
         public string BodyText { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[]? BannerImage { get; set; }
+        public byte[][]? StepImages { get; set; }
         public int ServingSize { get; set; }
         public int PreparationTime { get; set; }
         public List<RecipeIngredientRequestDTO> Ingredients { get; set; }
-
     }
 }
