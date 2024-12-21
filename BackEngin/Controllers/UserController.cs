@@ -57,6 +57,11 @@ namespace BackEngin.Controllers
                 }
                 return Ok(user);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -68,13 +73,21 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var id = await GetActiveUserId();
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var id = await GetActiveUserId();
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
         }
 
 
@@ -93,13 +106,28 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
-            if (updatedUser == null)
+            try
             {
-                return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
+                var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
+                if (updatedUser == null)
+                {
+                    return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
+                }
+
+                return Ok(updatedUser);
             }
 
-            return Ok(updatedUser);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+
         }
 
         // Delete a user
@@ -112,13 +140,30 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
+            try
             {
-                return NotFound(new { message = "User not found." });
+                var result = await _userService.DeleteUserAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+
+                return Ok(new { Message = "User successfully deleted." });
+
             }
 
-            return Ok(new { Message = "User successfully deleted." });
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+
         }
 
         [HttpGet("{userId}/followers")]
@@ -138,6 +183,11 @@ namespace BackEngin.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -161,6 +211,12 @@ namespace BackEngin.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -193,6 +249,11 @@ namespace BackEngin.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
@@ -210,11 +271,30 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.UnfollowUserAsync(userId, targetUserId);
-            if (!result)
-                return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
+            try
+            {
+                var result = await _userService.UnfollowUserAsync(userId, targetUserId);
+                if (!result)
+                    return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
 
-            return Ok(new { message = "Successfully unfollowed user." });
+                return Ok(new { message = "Successfully unfollowed user." });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
         }
 
         [HttpGet("{userId}/likes/recipes")]
@@ -271,14 +351,28 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
-            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
-
-            if (bookmarks == null || !bookmarks.Items.Any())
+            try
             {
-                return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+                if (bookmarks == null || !bookmarks.Items.Any())
+                {
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                }
+
+                return Ok(bookmarks);
             }
 
-            return Ok(bookmarks);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", Details = ex.Message });
+            }
+
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpGet("{userId}/likes/blogs")]
