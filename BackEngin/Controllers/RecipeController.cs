@@ -121,6 +121,24 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("{recipeId}/banner")]
+        public async Task<IActionResult> GetRecipeBanner(int recipeId)
+        {
+            try
+            {
+                var image = await _recipeService.GetRecipeBannerImage(recipeId);
+                if (image == null) 
+                    return NotFound(new { message = "No banner image found for this recipe." });
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
         // PUT /recipes/{recipeId}
         [HttpPut("{recipeId}")]
         [Authorize]

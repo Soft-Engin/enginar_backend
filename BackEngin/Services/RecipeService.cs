@@ -315,6 +315,14 @@ namespace BackEngin.Services
             return recipe.UserId;
         }
 
+        public async Task<byte[]?> GetRecipeBannerImage(int recipeId)
+        {
+            var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            if (recipe == null) return null;
+
+            return recipe.BannerImage;
+        }
+
         private async Task<bool> IngredientCheck(List<RecipeIngredientRequestDTO> Ingredients)
         {
             // Check if ingredients are provided

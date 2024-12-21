@@ -11,5 +11,6 @@ namespace BackEngin.Services.Interfaces
         Task<bool> DeleteRecipe(int recipeId);
         Task<string?> GetOwner(int recipeId);
         Task<PaginatedResponseDTO<RecipeDTO>> SearchRecipes(RecipeSearchParams searchParams, int pageNumber, int pageSize);
+        Task<byte[]?> GetRecipeBannerImage(int recipeId);
     }
 }
