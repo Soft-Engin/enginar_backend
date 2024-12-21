@@ -15,17 +15,6 @@ namespace DataAccess.Repositories
         public Events_RequriementsRepository(DataContext db) : base(db)
         {
             _db = db;
-
-        }
-        public async Task<IEnumerable<Events_Requirements>> FindAllAsync(Func<Events_Requirements, bool> predicate)
-        {
-            return await Task.Run(() => _db.Events_Requirements.Where(predicate).ToList());
-        }
-
-        public async Task AddRangeAsync(IEnumerable<Events_Requirements> eventsRequirements)
-        {
-            await _db.Events_Requirements.AddRangeAsync(eventsRequirements);
-            await _db.SaveChangesAsync();
         }
     }
 }

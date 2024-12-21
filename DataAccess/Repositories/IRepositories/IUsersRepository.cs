@@ -14,6 +14,5 @@ namespace DataAccess.Repositories.IRepositories
         Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize);
         Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId);
         Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
-        Task<List<Users>> FindAllAsync(Func<Users, bool> predicate);
     }
 }
