@@ -69,6 +69,23 @@ namespace Models.DTO
         public string UserName { get; set; }
     }
 
+    public class DistrictDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int PostCode { get; set; }
+    }
 
+    public class CityDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class CountryDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 
 }

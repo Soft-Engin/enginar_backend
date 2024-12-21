@@ -397,5 +397,63 @@ namespace BackEngin.Services
             };
         }
 
+        public async Task<IEnumerable<DistrictDto>> GetDistrictsByCityIdAsync(int cityId)
+        {
+            var districts = await _unitOfWork.Districts.FindAsync(d => d.CityId == cityId, "City");
+            return districts.Select(d => new DistrictDto
+            {
+                Id = d.Id,
+                Name = d.Name,
+                PostCode = d.PostCode
+            });
+        }
+
+        public async Task<IEnumerable<CityDto>> GetCitiesByCountryIdAsync(int countryId)
+        {
+            var cities = await _unitOfWork.Cities.FindAsync(c => c.CountryId == countryId, "Country");
+            return cities.Select(c => new CityDto
+            {
+                Id = c.Id,
+                Name = c.Name
+            });
+        }
+
+        public async Task<IEnumerable<CountryDto>> GetAllCountriesAsync()
+        {
+            var countries = await _unitOfWork.Countries.GetAllAsync();
+            return countries.Select(c => new CountryDto
+            {
+                Id = c.Id,
+                Name = c.Name
+            });
+        }
+
+        public async Task<CityDto> GetCityByDistrictIdAsync(int districtId)
+        {
+            var district = (await _unitOfWork.Districts.FindAsync(d => d.Id == districtId, "City")).FirstOrDefault();
+            if (district?.City == null)
+            {
+                return null;
+            }
+            return new CityDto
+            {
+                Id = district.City.Id,
+                Name = district.City.Name
+            };
+        }
+
+        public async Task<CountryDto> GetCountryByCityIdAsync(int cityId)
+        {
+            var city = (await _unitOfWork.Cities.FindAsync(c => c.Id == cityId, "Country")).FirstOrDefault();
+            if (city?.Country == null)
+            {
+                return null;
+            }
+            return new CountryDto
+            {
+                Id = city.Country.Id,
+                Name = city.Country.Name
+            };
+        }
     }
 }

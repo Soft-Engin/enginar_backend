@@ -213,5 +213,83 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("cities/{cityId}/districts")]
+        public async Task<IActionResult> GetDistrictsByCityId(int cityId)
+        {
+            try
+            {
+                var districts = await _eventService.GetDistrictsByCityIdAsync(cityId);
+                return Ok(districts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("countries/{countryId}/cities")]
+        public async Task<IActionResult> GetCitiesByCountryId(int countryId)
+        {
+            try
+            {
+                var cities = await _eventService.GetCitiesByCountryIdAsync(countryId);
+                return Ok(cities);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("countries")]
+        public async Task<IActionResult> GetAllCountries()
+        {
+            try
+            {
+                var countries = await _eventService.GetAllCountriesAsync();
+                return Ok(countries);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("districts/{districtId}/city")]
+        public async Task<IActionResult> GetCityByDistrictId(int districtId)
+        {
+            try
+            {
+                var city = await _eventService.GetCityByDistrictIdAsync(districtId);
+                if (city == null)
+                {
+                    return NotFound(new { message = "City not found for the given district." });
+                }
+                return Ok(city);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("cities/{cityId}/country")]
+        public async Task<IActionResult> GetCountryByCityId(int cityId)
+        {
+            try
+            {
+                var country = await _eventService.GetCountryByCityIdAsync(cityId);
+                if (country == null)
+                {
+                    return NotFound(new { message = "Country not found for the given city." });
+                }
+                return Ok(country);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
     }
 }
