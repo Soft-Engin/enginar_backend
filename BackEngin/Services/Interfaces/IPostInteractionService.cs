@@ -39,5 +39,9 @@ namespace BackEngin.Services.Interfaces
 
         Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize);
         Task<PaginatedResponseDTO<CommentDTO>> GetRecipeComments(int recipeId, int pageNumber, int pageSize);
+        
+        // Methods for retrieving comment images
+        Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex);
+        Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex);
     }
 }

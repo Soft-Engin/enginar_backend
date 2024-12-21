@@ -18,7 +18,8 @@ namespace Models.DTO
         public int Id { get; set; }
         public int Recipe_blog_id { get; set; }
         public string? Text { get; set; }
-        public byte[][]? Images { get; set; }
+        //public byte[][]? Images { get; set; }
+        public int ImagesCount { get; set; }
         public DateTime Timestamp { get; set; }
     };
 

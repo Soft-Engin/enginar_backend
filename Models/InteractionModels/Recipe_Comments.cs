@@ -27,6 +27,7 @@ namespace Models.InteractionModels
         public string? CommentText { get; set; }
 
         public byte[][]? Images { get; set; }
+        public int ImagesCount { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

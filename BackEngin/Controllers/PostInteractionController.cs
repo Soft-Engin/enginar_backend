@@ -360,6 +360,41 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("blogs/comments/{commentId}/images/{imageIndex}")]
+        public async Task<IActionResult> GetBlogCommentImage(int commentId, int imageIndex)
+        {
+            try
+            {
+                var image = await _interactionService.GetBlogCommentImage(commentId, imageIndex);
+                if (image == null)
+                    return NotFound(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("recipes/comments/{commentId}/images/{imageIndex}")]
+        public async Task<IActionResult> GetRecipeCommentImage(int commentId, int imageIndex)
+        {
+            try
+            {
+                var image = await _interactionService.GetRecipeCommentImage(commentId, imageIndex);
+                if (image == null)
+                    return NotFound(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
 
     }
 
