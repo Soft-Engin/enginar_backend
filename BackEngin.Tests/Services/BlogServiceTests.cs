@@ -578,5 +578,57 @@ namespace BackEngin.Tests.Services
             result.Items.Should().HaveCount(5);
         }
 
+        [Fact]
+        public async Task GetBlogBannerImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var blogId = 1;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var blog = new Blogs { Id = blogId, BannerImage = expectedImage };
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId))
+                .ReturnsAsync(blog);
+
+            // Act
+            var result = await _blogService.GetBlogBannerImage(blogId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Blogs.GetByIdAsync(blogId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogBannerImage_ShouldReturnNull_WhenBlogDoesNotExist()
+        {
+            // Arrange
+            var blogId = 99;
+            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId))
+                .ReturnsAsync((Blogs)null);
+
+            // Act
+            var result = await _blogService.GetBlogBannerImage(blogId);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Blogs.GetByIdAsync(blogId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogBannerImage_ShouldReturnNull_WhenBlogHasNoImage()
+        {
+            // Arrange
+            var blogId = 1;
+            var blog = new Blogs { Id = blogId, BannerImage = null };
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId))
+                .ReturnsAsync(blog);
+
+            // Act
+            var result = await _blogService.GetBlogBannerImage(blogId);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Blogs.GetByIdAsync(blogId), Times.Once);
+        }
     }
 }
