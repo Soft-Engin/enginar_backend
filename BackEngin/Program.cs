@@ -83,6 +83,8 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IIngredientsService, IngredientsService>();
 builder.Services.AddScoped<IIngredientTypesService, IngredientTypesService>();
+builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
+builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IFeedService, FeedService>();
 
 

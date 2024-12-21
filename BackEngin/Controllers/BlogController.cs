@@ -21,8 +21,16 @@ namespace BackEngin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBlogs([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var blogs = await _blogService.GetBlogs(pageNumber, pageSize);
-            return Ok(blogs);
+            try
+            {
+                var blogs = await _blogService.GetBlogs(pageNumber, pageSize);
+                return Ok(blogs);
+            }
+            
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -51,9 +59,17 @@ namespace BackEngin.Controllers
         [HttpGet("{blogId}")]
         public async Task<IActionResult> GetBlogById(int blogId)
         {
-            var blog = await _blogService.GetBlogById(blogId);
-            if (blog == null) return NotFound();
-            return Ok(blog);
+            try
+            {
+                var blog = await _blogService.GetBlogById(blogId);
+                if (blog == null) return NotFound();
+                return Ok(blog);
+            }
+            
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpPut("{blogId}")]
@@ -124,9 +140,16 @@ namespace BackEngin.Controllers
         [HttpGet("{blogId}/recipe")]
         public async Task<IActionResult> GetRecipeOfBlog(int blogId)
         {
-            var recipe = await _blogService.GetRecipeOfBlog(blogId);
-            if (recipe == null) return NotFound("No recipe associated with this blog.");
-            return Ok(recipe);
+            try
+            {
+                var recipe = await _blogService.GetRecipeOfBlog(blogId);
+                if (recipe == null) return NotFound("No recipe associated with this blog.");
+                return Ok(recipe);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpGet("search")]

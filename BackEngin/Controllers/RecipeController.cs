@@ -49,13 +49,37 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Invalid recipe data." });
             }
 
+            if (recipeDto.PreparationTime <= 0)
+            {
+                return BadRequest(new { message = "Preperation time must be greater than 0." });
+            }
+
+            if (recipeDto.ServingSize <= 0)
+            {
+                return BadRequest(new { message = "Serving size must be greater than 0." });
+            }
+
+            if (recipeDto.Ingredients == null || recipeDto.Ingredients.Count == 0)
+            {
+                return BadRequest(new { message = "Recipe must have at least one ingredient." });
+            }
+
+            if (recipeDto.Ingredients.Any(i => i.Quantity <= 0))
+            {
+                return BadRequest(new { message = "Ingredient quantity must be greater than 0." });
+            }
+
             try
             {
                 var recipe = new CreateRecipeDTO
                 {
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
-                    Ingredients = recipeDto.Ingredients
+                    Ingredients = recipeDto.Ingredients,
+                    Image = recipeDto.Image,
+                    ServingSize = recipeDto.ServingSize,
+                    PreparationTime = recipeDto.PreparationTime
+
                 };
 
                 string userId = await GetActiveUserId();

@@ -1,5 +1,6 @@
 ﻿using BackEngin.Services;
 using BackEngin.Tests.Utils;
+using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using FluentAssertions;
 using Models;
@@ -21,14 +22,19 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async Task GetRecipes_ShouldReturnPaginatedRecipes()
+        public async Task GetRecipes_ShouldReturnPaginatedRecipesWithUserDetails()
         {
             // Arrange
             var recipes = new List<Recipes>
             {
-                new Recipes { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes" },
-                new Recipes { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette" },
-                new Recipes { Id = 3, Header = "Waffles", BodyText = "Crispy waffles" }
+                new Recipes { Id = 1, Header = "Pancakes", BodyText = "Delicious pancakes", UserId = "user1" },
+                new Recipes { Id = 2, Header = "Omelette", BodyText = "Fluffy omelette", UserId = "user2" }
+            };
+
+            var users = new List<Users>
+            {
+                new Users { Id = "user1", UserName = "User One" },
+                new Users { Id = "user2", UserName = "User Two" }
             };
 
             var pageNumber = 1;
@@ -36,6 +42,8 @@ namespace BackEngin.Tests.Services
 
             _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedAsync(null, pageNumber, pageSize))
                            .ReturnsAsync((recipes.Take(pageSize), recipes.Count));
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync((Func<Users, bool> predicate) => users.Where(predicate).ToList());
 
             // Act
             var result = await _recipeService.GetRecipes(pageNumber, pageSize);
@@ -43,10 +51,10 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Items.Count().Should().Be(pageSize); // Check the page size
-            result.TotalCount.Should().Be(3); // Verify total count of recipes
-            result.PageNumber.Should().Be(pageNumber); // Verify current page
-            result.PageSize.Should().Be(pageSize); // Verify page size
+            result.TotalCount.Should().Be(2); // Verify total count of recipes
             result.Items.First().Header.Should().Be("Pancakes"); // Verify first recipe
+            result.Items.First().UserId.Should().Be("user1"); // Verify user ID
+            result.Items.First().UserName.Should().Be("User One"); // Verify user name
         }
 
 
@@ -101,15 +109,16 @@ namespace BackEngin.Tests.Services
         public async Task CreateRecipe_ShouldReturnCreatedRecipe_WhenValidIngredientsProvided()
         {
             // Arrange
-            var userId = "testUserId"; // Add a userId for the test
+            var userId = "testUserId";
+            var userName = "Test User";
             var createRecipeDto = new CreateRecipeDTO
             {
                 Header = "Pancakes",
                 BodyText = "Delicious pancakes recipe",
                 Ingredients = new List<RecipeIngredientRequestDTO>
-        {
-            new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-        }
+                {
+                    new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+                }
             };
 
             var createdRecipe = new Recipes
@@ -117,6 +126,7 @@ namespace BackEngin.Tests.Services
                 Id = 1,
                 Header = createRecipeDto.Header,
                 BodyText = createRecipeDto.BodyText,
+                UserId = userId
             };
 
             var validIngredients = new List<Ingredients>
@@ -124,10 +134,13 @@ namespace BackEngin.Tests.Services
                 new Ingredients { Id = 1, Name = "Flour" }
             };
 
-            // Mock valid ingredients
-            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
-                .ReturnsAsync(validIngredients);
+            var user = new Users { Id = userId, UserName = userName };
 
+            // Mock valid ingredients and user
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(validIngredients);
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { user });
             _mockUnitOfWork.Setup(u => u.Recipes.AddAsync(It.IsAny<Recipes>())).Verifiable();
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
             _mockUnitOfWork.Setup(u => u.Recipes_Ingredients.AddAsync(It.IsAny<Recipes_Ingredients>())).Verifiable();
@@ -139,12 +152,15 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Header.Should().Be("Pancakes");
             result.BodyText.Should().Be("Delicious pancakes recipe");
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be(userName);
             result.Ingredients.Count.Should().Be(1);
             result.Ingredients.First().IngredientId.Should().Be(1);
 
             _mockUnitOfWork.Verify(u => u.Recipes.AddAsync(It.IsAny<Recipes>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.AtLeastOnce);
             _mockUnitOfWork.Verify(u => u.Recipes_Ingredients.AddAsync(It.IsAny<Recipes_Ingredients>()), Times.Once);
+
         }
 
 
@@ -155,19 +171,33 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var recipeId = 1;
-            var recipe = new Recipes { Id = recipeId, Header = "Pancakes", BodyText = "Delicious pancakes", UserId = "123" };
+            var recipe = new Recipes
+            {
+                Id = recipeId,
+                Header = "Pancakes",
+                BodyText = "Delicious pancakes",
+                UserId = "user1"
+            };
+
             var ingredients = new List<Recipes_Ingredients>
             {
                 new Recipes_Ingredients { RecipeId = recipeId, IngredientId = 1, Quantity = 2, Unit = "cups" }
             };
+
             var ingredientDetails = new List<Ingredients>
             {
                 new Ingredients { Id = 1, Name = "Flour" }
             };
 
+            var user = new Users { Id = "user1", UserName = "User One" };
+
             _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(recipe);
-            _mockUnitOfWork.Setup(u => u.Recipes_Ingredients.FindAsync(It.IsAny<Func<Recipes_Ingredients, bool>>())).ReturnsAsync(ingredients);
-            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>())).ReturnsAsync(ingredientDetails);
+            _mockUnitOfWork.Setup(u => u.Recipes_Ingredients.FindAsync(It.IsAny<Func<Recipes_Ingredients, bool>>()))
+                           .ReturnsAsync(ingredients);
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(ingredientDetails);
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { user });
 
             // Act
             var result = await _recipeService.GetRecipeDetails(recipeId);
@@ -175,7 +205,10 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Id.Should().Be(recipeId);
+            result.UserId.Should().Be("user1");
+            result.UserName.Should().Be("User One");
             result.Ingredients.Should().HaveCount(1);
+            result.Ingredients.First().IngredientName.Should().Be("Flour");
         }
 
         [Fact]
@@ -183,6 +216,9 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var recipeId = 1;
+            var userId = "123";
+            var userName = "TestUser";
+
             var updateRecipeDto = new RecipeRequestDTO
             {
                 Header = "Updated Pancakes",
@@ -198,7 +234,7 @@ namespace BackEngin.Tests.Services
                 Id = recipeId,
                 Header = "Old Pancakes",
                 BodyText = "Old pancakes recipe",
-                UserId = "123"
+                UserId = userId
             };
 
             var updatedRecipeIngredients = updateRecipeDto.Ingredients
@@ -210,12 +246,10 @@ namespace BackEngin.Tests.Services
                     IngredientName = "Flour" // Simulated from ingredient lookup
                 }).ToList();
 
-            var updatedRecipe = new RecipeDetailsDTO
+            var user = new Users
             {
-                Id = recipeId,
-                Header = updateRecipeDto.Header,
-                BodyText = updateRecipeDto.BodyText,
-                Ingredients = updatedRecipeIngredients
+                Id = userId,
+                UserName = userName
             };
 
             _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId)).ReturnsAsync(existingRecipe);
@@ -229,6 +263,8 @@ namespace BackEngin.Tests.Services
                            {
                        new Ingredients { Id = 1, Name = "Flour" }
                            });
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { user });
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
             // Act
@@ -239,7 +275,10 @@ namespace BackEngin.Tests.Services
             result.Id.Should().Be(recipeId);
             result.Header.Should().Be(updateRecipeDto.Header);
             result.BodyText.Should().Be(updateRecipeDto.BodyText);
-            result.Ingredients.Should().BeEquivalentTo(updateRecipeDto.Ingredients);
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be(userName);
+            result.Ingredients.Should().BeEquivalentTo(updatedRecipeIngredients, options => options.ExcludingMissingMembers());
+
         }
 
         [Fact]

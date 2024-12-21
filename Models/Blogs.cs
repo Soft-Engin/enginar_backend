@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,8 +25,13 @@ namespace Models
         [Required]
         public string BodyText { get; set; }
 
+        public byte[]? Image { get; set; }
+
         public int? RecipeId { get; set; }
         [ForeignKey("RecipeId")]
         public Recipes? Recipe { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
     }
 }

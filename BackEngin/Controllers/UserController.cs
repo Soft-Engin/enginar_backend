@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BackEngin.Services.Interfaces;
 using Models.DTO;
-using DataAccess.Migrations;
 using Humanizer;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 namespace BackEngin.Controllers
 {
@@ -24,33 +24,75 @@ namespace BackEngin.Controllers
         }
 
         // Get all users
-        [HttpGet("GetAllUsers")]
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            if (page <= 0 || pageSize <= 0)
+            try
             {
-                return BadRequest("Page and pageSize must be positive integers.");
-            }
+                if (page <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { message = "Page and pageSize must be positive integers." });
+                }
 
-            var users = await _userService.GetAllUsersAsync(page, pageSize);
-            return Ok(users);
+                var users = await _userService.GetAllUsersAsync(page, pageSize);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         // Get a user by ID
-        [HttpGet("GetUser/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
+        // Get self user
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var id = await GetActiveUserId();
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+        }
+
+
         // Update an existing user
-        [HttpPut("UpdateUser/{id}")]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDTO)
         {
@@ -59,22 +101,37 @@ namespace BackEngin.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!await CanUserAccess(id)) 
-            { 
+            if (!await CanUserAccess(id))
+            {
                 return Unauthorized();
             }
 
-            var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
-            if (updatedUser == null)
+            try
             {
-                return NotFound(new { Message = "Update failed! Credentials are either not valid or already in use by another user." });
+                var updatedUser = await _userService.UpdateUserAsync(id, userDTO);
+                if (updatedUser == null)
+                {
+                    return NotFound(new { message = "Update failed! Credentials are either not valid or already in use by another user." });
+                }
+
+                return Ok(updatedUser);
             }
 
-            return Ok(updatedUser);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+
         }
 
         // Delete a user
-        [HttpDelete("DeleteUser/{id}")]
+        [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -83,21 +140,38 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
+            try
             {
-                return NotFound(new { Message = "User not found." });
+                var result = await _userService.DeleteUserAsync(id);
+                if (!result)
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+
+                return Ok(new { Message = "User successfully deleted." });
+
             }
 
-            return Ok(new { Message = "User successfully deleted." });
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+
         }
 
-        [HttpGet("followers")]
+        [HttpGet("{userId}/followers")]
         public async Task<IActionResult> GetFollowers(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
             try
@@ -107,20 +181,25 @@ namespace BackEngin.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
-        [HttpGet("following")]
+        [HttpGet("{userId}/following")]
         public async Task<IActionResult> GetFollowing(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." }); ;
             }
 
             try
@@ -130,11 +209,17 @@ namespace BackEngin.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -155,18 +240,23 @@ namespace BackEngin.Controllers
 
                 if (!result)
                 {
-                    return BadRequest(new { Message = "Unable to follow user. Perhaps you already follow them." });
+                    return BadRequest(new { message = "Unable to follow user. Perhaps you already follow them." });
                 }
 
-                return Ok(new { Message = "Successfully followed user." });
+                return Ok(new { message = "Successfully followed user." });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -181,12 +271,71 @@ namespace BackEngin.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.UnfollowUserAsync(userId, targetUserId);
-            if (!result)
-                return BadRequest(new { Message = "Unable to unfollow user.Perhaps you don't follow them." });
+            try
+            {
+                var result = await _userService.UnfollowUserAsync(userId, targetUserId);
+                if (!result)
+                    return BadRequest(new { message = "Unable to unfollow user.Perhaps you don't follow them." });
 
-            return Ok(new { Message = "Successfully unfollowed user." });
+                return Ok(new { message = "Successfully unfollowed user." });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
         }
+
+        [HttpGet("{userId}/likes/recipes")]
+        [Authorize]
+        public async Task<IActionResult> GetLikedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var likedRecipes = await _userService.GetLikedRecipesAsync(userId, page, pageSize);
+
+                if (likedRecipes == null || !likedRecipes.Items.Any())
+                {
+                    return NotFound(new { message = "No liked blogs found for the given user." });
+                }
+
+                return Ok(likedRecipes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
 
         [HttpGet("{userId}/bookmarks/recipes")]
         [Authorize]
@@ -199,18 +348,72 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
-            var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
-
-            if (bookmarks == null)
+            try
             {
-                return NotFound("User does not exist");
+                var bookmarks = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+                if (bookmarks == null || !bookmarks.Items.Any())
+                {
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                }
+
+                return Ok(bookmarks);
             }
 
-            return Ok(bookmarks);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
+
+        [HttpGet("{userId}/likes/blogs")]
+        [Authorize]
+        public async Task<IActionResult> GetLikedBlogs(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var likedBlogs = await _userService.GetLikedBlogsAsync(userId, page, pageSize);
+
+                if (likedBlogs == null || !likedBlogs.Items.Any())
+                {
+                    return NotFound(new { message = "No liked blogs found for the given user." });
+                }
+
+                return Ok(likedBlogs);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
 
 
         [HttpGet("{userId}/bookmarks/blogs")]
@@ -224,18 +427,141 @@ namespace BackEngin.Controllers
 
             if (page <= 0 || pageSize <= 0)
             {
-                return BadRequest("Page and pageSize must be positive integers.");
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
             }
 
-            var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
-
-            if (bookmarkedBlogs == null)
+            try
             {
-                return NotFound("User does not exist");
+                var bookmarkedBlogs = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
+
+                if (bookmarkedBlogs == null || !bookmarkedBlogs.Items.Any())
+                {
+                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                }
+
+                return Ok(bookmarkedBlogs);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
 
-            return Ok(bookmarkedBlogs);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+
+
         }
+
+        [HttpGet("{userId}/recipes")]
+        public async Task<IActionResult> GetUserRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var result = await _userService.GetUserRecipesAsync(userId, page, pageSize);
+
+                if (result == null || !result.Items.Any())
+                {
+                    return NotFound(new { message = "No recipes found for the given user." });
+                }
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+
+        [HttpGet("{userId}/blogs")]
+        public async Task<IActionResult> GetUserBlogs(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page number and page size must be greater than zero." });
+            }
+
+            try
+            {
+                var result = await _userService.GetUserBlogsAsync(userId, pageNumber, pageSize);
+
+                if (result == null || !result.Items.Any())
+                {
+                    return NotFound(new { message = "No blogs found for the given user." });
+                }
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("{userId}/events")]
+        public async Task<IActionResult> GetUserEvents(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var result = await _userService.GetUserEventsAsync(userId, page, pageSize);
+
+                if (result == null || !result.Items.Any())
+                {
+                    return NotFound(new { message = "No events found for the given user." });
+                }
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+
 
         // GET /users/search - Search users
         [HttpGet("search")]

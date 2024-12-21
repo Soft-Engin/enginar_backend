@@ -5,6 +5,5 @@ namespace DataAccess.Repositories.IRepositories
 {
     public interface IUsers_Blogs_InteractionsRepository : IRepository<Users_Blogs_Interaction>
     {
-        Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize);
     }
 }

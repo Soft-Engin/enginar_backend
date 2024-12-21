@@ -8,6 +8,14 @@ using BackEngin.Tests.Helpers;
 using Models.DTO;
 using BackEngin.Tests.Utils;
 using MockQueryable.Moq;
+using System.Data;
+using System.Diagnostics.Metrics;
+using System.Net;
+using System.Collections.Generic;
+using BackEngin.Services.Interfaces;
+using MockQueryable;
+using Models.InteractionModels;
+using System.Linq.Expressions;
 
 namespace BackEngin.Tests.Services
 {
@@ -437,137 +445,61 @@ namespace BackEngin.Tests.Services
         }
 
         [Fact]
-        public async Task GetBookmarkedRecipesAsync_ShouldReturnMappedBookmarkRecipesDTO_WhenBookmarksExist()
+        public async Task GetBookmarkedBlogsAsync_ShouldReturnPaginatedResponse_WhenBlogsExist()
         {
             // Arrange
-            var userId = "1";
-            var user = new Users { Id = userId, UserName = "john_doe" }; // Mock user
-
-            // Mock the user to be returned by _userManager
-            var mockUser = new Users { Id = userId, UserName = "TestUser" };
-            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
-
-            // Create bookmarked recipes with the correct UserId
-            var bookmarkedRecipes = new List<BookmarkRecipesItemDTO>
-            {
-                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe1", BodyText = "Delicious!" },
-                new BookmarkRecipesItemDTO { UserName = "john_doe", Header = "Recipe2", BodyText = "Tasty!" }
-            };
-
-            // Create the BookmarkRecipesDTO to be returned
-            var bookmarkRecipesDTO = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
-            {
-                Items = bookmarkedRecipes,
-                TotalCount = 2
-            };
+            var userId = "user123";
             var page = 1;
-            var pageSize = 10;
+            var pageSize = 2;
 
-            // Mock the repository call to return the BookmarkRecipesDTO
-            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize))
-                .ReturnsAsync(bookmarkRecipesDTO);
-
-            // Act
-            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(bookmarkRecipesDTO);
-            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize), Times.Once);
-        }
-
-
-        [Fact]
-        public async Task GetBookmarkedRecipesAsync_ShouldReturnEmptyList_WhenNoBookmarksExist()
-        {
-            // Arrange
-            var userId = "1";
-
-            // Mock the user to be returned by _userManager
-            var mockUser = new Users { Id = userId, UserName = "TestUser" };
-            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
-
-            // Mock the service to return an empty BookmarkRecipesDTO
-            var emptyBookmarkRecipesDTO = new PaginatedResponseDTO<BookmarkRecipesItemDTO>
+            var bookmarkedBlogIds = new List<Blog_Bookmarks>
             {
-                Items = new List<BookmarkRecipesItemDTO>(), // Empty list of recipes
-                TotalCount = 0 // Total count is 0
-            };
-            var page = 1;
-            var pageSize = 10;
-
-            // Mock the repository method
-            _mockUnitOfWork.Setup(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize))
-                .ReturnsAsync(emptyBookmarkRecipesDTO);
-
-            // Act
-            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
-
-            // Assert
-            result.Should().NotBeNull(); // Ensure the result is not null
-            result.Items.Should().BeEmpty(); // Ensure the Recipes list is empty
-            result.TotalCount.Should().Be(0); // Ensure the TotalCount is 0
-            _mockUnitOfWork.Verify(u => u.Users_Recipes_Interactions.GetBookmarkedRecipesAsync(userId, page, pageSize), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetBookmarkedBlogsAsync_ShouldReturnBookmarkBlogsDTO_WhenBookmarksExist()
-        {
-            // Arrange
-            var userId = "1";
-
-            // Mock the user to be returned by _userManager
-            var mockUser = new Users { Id = userId, UserName = "TestUser" };
-            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
-
-            var mockedBlogs = new List<BookmarkBlogsItemDTO>
-            {
-                new BookmarkBlogsItemDTO { UserName = "User1", Header = "Blog 1", BodyText = "Content of Blog 1" },
-                new BookmarkBlogsItemDTO { UserName = "User2", Header = "Blog 2", BodyText = "Content of Blog 2" }
+                new Blog_Bookmarks { BlogId = 1, UserId = userId },
+                new Blog_Bookmarks { BlogId = 2, UserId = userId },
+                new Blog_Bookmarks { BlogId = 3, UserId = userId }
             };
 
-            var bookmarkBlogsDTO = new PaginatedResponseDTO<BookmarkBlogsItemDTO>
+            var blogs = new List<Blogs>
             {
-                Items = mockedBlogs,
-                TotalCount = mockedBlogs.Count
+                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
+                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
+                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
             };
-            var page = 1;
-            var pageSize = 10;
 
-            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize))
-                .ReturnsAsync(bookmarkBlogsDTO);
+            _mockUnitOfWork.Setup(uow => uow.Blog_Bookmarks.FindAsync(It.IsAny<Func<Blog_Bookmarks, bool>>()))
+                .ReturnsAsync(bookmarkedBlogIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+                .ReturnsAsync(blogs.AsQueryable().BuildMock());
 
             // Act
             var result = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull();
-            result.Items.Should().HaveCount(2);
-            result.TotalCount.Should().Be(2);
-            result.Items.Should().ContainSingle(b => b.Header == "Blog 1" && b.UserName == "User1");
-            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.First().Header.Should().Be("Header1");
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
         }
 
         [Fact]
-        public async Task GetBookmarkedBlogsAsync_ShouldReturnEmptyBookmarkBlogsDTO_WhenNoBookmarksExist()
+        public async Task GetBookmarkedBlogsAsync_ShouldReturnEmptyResponse_WhenNoBookmarksExist()
         {
             // Arrange
-            var userId = "1";
-
-            // Mock the user to be returned by _userManager
-            var mockUser = new Users { Id = userId, UserName = "TestUser" };
-            _mockUserManager.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(mockUser);
-
-            var emptyBookmarkBlogsDTO = new PaginatedResponseDTO<BookmarkBlogsItemDTO>
-            {
-                Items = new List<BookmarkBlogsItemDTO>(), // Empty list
-                TotalCount = 0
-            };
+            var userId = "user123";
             var page = 1;
-            var pageSize = 10;
+            var pageSize = 2;
 
-            _mockUnitOfWork.Setup(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize))
-                .ReturnsAsync(emptyBookmarkBlogsDTO);
+            var bookmarkedBlogIds = new List<Blog_Bookmarks>();
+            var blogs = new List<Blogs>();
+
+            _mockUnitOfWork.Setup(uow => uow.Blog_Bookmarks.FindAsync(It.IsAny<Func<Blog_Bookmarks, bool>>()))
+                .ReturnsAsync(bookmarkedBlogIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+                .ReturnsAsync(blogs.AsQueryable().BuildMock());
 
             // Act
             var result = await _userService.GetBookmarkedBlogsAsync(userId, page, pageSize);
@@ -576,8 +508,222 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Should().BeEmpty();
             result.TotalCount.Should().Be(0);
-            _mockUnitOfWork.Verify(u => u.Users_Blogs_Interactions.GetBookmarkedBlogsAsync(userId, page, pageSize), Times.Once);
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
         }
+
+
+        [Fact]
+        public async Task GetLikedBlogsAsync_ShouldReturnPaginatedResponse_WhenLikedBlogsExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var likedBlogIds = new List<Blog_Likes>
+            {
+                new Blog_Likes { BlogId = 1, UserId = userId },
+                new Blog_Likes { BlogId = 2, UserId = userId },
+                new Blog_Likes { BlogId = 3, UserId = userId }
+            };
+
+            var blogs = new List<Blogs>
+            {
+                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
+                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
+                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+            };
+
+            _mockUnitOfWork.Setup(uow => uow.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()))
+                .ReturnsAsync(likedBlogIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+                .ReturnsAsync(blogs.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetLikedBlogsAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.First().Header.Should().Be("Header1");
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+        [Fact]
+        public async Task GetLikedBlogsAsync_ShouldReturnEmptyResponse_WhenNoLikesExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var likedBlogIds = new List<Blog_Likes>();
+            var blogs = new List<Blogs>();
+
+            _mockUnitOfWork.Setup(uow => uow.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()))
+                .ReturnsAsync(likedBlogIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+                .ReturnsAsync(blogs.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetLikedBlogsAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+
+
+        [Fact]
+        public async Task GetLikedRecipesAsync_ShouldReturnPaginatedResponse_WhenRecipesExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var likedRecipeIds = new List<Recipe_Likes>
+            {
+                new Recipe_Likes { RecipeId = 1, UserId = userId },
+                new Recipe_Likes { RecipeId = 2, UserId = userId },
+                new Recipe_Likes { RecipeId = 3, UserId = userId }
+            };
+
+            var recipes = new List<Recipes>
+            {
+                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
+                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
+                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+            };
+
+            _mockUnitOfWork.Setup(uow => uow.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()))
+                .ReturnsAsync(likedRecipeIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+                .ReturnsAsync(recipes.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetLikedRecipesAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.First().Header.Should().Be("Header1");
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+        [Fact]
+        public async Task GetLikedRecipesAsync_ShouldReturnEmptyResponse_WhenNoLikesExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var bookmarkedRecipeIds = new List<Recipe_Likes>();
+            var recipes = new List<Recipes>();
+
+            _mockUnitOfWork.Setup(uow => uow.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()))
+                .ReturnsAsync(bookmarkedRecipeIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+                .ReturnsAsync(recipes.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetLikedRecipesAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+
+
+
+
+        [Fact]
+        public async Task GetBookmarkedRecipesAsync_ShouldReturnPaginatedResponse_WhenRecipesExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var bookmarkedRecipeIds = new List<Recipe_Bookmarks>
+            {
+                new Recipe_Bookmarks { RecipeId = 1, UserId = userId },
+                new Recipe_Bookmarks { RecipeId = 2, UserId = userId },
+                new Recipe_Bookmarks { RecipeId = 3, UserId = userId }
+            };
+
+            var recipes = new List<Recipes>
+            {
+                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
+                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
+                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+            };
+
+            _mockUnitOfWork.Setup(uow => uow.Recipe_Bookmarks.FindAsync(It.IsAny<Func<Recipe_Bookmarks, bool>>()))
+                .ReturnsAsync(bookmarkedRecipeIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+                .ReturnsAsync(recipes.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.First().Header.Should().Be("Header1");
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+        [Fact]
+        public async Task GetBookmarkedRecipesAsync_ShouldReturnEmptyResponse_WhenNoBookmarksExist()
+        {
+            // Arrange
+            var userId = "user123";
+            var page = 1;
+            var pageSize = 2;
+
+            var bookmarkedRecipeIds = new List<Recipe_Bookmarks>();
+            var recipes = new List<Recipes>();
+
+            _mockUnitOfWork.Setup(uow => uow.Recipe_Bookmarks.FindAsync(It.IsAny<Func<Recipe_Bookmarks, bool>>()))
+                .ReturnsAsync(bookmarkedRecipeIds.AsQueryable().BuildMock());
+
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+                .ReturnsAsync(recipes.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _userService.GetBookmarkedRecipesAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+
 
         [Fact]
         public async Task SearchUsers_ShouldReturnAll_WhenNoFilter()
