@@ -539,6 +539,7 @@ namespace BackEngin.Services
         {
             var (blogs, totalCount) = await _unitOfWork.Blogs.GetPaginatedAsync(
                 filter: b => b.UserId == userId,
+                includeProperties: "User,Recipe",
                 pageNumber: pageNumber,
                 pageSize: pageSize
             );
@@ -570,7 +571,7 @@ namespace BackEngin.Services
                 UserName = relatedUser.UserName,
                 RecipeId = b.RecipeId,
                 Image = b.Image,
-                CreatedAt = b.CreatedAt,
+                CreatedAt = b.CreatedAt
             }).ToList();
 
             return new PaginatedResponseDTO<BlogDTO>
@@ -581,6 +582,77 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<PaginatedResponseDTO<EventDTO>> GetUserEventsAsync(string userId, int page, int pageSize)
+        {
+            // Step 1: Fetch the events created by the user
+            var (items, totalCount) = await _unitOfWork.Events.GetPaginatedAsync(
+                filter: e => e.CreatorId == userId,
+                includeProperties: "Creator,Address,Address.District,Address.District.City,Address.District.City.Country",
+                pageNumber: page,
+                pageSize: pageSize
+            );
+
+            // Step 2: Map events to EventDTO directly inside the method
+            var events = items.Select(e =>
+            {
+                // Ensure related entities are populated
+                if (e.Creator == null)
+                {
+                    e.Creator = _unitOfWork.Users.FindAsync(u => u.Id == e.CreatorId).Result.First();
+                }
+                if (e.Address == null)
+                {
+                    e.Address = _unitOfWork.Addresses.FindAsync(u => u.Id == e.AddressId).Result.First();
+                }
+                if (e.Address.District == null)
+                {
+                    e.Address.District = _unitOfWork.Districts.FindAsync(u => u.Id == e.Address.DistrictId).Result.First();
+                }
+                if (e.Address.District.City == null)
+                {
+                    e.Address.District.City = _unitOfWork.Cities.FindAsync(u => u.Id == e.Address.District.CityId).Result.First();
+                }
+                if (e.Address.District.City.Country == null)
+                {
+                    e.Address.District.City.Country = _unitOfWork.Countries.FindAsync(u => u.Id == e.Address.District.City.CountryId).Result.First();
+                }
+
+                return new EventDTO
+                {
+                    Title = e.Title,
+                    Date = e.Date,
+                    EventId = e.Id,
+                    BodyText = e.BodyText,
+                    CreatorUserName = e.Creator?.UserName ?? "Unknown",
+                    CreatorId = e.CreatorId,
+                    Address = e.Address,
+                    CreatedAt = e.CreatedAt,
+                    Requirements = _unitOfWork.Events_Requirements
+                        .FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement")
+                        .Result
+                        .Select(er => new RequirementDTO
+                        {
+                            Id = er.Requirement.Id,
+                            Name = er.Requirement.Name,
+                            Description = er.Requirement.Description
+                        })
+                        .ToList(),
+                    TotalParticipantsCount = _unitOfWork.User_Event_Participations.CountAsync(r => r.EventId == e.Id).Result
+                };
+            }).ToList();
+
+            // Step 3: Return paginated response
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = events,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+        }
+
+
 
     }
 }

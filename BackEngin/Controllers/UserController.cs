@@ -217,6 +217,46 @@ namespace BackEngin.Controllers
             return Ok(new { Message = "Successfully unfollowed user." });
         }
 
+        [HttpGet("{userId}/likes/recipes")]
+        [Authorize]
+        public async Task<IActionResult> GetLikedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (!await CanUserAccess(userId))
+            {
+                return Unauthorized();
+            }
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be positive integers.");
+            }
+
+            try
+            {
+                var likedRecipes = await _userService.GetLikedRecipesAsync(userId, page, pageSize);
+
+                if (likedRecipes == null || !likedRecipes.Items.Any())
+                {
+                    return NotFound("No liked blogs found for the given user.");
+                }
+
+                return Ok(likedRecipes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+            }
+        }
+
+
         [HttpGet("{userId}/bookmarks/recipes")]
         [Authorize]
         public async Task<IActionResult> GetBookmarkedRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -328,11 +368,6 @@ namespace BackEngin.Controllers
         [HttpGet("{userId}/recipes")]
         public async Task<IActionResult> GetUserRecipes(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            if (!await CanUserAccess(userId)) 
-            {
-                return Unauthorized();
-            }
-
             if (page <= 0 || pageSize <= 0)
             {
                 return BadRequest(new { Message = "Page and pageSize must be positive integers." });
@@ -369,10 +404,6 @@ namespace BackEngin.Controllers
         [HttpGet("{userId}/blogs")]
         public async Task<IActionResult> GetUserBlogs(string userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            if (!await CanUserAccess(userId)) 
-            {
-                return Unauthorized();
-            }
 
             if (pageNumber <= 0 || pageSize <= 0)
             {
@@ -394,6 +425,42 @@ namespace BackEngin.Controllers
             {
                 return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });
+            }
+        }
+
+        [HttpGet("{userId}/events")]
+        public async Task<IActionResult> GetUserEvents(string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { Message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var result = await _userService.GetUserEventsAsync(userId, page, pageSize);
+
+                if (result == null || !result.Items.Any())
+                {
+                    return NotFound("No events found for the given user.");
+                }
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = "The specified user does not exist.", Details = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "An unexpected error occurred.", Details = ex.Message });

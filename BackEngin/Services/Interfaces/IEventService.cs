@@ -1,4 +1,5 @@
 ﻿// Service Interface
+using Models;
 using Models.DTO;
 using System.Threading.Tasks;
 
