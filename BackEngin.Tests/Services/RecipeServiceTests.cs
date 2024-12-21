@@ -578,5 +578,103 @@ namespace BackEngin.Tests.Services
             result.Items.Should().HaveCount(5);
         }
 
+        [Fact]
+        public async Task GetRecipeBannerImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var recipeId = 1;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var recipe = new Recipes { Id = recipeId, BannerImage = expectedImage };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync(recipe);
+
+            // Act
+            var result = await _recipeService.GetRecipeBannerImage(recipeId);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeBannerImage_ShouldReturnNull_WhenRecipeDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 99;
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync((Recipes)null);
+
+            // Act
+            var result = await _recipeService.GetRecipeBannerImage(recipeId);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeStepImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var recipeId = 1;
+            var stepIndex = 0;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var recipe = new Recipes 
+            { 
+                Id = recipeId, 
+                StepImages = new byte[][] { expectedImage }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync(recipe);
+
+            // Act
+            var result = await _recipeService.GetRecipeStepImage(recipeId, stepIndex);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeStepImage_ShouldReturnNull_WhenRecipeDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 99;
+            var stepIndex = 0;
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync((Recipes)null);
+
+            // Act
+            var result = await _recipeService.GetRecipeStepImage(recipeId, stepIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeStepImage_ShouldReturnNull_WhenStepIndexOutOfRange()
+        {
+            // Arrange
+            var recipeId = 1;
+            var stepIndex = 1; // Index out of range
+            var recipe = new Recipes 
+            { 
+                Id = recipeId, 
+                StepImages = new byte[][] { new byte[] { 1, 2, 3, 4, 5 } } // Only one image
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync(recipe);
+
+            // Act
+            var result = await _recipeService.GetRecipeStepImage(recipeId, stepIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
     }
 }
