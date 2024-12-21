@@ -39,15 +39,5 @@ namespace DataAccess.Repositories
                 .Where(r => requirementIds.Contains(r.Id))
                 .ToListAsync();
         }
-
-        public async Task<int> CountAsync(Expression<Func<Requirements, bool>> predicate = null)
-        {
-            if (predicate == null)
-            {
-                return await _context.Set<Requirements>().CountAsync();
-            }
-
-            return await _context.Set<Requirements>().CountAsync(predicate);
-        }
     }
 }

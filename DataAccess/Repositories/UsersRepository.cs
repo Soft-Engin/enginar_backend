@@ -100,10 +100,5 @@ namespace DataAccess.Repositories
             _db.Users_Interactions.Remove(userInteraction);
             return await _db.SaveChangesAsync() > 0;
         }
-
-        public async Task<List<Users>> FindAllAsync(Func<Users, bool> predicate)
-        {
-            return await Task.FromResult(_db.Users.Where(predicate).ToList());
-        }
     }
 }

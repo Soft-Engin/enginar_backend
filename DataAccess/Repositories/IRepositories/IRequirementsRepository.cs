@@ -7,6 +7,5 @@ namespace DataAccess.Repositories.IRepositories
     {
         Task<IEnumerable<Requirements>> FindAllAsync(Expression<Func<Requirements, bool>> predicate, Func<IQueryable<Requirements>, IQueryable<Requirements>> queryModifier = null);
         Task<IEnumerable<Requirements>> GetRangeByIdsAsync(IEnumerable<int> requirementIds);
-        Task<int> CountAsync(Expression<Func<Requirements, bool>> predicate = null);
     }
 }
