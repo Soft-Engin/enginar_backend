@@ -26,7 +26,7 @@ namespace BackEngin.Services
         {
             // Get paginated events, including Creator and Address
             var (items, totalCount) = await _unitOfWork.Events.GetPaginatedAsync(
-                includeProperties: "Creator,Address",
+                includeProperties: "Creator,Address,Address.District",
                 pageNumber: page,
                 pageSize: pageSize
             );
@@ -45,10 +45,28 @@ namespace BackEngin.Services
 
         public EventDto MapEventToDto(Events e)
         {
-            if(e.Creator == null)
+            //Make sure the DTO is populated with all the required data
+            if (e.Creator == null)
             {
                 e.Creator = _unitOfWork.Users.FindAsync(u => u.Id == e.CreatorId).Result.First();
             }
+            if (e.Address == null)
+            {
+                e.Address = _unitOfWork.Addresses.FindAsync(u => u.Id == e.AddressId).Result.First();
+            }
+            if (e.Address.District == null)
+            {
+                e.Address.District = _unitOfWork.Districts.FindAsync(u => u.Id == e.Address.DistrictId).Result.First();
+            }
+            if (e.Address.District.City == null)
+            {
+                e.Address.District.City = _unitOfWork.Cities.FindAsync(u => u.Id == e.Address.District.CityId).Result.First();
+            }
+            if (e.Address.District.City.Country == null)
+            {
+                e.Address.District.City.Country = _unitOfWork.Countries.FindAsync(u => u.Id == e.Address.District.City.CountryId).Result.First();
+            }
+
             return new EventDto
             {
                 Title = e.Title,
@@ -58,7 +76,7 @@ namespace BackEngin.Services
                 CreatorUserName = e.Creator.UserName,
                 Address = e.Address,
                 CreatedAt = e.CreatedAt,
-                Requirements =  _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement").Result
+                Requirements = _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement").Result
                                 .Select(er => new RequirementDto
                                 {
                                     Id = er.Requirement.Id,
@@ -220,7 +238,7 @@ namespace BackEngin.Services
 
 
             _unitOfWork.Addresses.Update(address);
-           
+
 
             // Update the event entity with the new details
             eventEntity.Title = updateEventDto.Title;
@@ -304,7 +322,7 @@ namespace BackEngin.Services
             if (eventEntity.CreatorId == userId)
             {
                 throw new ArgumentException("The creator cannot leave their own event.");
-            }   
+            }
 
             if (eventEntity.Date < DateTime.UtcNow)
             {
