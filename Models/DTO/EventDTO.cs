@@ -14,6 +14,7 @@ namespace Models.DTO
         public DateTime Date { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatorUserName { get; set; } // Username of the creator
+        public string CreatorId { get; set; } // Id of the creator
         public Addresses Address { get; set; } // Address details
         public int TotalParticipantsCount { get; set; }
 

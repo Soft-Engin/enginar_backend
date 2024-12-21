@@ -74,6 +74,7 @@ namespace BackEngin.Services
                 EventId = e.Id,
                 BodyText = e.BodyText,
                 CreatorUserName = e.Creator.UserName,
+                CreatorId = e.CreatorId,
                 Address = e.Address,
                 CreatedAt = e.CreatedAt,
                 Requirements = _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == e.Id, includeProperties: "Requirement").Result
