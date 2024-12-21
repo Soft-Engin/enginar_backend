@@ -617,7 +617,7 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync(imageData);
 
             // Act
-            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
 
             // Assert
             var fileResult = result.Should().BeOfType<FileContentResult>().Which;
@@ -633,9 +633,11 @@ namespace BackEngin.Tests.Controllers
             var imageIndex = 0;
             _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
                 .ReturnsAsync((byte[])null);
+            _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
 
             // Assert
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
@@ -650,11 +652,13 @@ namespace BackEngin.Tests.Controllers
             var imageIndex = 0;
             var imageData = new byte[] { 1, 2, 3, 4, 5 };
 
+            _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
             _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
                 .ReturnsAsync(imageData);
 
             // Act
-            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
 
             // Assert
             var fileResult = result.Should().BeOfType<FileContentResult>().Which;
@@ -670,9 +674,11 @@ namespace BackEngin.Tests.Controllers
             var imageIndex = 0;
             _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
                 .ReturnsAsync((byte[])null);
+            _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
 
             // Assert
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
