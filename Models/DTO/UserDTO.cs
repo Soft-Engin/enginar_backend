@@ -71,4 +71,18 @@ namespace Models.DTO
         public string BodyText { get; set; }
     }
 
+    public class LikedBlogsItemDTO
+    {
+        public string UserName { get; set; }
+        public string Header { get; set; }
+        public string BodyText { get; set; }
+    }
+
+    public class LikedRecipesItemDTO
+    {
+        public string UserName { get; set; }
+        public string Header { get; set; }
+        public string BodyText { get; set; }
+    }
+
 }

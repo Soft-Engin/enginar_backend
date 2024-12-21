@@ -19,38 +19,5 @@ namespace DataAccess.Repositories
             _db = db;
 
         }
-
-        public async Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize)
-        {
-            var bookmarkInteraction = await _db.Interactions
-                .FirstOrDefaultAsync(i => i.Name == "BookmarkBlog");
-
-            if (bookmarkInteraction == null)
-                throw new Exception("Bookmark interaction not defined in the database.");
-
-            var bookmarkedBlogsQuery = _db.Users_Blogs_Interactions
-                .Where(ubi => ubi.UserId == userId && ubi.InteractionId == bookmarkInteraction.Id)
-                .Select(ubi => new { ubi.Blog.User, ubi.Blog.Header, ubi.Blog.BodyText });
-
-            var totalCount = await bookmarkedBlogsQuery.CountAsync();
-
-            var blogs = await bookmarkedBlogsQuery
-                .Skip((page - 1) * pageSize) // Skip records of previous pages
-                .Take(pageSize)             // Take the records for the current page
-                .ToListAsync();
-
-            return new PaginatedResponseDTO<BookmarkBlogsItemDTO>
-            {
-                Items = blogs.Select(b => new BookmarkBlogsItemDTO
-                {
-                    UserName = b.User.UserName != null ? b.User.UserName : "Unknown",
-                    Header = b.Header,
-                    BodyText = b.BodyText
-                }).ToList(),
-                TotalCount = totalCount,
-                PageNumber = page,
-                PageSize = pageSize
-            };
-        }
     }
 }
