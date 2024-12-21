@@ -20,6 +20,14 @@ namespace DataAccess.Migrations
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedAt",
+                table: "Recipes",
+                type: "timestamp without time zone",
+                nullable: false,
+                oldClrType: typeof(DateTime),
+                oldType: "timestamp with time zone");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "CreatedAt",
                 table: "Recipe_Likes",
                 type: "timestamp without time zone",
                 nullable: false,
@@ -37,6 +45,14 @@ namespace DataAccess.Migrations
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedAt",
                 table: "Recipe_Bookmarks",
+                type: "timestamp without time zone",
+                nullable: false,
+                oldClrType: typeof(DateTime),
+                oldType: "timestamp with time zone");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "CreatedAt",
+                table: "Blogs",
                 type: "timestamp without time zone",
                 nullable: false,
                 oldClrType: typeof(DateTime),
@@ -167,35 +183,35 @@ namespace DataAccess.Migrations
                 keyColumn: "Id",
                 keyValue: "1",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "0fd0da34-4a22-446f-be83-a3a821966f80", "e7314c7e-b3db-4329-b3d8-9c50e857d877" });
+                values: new object[] { "cc101e71-31c3-4617-a937-bf803453fd84", "945da122-702a-43d0-a1ba-48027dc89a87" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "67cf5d86-65b5-45a5-a49b-c5bbf124506e", "6843c1ec-0549-437a-9d25-5795d371c6ef" });
+                values: new object[] { "07125bb8-98cf-469f-8aa3-b3614eb5cba1", "abfbf528-ef93-4a68-ba33-84b060cbc7d1" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "3",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "c26e06ce-1ffe-423b-a8f2-6ca8e5014e03", "63445c64-877a-4c91-b617-cc1bfc241a03" });
+                values: new object[] { "e313c33f-1067-410c-9859-b8faa3c4b417", "b99c1df9-7914-47a1-894d-7204a48c3252" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "4",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "accc4cfa-cc12-47d5-ac10-12320b199b97", "c4677851-0934-4591-89a8-4a635c93e735" });
+                values: new object[] { "691537e8-7251-4e13-8a62-6c9f53d61e22", "adec1588-b5d1-4fe6-b527-fe29834a2c4a" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "5",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "a2c91313-f97b-4d60-bd91-8db9d9b472af", "9524fc73-d73e-45fe-bde8-8775a5a780fa" });
+                values: new object[] { "27c45632-9a27-4fc5-9993-3ad7cc3fb664", "4db157a4-2fb6-4b16-b9d7-dd87e311fa2d" });
 
             migrationBuilder.InsertData(
                 table: "Countries",
@@ -363,6 +379,14 @@ namespace DataAccess.Migrations
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedAt",
+                table: "Recipes",
+                type: "timestamp with time zone",
+                nullable: false,
+                oldClrType: typeof(DateTime),
+                oldType: "timestamp without time zone");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "CreatedAt",
                 table: "Recipe_Likes",
                 type: "timestamp with time zone",
                 nullable: false,
@@ -380,6 +404,14 @@ namespace DataAccess.Migrations
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedAt",
                 table: "Recipe_Bookmarks",
+                type: "timestamp with time zone",
+                nullable: false,
+                oldClrType: typeof(DateTime),
+                oldType: "timestamp without time zone");
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "CreatedAt",
+                table: "Blogs",
                 type: "timestamp with time zone",
                 nullable: false,
                 oldClrType: typeof(DateTime),
@@ -414,35 +446,35 @@ namespace DataAccess.Migrations
                 keyColumn: "Id",
                 keyValue: "1",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "251e6142-6459-4edc-a4b9-e6b65b7f1d6f", "ffd84a1c-0955-4776-a71d-fca5bbaa90bf" });
+                values: new object[] { "dbcfaa40-14a8-4678-95ed-40b86cf28899", "9c0a2ef4-220a-4c75-974a-daa30a222035" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "2",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "c1b0fe9e-a4c9-49b6-a9c4-62ec31bbe10b", "c8bbbc8b-dc3e-4e9e-9b67-4a102bc8d845" });
+                values: new object[] { "cd9226a4-b234-4029-b761-7dd01fae91f8", "75acaee1-4d3c-441e-be52-846bd6759073" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "3",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "08a93889-8c49-435b-a2c4-60a6fdd39dcd", "6ab3c1e7-02cc-48bf-8747-0a570d9eb87d" });
+                values: new object[] { "e40605bb-4591-4fca-8f81-3c29ed07cbb7", "0cb1e2e3-afde-46d2-98a8-3ccfde032d22" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "4",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "68e2ed19-ed3e-492f-8651-365dc4000b7d", "b6363b58-8fd5-444b-a65d-f4a56b4c0d23" });
+                values: new object[] { "833366ae-2dec-46a5-b2a2-3b771dbf66aa", "fbdb9e4b-5d46-4caa-a17d-53e9c63ab6b7" });
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: "5",
                 columns: new[] { "ConcurrencyStamp", "SecurityStamp" },
-                values: new object[] { "d6665f3d-5302-4266-b120-597730bbafaa", "babd920a-b8fc-41a8-93d7-d6295dd088a8" });
+                values: new object[] { "e747c990-98e4-4631-908c-13e3c332b63a", "96013185-c77b-4dd9-b489-9737d5d91804" });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUsers_Addresses_AddressId",

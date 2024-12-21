@@ -28,12 +28,19 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var blogs = new List<Blogs>
-        {
-            new Blogs { Id = 1, Header = "Blog 1", BodyText = "Content 1", UserId = "1" },
-            new Blogs { Id = 2, Header = "Blog 2", BodyText = "Content 2", UserId = "2" }
-        };
-            _mockUnitOfWork.Setup(u => u.Blogs.GetPaginatedAsync(null, 1, 2))
-                           .ReturnsAsync((blogs, blogs.Count));
+            {
+                new Blogs { Id = 1, Header = "Blog 1", BodyText = "Content 1", UserId = "1" },
+                new Blogs { Id = 2, Header = "Blog 2", BodyText = "Content 2", UserId = "2" }
+            };
+
+            var users = new List<Users>
+            {
+                new Users { Id = "1", UserName = "User1" },
+                new Users { Id = "2", UserName = "User2" }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetPaginatedAsync(null, 1, 2)).ReturnsAsync((blogs, blogs.Count));
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>())).ReturnsAsync(users);
 
             // Act
             var result = await _blogService.GetBlogs(1, 2);
@@ -42,10 +49,12 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Count().Should().Be(2);
             result.Items.First().Header.Should().Be("Blog 1");
+            result.Items.First().UserName.Should().Be("User1");
             result.TotalCount.Should().Be(2);
             result.PageNumber.Should().Be(1);
             result.PageSize.Should().Be(2);
         }
+
 
         [Fact]
         public async Task CreateBlog_ShouldCreateBlogWithNewRecipe()
@@ -172,6 +181,8 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             var blogId = 1;
+            var userId = "123";
+            var userName = "TestUser";
             var updateBlogDTO = new UpdateBlogDTO
             {
                 Header = "Updated Blog",
@@ -181,15 +192,24 @@ namespace BackEngin.Tests.Services
                     Header = "Updated Recipe",
                     BodyText = "Updated Recipe Content",
                     Ingredients = new List<RecipeIngredientRequestDTO>
-                    {
-                        new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-                    }
+            {
+                new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+            }
                 }
             };
 
-            var blog = new Blogs { Id = blogId, Header = "Old Blog", BodyText = "Old Content", RecipeId = 1 };
+            var blog = new Blogs
+            {
+                Id = blogId,
+                Header = "Old Blog",
+                BodyText = "Old Content",
+                RecipeId = 1,
+                UserId = userId
+            };
 
             _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { new Users { Id = userId, UserName = userName } });
             _mockRecipeService.Setup(r => r.UpdateRecipe(1, updateBlogDTO.Recipe))
                               .ReturnsAsync(new RecipeDetailsDTO { Id = 1, Header = "Updated Recipe" });
 
@@ -201,16 +221,29 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Header.Should().Be("Updated Blog");
+            result.BodyText.Should().Be("Updated Content");
             result.RecipeId.Should().Be(1);
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be(userName);
             _mockRecipeService.Verify(r => r.UpdateRecipe(1, updateBlogDTO.Recipe), Times.Once);
         }
+
 
         [Fact]
         public async Task GetBlogById_ShouldReturnBlogWithRecipeDetails()
         {
             // Arrange
             var blogId = 1;
-            var blog = new Blogs { Id = blogId, Header = "Blog", BodyText = "Content", RecipeId = 1 };
+            var userId = "123";
+            var userName = "TestUser";
+            var blog = new Blogs
+            {
+                Id = blogId,
+                Header = "Blog",
+                BodyText = "Content",
+                RecipeId = 1,
+                UserId = userId
+            };
 
             var recipe = new RecipeDetailsDTO
             {
@@ -218,12 +251,20 @@ namespace BackEngin.Tests.Services
                 Header = "Recipe",
                 BodyText = "Recipe Content",
                 Ingredients = new List<RecipeIngredientDetailsDTO>
+                {
+                    new RecipeIngredientDetailsDTO { IngredientId = 1, IngredientName = "Flour", Quantity = 2, Unit = "cups" }
+                }
+            };
+
+            var user = new Users
             {
-                new RecipeIngredientDetailsDTO { IngredientId = 1, IngredientName = "Flour", Quantity = 2, Unit = "cups" }
-            }
+                Id = userId,
+                UserName = userName
             };
 
             _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { user });
             _mockRecipeService.Setup(r => r.GetRecipeDetails(1)).ReturnsAsync(recipe);
 
             // Act
@@ -232,6 +273,8 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Header.Should().Be("Blog");
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be(userName);
             result.Recipe.Should().NotBeNull();
             result.Recipe.Ingredients.First().IngredientName.Should().Be("Flour");
         }

@@ -136,7 +136,7 @@ namespace BackEngin.Services
 
             if (!(await _unitOfWork.Blogs.FindAsync(b => b.Id == blogId)).Any())
             {
-                throw new Exception("Blog with the provided blogId does not exits");
+                throw new Exception("Blog with the provided blogId does not exist");
             }
 
             var comment = new Blog_Comments

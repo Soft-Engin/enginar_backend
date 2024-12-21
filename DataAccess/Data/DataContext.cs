@@ -117,19 +117,19 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", RoleId = 1 },
-                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", RoleId = 1 },
-                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", RoleId = 1 },
-                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", RoleId = 1 },
-                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", RoleId = 2 }
+                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 },
+                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 },
+                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 },
+                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 },
+                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 }
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut", UserId = "1" }
+                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreparationTime= 45,  UserId = "1", CreatedAt = new DateTime() }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
-                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" }
+                new Blogs { Id = 1, RecipeId = 2, Header = "ENGINAR YOLCULUĞU", BodyText = "benimle enginarın sırlarını keşfetmeye yelken açın", UserId = "1" , CreatedAt = new DateTime()}
             );
             // Configure many-to-many relationship between Ingredients and Preferences
             modelBuilder.Entity<Ingredients_Preferences>()
