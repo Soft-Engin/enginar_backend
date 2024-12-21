@@ -22,8 +22,6 @@ namespace Models.DTO
     {
         public int BlogId { get; set; }
         public byte[]? BannerImage { get; set; }
-        public byte[][]? Images { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 
     public class BlogDetailDTO
@@ -46,7 +44,6 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public int? RecipeId { get; set; } // Optional: Associate an existing recipe
         public byte[]? BannerImage { get; set; }
-        public byte[][]? Images { get; set; } 
         public CreateRecipeDTO? Recipe { get; set; } // Optional: Create a new recipe
     }
 
@@ -56,7 +53,6 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public int? RecipeId { get; set; } // To associate or disassociate a recipe
         public byte[]? BannerImage { get; set; }
-        public byte[][]? Images { get; set; }
         public RecipeRequestDTO Recipe { get; set; } // For updating or creating a recipe
     }
 

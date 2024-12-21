@@ -93,7 +93,6 @@ namespace BackEngin.Services
                 UserId = userId,
                 RecipeId = recipeId, // This will be null if no recipe is provided
                 BannerImage = createBlogDTO.BannerImage,
-                Images = createBlogDTO.Images,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -123,7 +122,6 @@ namespace BackEngin.Services
             blog.BodyText = updateBlogDTO.BodyText;
             blog.UserId = blog.UserId; // its stupid but the owner does not change hehe
             blog.BannerImage = updateBlogDTO.BannerImage;
-            blog.Images = updateBlogDTO.Images;
 
             // Handle recipe updates
             if (updateBlogDTO.Recipe != null)
@@ -318,5 +316,16 @@ namespace BackEngin.Services
             };
         }
 
+        public async Task<BlogImagesDTO> GetBlogBannerImage(int blogId)
+        {
+            var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
+            if (blog == null) return null;
+
+            return new BlogImagesDTO
+            {
+                BlogId = blog.Id,
+                BannerImage = blog.BannerImage
+            };
+        }
     }
 }
