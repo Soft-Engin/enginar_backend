@@ -64,7 +64,8 @@ namespace BackEngin.Data
 
             modelBuilder.Entity<Districts>().HasData(
                 new Districts { Id = 1, Name = "Kadikoy", CityId = 1, PostCode = 34710 },
-                new Districts { Id = 2, Name = "Besiktas", CityId = 1, PostCode = 34353 }
+                new Districts { Id = 2, Name = "Besiktas", CityId = 1, PostCode = 34353 },
+                new Districts { Id = 3, Name = "Rat Street", CityId = 2, PostCode = 42069 }
             );
 
             modelBuilder.Entity<Addresses>().HasData(
@@ -221,9 +222,179 @@ namespace BackEngin.Data
             PopulatePreferences(modelBuilder);
             ConfigureUserInteractions(modelBuilder);
             PopulateIngredientTypes(modelBuilder);
+            PopulateMockData(modelBuilder);
         }
 
-        private void PopulatePreferences(ModelBuilder modelBuilder)
+        private void PopulateMockData(ModelBuilder modelBuilder)
+        {
+
+            // Add more ingredients
+            // Existing: Id=3 (Enginar), Id=4 (Zeytinyağı)
+            // Add a variety of other ingredients
+            modelBuilder.Entity<Ingredients>().HasData(
+                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 },
+                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 },
+                new Ingredients { Id = 5, Name = "Domates", TypeId = 1 },
+                new Ingredients { Id = 6, Name = "Soğan", TypeId = 1 },
+                new Ingredients { Id = 7, Name = "Sarımsak", TypeId = 1 },
+                new Ingredients { Id = 8, Name = "Tuz", TypeId = 7 },        // Spice
+                new Ingredients { Id = 9, Name = "Biber", TypeId = 7 },      // Spice
+                new Ingredients { Id = 10, Name = "Limon Suyu", TypeId = 2 },
+                new Ingredients { Id = 11, Name = "Marul", TypeId = 1 },
+                new Ingredients { Id = 12, Name = "Peynir", TypeId = 4 },     // Dairy
+                new Ingredients { Id = 13, Name = "Bulgur", TypeId = 5 },     // Grain
+                new Ingredients { Id = 14, Name = "Balık", TypeId = 6 },      // Seafood
+                new Ingredients { Id = 15, Name = "Yumurta", TypeId = 6 },    // Let's assume seafood = animal products, or add a new type if needed
+                new Ingredients { Id = 16, Name = "Maydanoz", TypeId = 8 },   // Herb
+                new Ingredients { Id = 17, Name = "Ceviz", TypeId = 9 },       // Nuts & Seeds
+                new Ingredients { Id = 18, Name = "Nane", TypeId = 8 },        // Herb
+                new Ingredients { Id = 19, Name = "Elma", TypeId = 2 },        // Fruit
+                new Ingredients { Id = 20, Name = "Bal", TypeId = 2 }          // Fruit/honey (assuming Fruit type)
+            );
+
+
+            modelBuilder.Entity<Recipes_Ingredients>().HasData(
+                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },          // Enginar
+                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }  // Zeytinyağı
+            );
+
+
+
+            // Additional Recipes (20 total, including Id=2)
+            var recipesToAdd = new List<Recipes>();
+            var recipeHeaders = new[]
+            {
+        "Zeytinyağlı Enginar Kulesi", "Enginar & Zeytinli Püre", "Bahar Enginar Salatası", "Enginar Çorbası",
+        "Enginar Soslu Makarna", "Enginar & Avokado Salatası", "Zeytinyağlı Enginar Ruloları", "Enginarlı Yoğurtlu Meze",
+        "Enginar Dolgulu Kabak Çiçeği", "Enginarlı Humus", "Kremalı Enginar Çorbası", "Enginar Pane",
+        "Enginar Frittata", "Enginar & Fesleğenli Pesto", "Enginarlı Pizza", "Enginar Kebabı",
+        "Baharatlı Enginar Atıştırmalığı", "Enginar & Kuşkonmaz Garnitürü", "Enginarlı Patates Püresi", "Limonlu Enginar Tatlısı",
+        "Enginar ve Tulum Peynirli Salata", "Fırında Parmesanlı Enginar", "Zeytin Ezmesi ile Enginar Kanepesi",
+        "Enginarlı Couscous Salatası", "Kinoa ve Enginar Pilavı", "Enginarlı Karides Sote", "Enginar & Nar Ekşili Sos",
+        "Fırında Baharatlı Enginar Yaprakları", "Enginarlı Sebze Güveci", "Enginar Bruschetta", "Zeytinyağlı Enginar Şakşuka",
+        "Enginarlı Mercimek Salatası", "Enginar Tatlısı", "Enginar ve Somon Carpaccio", "Enginar Tartar",
+        "Enginar Püresi ile Dana Eti", "Enginar & Ispanaklı Pide", "Enginarlı Kabak Çorbası", "Enginar Çiçeği Tatlısı",
+        "Enginarlı Zeytinyağlı Sarma", "Fırında Enginarlı Kabak", "Enginar ve Labneli Tart", "Enginarlı Bezelye Garnitürü",
+        "Enginar Dolgulu Tavuk", "Enginarlı Makarna Salatası", "Fırında Enginarlı Yumurta", "Enginar Graten",
+        "Enginar ve Hardal Sosu", "Enginarlı Deniz Mahsulleri Tabağı", "Enginar Çıtırları", "Enginar Kalbi Mezesı",
+        "Zeytinyağlı Enginar Kulesi", "Enginar & Zeytinli Püre", "Bahar Enginar Salatası", "Enginar Çorbası",
+        "Akdeniz Enginar Tabağı", "Limonlu Enginar Sosu", "Fırında Enginar Cipsi", "Enginar & Peynir Ezmesi",
+        "Enginarlı Bulgur Pilavı", "Zeytinyağlı Enginar Dolması", "Közlenmiş Enginar Kreması", "Enginar Turşusu",
+        "Enginarlı Yeşil Salata", "Enginarlı Omlet", "Enginar Köftesi", "Enginar Smoothie",
+        "Enginar Tart", "Enginar Çayı", "Enginar Suflesi", "Enginar Patatesli Güveç",
+        "Enginar ve Tereyağlı Sos", "Enginarlı Dondurma", "Enginarlı Beyaz Peynir Ezmesi", "Enginar Kroket",
+        "Enginar & Fırında Kuşkonmaz", "Enginar Tatlı Topları", "Enginar Fırında Peynirli", "Enginar Çikolata Fonu",
+        "Enginar ve Yoğurtlu Kabak", "Enginar Çorbası Parmesanlı", "Enginar Çorbası Tavuklu", "Enginar Kalbi Pane",
+        "Zeytinli Enginar Tart", "Enginar ve Baharatlı Sebzeler", "Enginar Şiş", "Enginar Zeytinyağlı Pilaki",
+        "Enginarlı Mantı", "Enginar Tavuklu Salata", "Enginarlı Lahana Salatası", "Enginar ve Fesleğenli Frittata",
+        "Enginar Tava", "Enginar Çubukları", "Enginar & Maydanozlu Tereyağı", "Fırında Enginar Sufle",
+        "Enginar & Limonlu Patates", "Enginar Böreği", "Enginarlı Havuçlu Salata", "Enginar Tatlı Soslu",
+        "Enginar Ezmesi Pesto", "Enginarlı Balık Güveç", "Enginar ve Naneli Dip", "Enginar Kalp Tabağı", "Oğuzhan'ın Enginar Suflesi",
+    };
+
+            int recipeIdCounter = 3;
+            Random rand = new Random();
+            foreach (var header in recipeHeaders)
+            {
+                // Random userId from "1" to "5"
+                string userId = rand.Next(1, 6).ToString();
+                recipesToAdd.Add(new Recipes
+                {
+                    Id = recipeIdCounter,
+                    Header = header,
+                    BodyText = $"{header} hazırlanışı, enginar ve çeşitli malzemelerle harmanlanır.",
+                    UserId = userId,
+                    ServingSize = rand.Next(1,11),
+                    PreparationTime = rand.Next(1,25) * 15,
+                    CreatedAt = new DateTime()
+                });
+                recipeIdCounter++;
+            }
+
+            modelBuilder.Entity<Recipes>().HasData(recipesToAdd);
+
+            var recipeIngredientsToAdd = new List<Recipes_Ingredients>();
+
+            // Add Recipes_Ingredients for new Recipes
+            // Assign a random set of 2-3 ingredients for variety
+            var allIngredientsIds = new[] {1,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+            var measuremenetsUnits = new[] { "adet", "kap", "bardak", "tane", "çimdik", "avuç", "yemek kaşığı", "tatlı kaşığı", "kilo" };
+            // We'll keep it simple and just pick 3 random ingredients per recipe.
+            int riCounter = 5;
+            for (int rId = 3; rId <= 2 + recipeHeaders.Length; rId++)
+            {
+                // pick 3 distinct ingredients randomly
+                var ingSet = allIngredientsIds.OrderBy(x => rand.Next()).Take(rand.Next(3,10)).ToList();
+                foreach (var ing in ingSet)
+                {
+                    recipeIngredientsToAdd.Add(new Recipes_Ingredients
+                    {
+                        Id = riCounter,
+                        RecipeId = rId,
+                        IngredientId = ing,
+                        Quantity = rand.Next(1, 5),
+                        Unit = measuremenetsUnits.OrderBy(x => rand.Next()).First()
+                    });
+                    riCounter++;
+                }
+            }
+
+            modelBuilder.Entity<Recipes_Ingredients>().HasData(recipeIngredientsToAdd);
+
+            // Additional Blogs 100 total
+            var blogsToAdd = new List<Blogs>();
+            var blogHeaders = new[]
+                {
+                    "Makarna ve Enginar Aşkı", "Avokado ile Hafiflik", "Rulo Şıklığı", "Yoğurtlu Lezzet Patlaması",
+                    "Kabak Çiçeğinde Enginar", "Humusun Sırrı", "Kremanın Yumuşaklığı", "Kızarmış Keyif",
+                    "Frittata ile Güne Başla", "Fesleğenli Taze Notalar", "Pizzada Akdeniz Esintisi", "Kebabın Enginar Hali",
+                    "Baharatlı Atıştırmalıklar", "Kuşkonmazın Tazeliği", "Patates ve Enginar Uyumu", "Limonlu Tatlı Dokunuş",
+                    "Tulum Peynirinin Şıklığı", "Parmesan İle Fırın Keyfi", "Zeytinli Kanepenin Lezzeti",
+                    "Couscous Şöleni", "Kinoanın Gücü", "Deniz Mahsulleri ve Enginar", "Nar Ekşisinin Aroması",
+                    "Yaprakların Fırında Dansı", "Sebze Güvecin Kraliçesi", "Bruschetta ile Hafiflik", "Şakşukanın Yeni Hali",
+                    "Mercimek ve Enginar Uyumu", "Tatlıda Enginar Denemesi", "Somonun Zenginliği", "Tartarın Zerafeti",
+                    "Dana Etinin Püresi", "Pideye Yeni Bir Soluk", "Kabak ve Enginar Çorbası", "Tatlı Çiçekler",
+                    "Zeytinyağlı Dolmanın Kraliçesi", "Kabak Fırında Yeniden", "Labne İle Uyum", "Bezelye ile Taze Bir Dokunuş",
+                    "Tavuğun Dolgulu Şöleni", "Makarna Salatasında Fark", "Yumurta ve Fırında Uyumu", "Gratenin Altın Çağı",
+                    "Hardallı Sos Şıklığı", "Denizden Sofraya", "Çıtırların Cazibesi", "Kalplerde Bir Lezzet",
+                    "Kulenin Zirvesi", "Pürede Gizli Tatlar", "Baharın Getirdiği Tazelik", "Kaseye Dolu Çorba",
+                    "Akdeniz Mutfağının İncisi", "Sosun Asidik Tadına Yolculuk", "Fırından Gelen Cips Keyfi", "Peynir Ezmesi ve Lezzet",
+                    "Bulgurun Dansı", "Dolmada Şıklık", "Kremanın Közle Uyumu", "Turşuda Keskin Tatlar",
+                    "Yeşilin Ferahlığı", "Güne Omletle Başlayın", "Köfte ve Enginarın Uyumu", "Smoothie ile Sağlık",
+                    "Tartta Tatlı Kaçamak", "Çayda Farklı Bir Deneyim", "Suflede Zirve Tat", "Güveçte Lezzet Patlaması",
+                    "Tereyağında Mucize", "Dondurmanın Enginarlı Hali", "Peynir Ezmesinin Tatlı Versiyonu", "Kroket ile Atıştırmalık Keyfi",
+                    "Fırında Kuşkonmaz Uyumu", "Tatlı Topların Zirvesi", "Peynirli Fırında Harmoni", "Çikolatada Enginar Şaşkınlığı",
+                    "Yoğurt ve Kabak Uyumu", "Çorbanın Parmesan Dokunuşu", "Tavuklu Çorbanın Sırrı", "Pane ile Altın Renkler",
+                    "Tartta Zeytin Aşkı", "Sebzelerin Baharatlı Dansı", "Şiş Lezzet", "Pilakide Hafiflik",
+                    "Mantının Enginar Yorumu", "Salatada Tavuğun Efsanesi", "Lahananın Tazeliği", "Frittata Şıklığı",
+                    "Tavada Lezzet Patlaması", "Çubuklarda Hafiflik", "Maydanozla Aromalı Tereyağı", "Fırında Sufle Denemesi",
+                    "Limonun Enginarla Uyumu", "Börek ve Enginar Şıklığı", "Havuçlu Salatada Farklılık", "Tatlı Sosun Enginar Yorumu",
+                    "Ezmede Pesto Esintisi", "Balık Güveçte Tat", "Naneli Dip Ferahlığı", "Kalpten Gelen Lezzet",  "Oğuzhan'ınkini yemeden ben en iyisini yedim deme!"
+                };
+
+
+            int blogIdCounter = 2;
+            int recipeCount = 2 + recipeHeaders.Length; // total recipes
+            foreach (var bHeader in blogHeaders)
+            {
+                string userId = rand.Next(1, 6).ToString();
+                int recipeId = rand.Next(2, recipeCount + 1); // pick a random recipe from 2 to (2+length)
+                blogsToAdd.Add(new Blogs
+                {
+                    Id = blogIdCounter,
+                    RecipeId = recipeId,
+                    Header = bHeader,
+                    BodyText = $"{bHeader} blog yazısı, enginarın farklı yönlerini keşfedin.",
+                    UserId = userId,
+                    CreatedAt = new DateTime()
+                });
+                blogIdCounter++;
+            }
+
+            modelBuilder.Entity<Blogs>().HasData(blogsToAdd);
+        }
+
+            private void PopulatePreferences(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Preferences>(entity =>
             {
