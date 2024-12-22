@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/user")]
+    [Route("api/v{version:apiVersion}/users")]
     [ApiController]
     public class UserController : ApiControllerBase
     {

@@ -7,7 +7,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/blog")]
+    [Route("api/v{version:apiVersion}/blogs")]
     [ApiController]
     public class BlogController : ApiControllerBase
     {

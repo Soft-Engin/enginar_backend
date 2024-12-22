@@ -9,7 +9,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/event")]
+    [Route("api/v{version:apiVersion}/events")]
     [ApiController]
     public class EventController : ApiControllerBase
     {
@@ -150,9 +150,9 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpPost("AttendToEvent/{eventId}")]
+        [HttpPost("{eventId}/toggle-event-attendance")]
         [Authorize]
-        public async Task<IActionResult> JoinToEvent(int eventId)
+        public async Task<IActionResult> ToggleEventAttendance(int eventId)
         {
             try
             {

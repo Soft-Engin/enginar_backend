@@ -426,7 +426,7 @@ namespace BackEngin.Tests.Controllers
                              .ReturnsAsync(true);
 
             // Act
-            var result = await _eventController.JoinToEvent(eventId);
+            var result = await _eventController.ToggleEventAttendance(eventId);
 
             // Assert
             result.Should().BeOfType<OkObjectResult>();
@@ -443,7 +443,7 @@ namespace BackEngin.Tests.Controllers
                              .ReturnsAsync(false);
 
             // Act
-            var result = await _eventController.JoinToEvent(eventId);
+            var result = await _eventController.ToggleEventAttendance(eventId);
 
             // Assert
             result.Should().BeOfType<OkObjectResult>();
@@ -460,7 +460,7 @@ namespace BackEngin.Tests.Controllers
                              .ThrowsAsync(new ArgumentException("Invalid event ID"));
 
             // Act
-            var result = await _eventController.JoinToEvent(eventId);
+            var result = await _eventController.ToggleEventAttendance(eventId);
 
             // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
@@ -477,7 +477,7 @@ namespace BackEngin.Tests.Controllers
                              .ThrowsAsync(new Exception("Unexpected error"));
 
             // Act
-            var result = await _eventController.JoinToEvent(eventId);
+            var result = await _eventController.ToggleEventAttendance(eventId);
 
             // Assert
             result.Should().BeOfType<ObjectResult>();
