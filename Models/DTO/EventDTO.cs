@@ -49,9 +49,6 @@ namespace Models.DTO
         public DateTime Date { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
         public int DistrictId { get; set; } // Existing district ID
 
         [Required]
