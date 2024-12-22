@@ -2,7 +2,7 @@
 
 namespace DataAccess.Repositories.IRepositories
 {
-    public interface IEventsRepository : IRepository<Events>
+    public interface IEventsRepository : IRepository<Events>, IFeedProviderRepository<Events>
     {
     }
 }
