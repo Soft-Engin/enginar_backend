@@ -38,7 +38,6 @@ namespace BackEngin.Services
                 UserId = b.UserId,
                 UserName = userDictionary.ContainsKey(b.UserId) ? userDictionary[b.UserId] : "Unknown",
                 RecipeId = b.RecipeId,
-                Image = b.Image,
                 CreatedAt = b.CreatedAt,
             }).ToList();
 
@@ -77,7 +76,8 @@ namespace BackEngin.Services
                         Header = createBlogDTO.Recipe.Header,
                         BodyText = createBlogDTO.Recipe.BodyText,
                         Ingredients = createBlogDTO.Recipe.Ingredients,
-                        Image = createBlogDTO.Recipe.Image,
+                        BannerImage = createBlogDTO.Recipe.BannerImage,
+                        StepImages = createBlogDTO.Recipe.StepImages
                     };
 
                     var createdRecipe = await _recipeService.CreateRecipe(userId, createRecipeDTO);
@@ -92,7 +92,7 @@ namespace BackEngin.Services
                 BodyText = createBlogDTO.BodyText,
                 UserId = userId,
                 RecipeId = recipeId, // This will be null if no recipe is provided
-                Image = createBlogDTO.Image,
+                BannerImage = createBlogDTO.BannerImage,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -107,7 +107,6 @@ namespace BackEngin.Services
                 BodyText = newBlog.BodyText,
                 UserId = newBlog.UserId,
                 RecipeId = newBlog.RecipeId, // This will be null if no recipe was linked
-                Image = newBlog.Image, // This will be null if no image added
                 CreatedAt = newBlog.CreatedAt,
             };
         }
@@ -122,7 +121,7 @@ namespace BackEngin.Services
             blog.Header = updateBlogDTO.Header;
             blog.BodyText = updateBlogDTO.BodyText;
             blog.UserId = blog.UserId; // its stupid but the owner does not change hehe
-            blog.Image = updateBlogDTO.Image;
+            blog.BannerImage = updateBlogDTO.BannerImage;
 
             // Handle recipe updates
             if (updateBlogDTO.Recipe != null)
@@ -139,7 +138,8 @@ namespace BackEngin.Services
                     {
                         Header = updateBlogDTO.Recipe.Header,
                         BodyText = updateBlogDTO.Recipe.BodyText,
-                        Image = updateBlogDTO.Recipe.Image,
+                        BannerImage = updateBlogDTO.Recipe.BannerImage,
+                        StepImages = updateBlogDTO.Recipe.StepImages,
                         Ingredients = updateBlogDTO.Recipe.Ingredients
                     };
 
@@ -173,7 +173,6 @@ namespace BackEngin.Services
                 UserId = blog.UserId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 RecipeId = blog.RecipeId,
-                Image = blog.Image,
                 CreatedAt = blog.CreatedAt,
             };
         }
@@ -200,7 +199,6 @@ namespace BackEngin.Services
                 RecipeId = blog.RecipeId,
                 RecipeHeader = recipeDetails?.Header,
                 Recipe = recipeDetails ,// Include the full recipe details
-                Image = blog.Image,
                 CreatedAt = blog.CreatedAt,
             };
         }
@@ -318,5 +316,12 @@ namespace BackEngin.Services
             };
         }
 
+        public async Task<byte[]?> GetBlogBannerImage(int blogId)
+        {
+            var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
+            if (blog == null) return null;
+
+            return blog.BannerImage;
+        }
     }
 }

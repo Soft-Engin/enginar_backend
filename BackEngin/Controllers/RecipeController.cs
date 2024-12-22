@@ -69,6 +69,16 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Ingredient quantity must be greater than 0." });
             }
 
+            if (recipeDto.Steps == null || recipeDto.Steps.Length == 0)
+            {
+                return BadRequest(new { message = "Recipe must have at least one step." });
+            }
+
+            if (recipeDto.Steps.Any(string.IsNullOrWhiteSpace))
+            {
+                return BadRequest(new { message = "Recipe steps cannot be empty." });
+            }
+
             try
             {
                 var recipe = new CreateRecipeDTO
@@ -76,10 +86,11 @@ namespace BackEngin.Controllers
                     Header = recipeDto.Header,
                     BodyText = recipeDto.BodyText,
                     Ingredients = recipeDto.Ingredients,
-                    Image = recipeDto.Image,
+                    BannerImage = recipeDto.BannerImage,
+                    StepImages = recipeDto.StepImages,
                     ServingSize = recipeDto.ServingSize,
-                    PreparationTime = recipeDto.PreparationTime
-
+                    PreparationTime = recipeDto.PreparationTime,
+                    Steps = recipeDto.Steps
                 };
 
                 string userId = await GetActiveUserId();
@@ -117,6 +128,42 @@ namespace BackEngin.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("{recipeId}/banner")]
+        public async Task<IActionResult> GetRecipeBanner(int recipeId)
+        {
+            try
+            {
+                var image = await _recipeService.GetRecipeBannerImage(recipeId);
+                if (image == null) 
+                    return NotFound(new { message = "No banner image found for this recipe." });
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("{recipeId}/steps/{stepIndex}/image")]
+        public async Task<IActionResult> GetRecipeStepImage(int recipeId, int stepIndex)
+        {
+            try
+            {
+                var image = await _recipeService.GetRecipeStepImage(recipeId, stepIndex);
+                if (image == null) 
+                    return NotFound(new { message = $"No image found for step {stepIndex} of recipe {recipeId}." });
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 

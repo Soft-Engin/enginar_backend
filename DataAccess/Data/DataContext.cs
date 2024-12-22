@@ -5,6 +5,8 @@ using Models;
 using System.Reflection.Emit;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Models.InteractionModels;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace BackEngin.Data
 {
@@ -36,7 +38,6 @@ namespace BackEngin.Data
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
-
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
         public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
 
@@ -126,7 +127,23 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreparationTime= 45,  UserId = "1", CreatedAt = new DateTime() }
+                new Recipes { 
+                    Id = 2, 
+                    Header = "Enginar Şöleni", 
+                    BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
+                    ServingSize = 2, 
+                    PreparationTime = 45,  
+                    UserId = "1", 
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400),
+                    StepImages = GenerateStepImages(3), // Generate 3 step images
+                    
+                    Steps = new[] { 
+                        "Enginarları temizle", 
+                        "Zeytinyağında kavur", 
+                        "Servis et" 
+                    }
+                }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
@@ -225,6 +242,34 @@ namespace BackEngin.Data
             PopulateMockData(modelBuilder);
         }
 
+        private byte[] GenerateDummyImage(int width = 100, int height = 100)
+        {
+            using var image = new Bitmap(width, height);
+            using var graphics = Graphics.FromImage(image);
+            
+            // Fill with a random color
+            using var brush = new SolidBrush(Color.FromArgb(
+                Random.Shared.Next(256),
+                Random.Shared.Next(256),
+                Random.Shared.Next(256)
+            ));
+            graphics.FillRectangle(brush, 0, 0, width, height);
+
+            using var ms = new MemoryStream();
+            image.Save(ms, ImageFormat.Jpeg);
+            return ms.ToArray();
+        }
+
+        private byte[][] GenerateStepImages(int count)
+        {
+            var images = new byte[count][];
+            for (int i = 0; i < count; i++)
+            {
+                images[i] = GenerateDummyImage(200, 200);
+            }
+            return images;
+        }
+
         private void PopulateMockData(ModelBuilder modelBuilder)
         {
 
@@ -306,7 +351,14 @@ namespace BackEngin.Data
                     UserId = userId,
                     ServingSize = rand.Next(1,11),
                     PreparationTime = rand.Next(1,25) * 15,
-                    CreatedAt = new DateTime()
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400),
+                    StepImages = GenerateStepImages(3), // Generate 3 step images
+                    Steps = new[] { 
+                        "Malzemeleri hazırla", 
+                        "Karıştır ve pişir", 
+                        "Servis et" 
+                    }
                 });
                 recipeIdCounter++;
             }
@@ -386,7 +438,8 @@ namespace BackEngin.Data
                     Header = bHeader,
                     BodyText = $"{bHeader} blog yazısı, enginarın farklı yönlerini keşfedin.",
                     UserId = userId,
-                    CreatedAt = new DateTime()
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400)
                 });
                 blogIdCounter++;
             }

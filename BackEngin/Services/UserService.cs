@@ -133,6 +133,11 @@ namespace BackEngin.Services
                 };
             }
 
+            // Update images if provided
+            if (userDTO.BannerImage != null)
+                existingUser.BannerImage = userDTO.BannerImage;
+            if (userDTO.ProfileImage != null)
+                existingUser.ProfileImage = userDTO.ProfileImage;
 
             existingUser.Email = userDTO.Email;
             existingUser.UserName = userDTO.UserName;
@@ -168,7 +173,10 @@ namespace BackEngin.Services
                 District = existingUser.Address != null ? existingUser.Address.District.Name : "District",
                 City = existingUser.Address != null ? existingUser.Address.District.City.Name : "City",
                 Country = existingUser.Address != null ? existingUser.Address.District.City.Country.Name : "Country",
-                PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15
+                PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15,
+                // Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...
+                BannerImage = null,
+                ProfileImage = null
             };
         }
 
@@ -519,11 +527,11 @@ namespace BackEngin.Services
                 Header = r.Header,
                 BodyText = r.BodyText,
                 UserId = r.UserId,
-                UserName = relatedUser.UserName, 
-                Image = r.Image,
+                UserName = relatedUser.UserName,
                 CreatedAt = r.CreatedAt,
                 PreparationTime = r.PreparationTime,
                 ServingSize = r.ServingSize,
+                Steps = r.Steps
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -570,7 +578,6 @@ namespace BackEngin.Services
                 UserId = b.UserId,
                 UserName = relatedUser.UserName,
                 RecipeId = b.RecipeId,
-                Image = b.Image,
                 CreatedAt = b.CreatedAt
             }).ToList();
 
@@ -652,7 +659,20 @@ namespace BackEngin.Services
             };
         }
 
+        public async Task<byte[]?> GetUserBannerImageAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
 
+            return user.BannerImage;
+        }
 
+        public async Task<byte[]?> GetUserProfileImageAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            return user.ProfileImage;
+        }
     }
 }

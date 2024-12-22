@@ -129,7 +129,7 @@ namespace BackEngin.Services
         // Comment on Blog
         public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, CommentRequestDTO commentRequest)
         {
-            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
             }
@@ -144,7 +144,8 @@ namespace BackEngin.Services
                 UserId = userId,
                 BlogId = blogId,
                 CommentText = commentRequest.Text,
-                ImageBlob = commentRequest.Image,
+                Images = commentRequest.Images,
+                ImagesCount = commentRequest.Images?.Length ?? 0,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -156,7 +157,7 @@ namespace BackEngin.Services
                 Id = comment.Id,
                 Recipe_blog_id = comment.BlogId,
                 Text = comment.CommentText,
-                Image = comment.ImageBlob,
+                ImagesCount = comment.ImagesCount,
                 Timestamp = comment.CreatedAt
             };
         }
@@ -164,7 +165,7 @@ namespace BackEngin.Services
         // Comment on Recipe
         public async Task<CommentDTO> CommentOnRecipe(string userId, int recipeId, CommentRequestDTO commentRequest)
         {
-            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
             }
@@ -180,7 +181,8 @@ namespace BackEngin.Services
                 UserId = userId,
                 RecipeId = recipeId,
                 CommentText = commentRequest.Text,
-                ImageBlob = commentRequest.Image,
+                Images = commentRequest.Images,
+                ImagesCount = commentRequest.Images?.Length ?? 0,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -192,7 +194,7 @@ namespace BackEngin.Services
                 Id = comment.Id,
                 Recipe_blog_id = comment.RecipeId,
                 Text = comment.CommentText,
-                Image = comment.ImageBlob,
+                ImagesCount = comment.ImagesCount,
                 Timestamp = comment.CreatedAt
             };
         }
@@ -204,14 +206,15 @@ namespace BackEngin.Services
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
-            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
             }
 
             comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
-            comment.ImageBlob = commentRequest.Image;
+            comment.Images = commentRequest.Images;
+            comment.ImagesCount = commentRequest.Images?.Length ?? 0;
 
             _unitOfWork.Blog_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
@@ -220,7 +223,7 @@ namespace BackEngin.Services
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
-                Image = comment.ImageBlob,
+                ImagesCount = comment.ImagesCount,
                 Recipe_blog_id = comment.BlogId,
                 Timestamp = comment.CreatedAt
             };
@@ -233,14 +236,15 @@ namespace BackEngin.Services
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
-            if (commentRequest.Image.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
             {
                 throw new ArgumentException("The comment must have text or image");
             }
 
             comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
-            comment.ImageBlob = commentRequest.Image;
+            comment.Images = commentRequest.Images;
+            comment.ImagesCount = commentRequest.Images?.Length ?? 0;
 
             _unitOfWork.Recipe_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
@@ -249,7 +253,7 @@ namespace BackEngin.Services
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
-                Image = comment.ImageBlob,
+                ImagesCount = comment.ImagesCount,
                 Recipe_blog_id = comment.RecipeId,
                 Timestamp = comment.CreatedAt
             };
@@ -344,7 +348,7 @@ namespace BackEngin.Services
                 Id = c.Id,
                 Recipe_blog_id = c.BlogId,
                 Text = c.CommentText,
-                Image = c.ImageBlob,
+                ImagesCount = c.ImagesCount,
                 Timestamp = c.CreatedAt
             }).ToList();
 
@@ -371,7 +375,7 @@ namespace BackEngin.Services
                 Id = c.Id,
                 Recipe_blog_id = c.RecipeId,
                 Text = c.CommentText,
-                Image = c.ImageBlob,
+                ImagesCount = c.ImagesCount,
                 Timestamp = c.CreatedAt
             }).ToList();
 
@@ -384,6 +388,23 @@ namespace BackEngin.Services
             };
         }
 
+        public async Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex)
+        {
+            var comment = await _unitOfWork.Blog_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
+                return null;
+
+            return comment.Images[imageIndex];
+        }
+
+        public async Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex)
+        {
+            var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
+                return null;
+
+            return comment.Images[imageIndex];
+        }
 
     }
 

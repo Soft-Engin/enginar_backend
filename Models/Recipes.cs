@@ -24,7 +24,8 @@ namespace Models
 
         [Required]
         public string BodyText { get; set; }
-        public byte[]? Image { get; set; }
+        public byte[]? BannerImage { get; set; }
+        public byte[][]? StepImages { get; set; }
 
         [Required]
         public int ServingSize { get; set; }
@@ -34,6 +35,9 @@ namespace Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [Required]
+        public string[] Steps { get; set; }
 
         // Navigation property for Recipes_Ingredients
         public ICollection<Recipes_Ingredients> Recipes_Ingredients { get; set; }

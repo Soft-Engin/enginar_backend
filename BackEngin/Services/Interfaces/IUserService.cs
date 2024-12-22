@@ -25,5 +25,7 @@ namespace BackEngin.Services.Interfaces
         Task<PaginatedResponseDTO<LikedBlogsItemDTO>> GetLikedBlogsAsync(string userId, int page, int pageSize);
         Task<PaginatedResponseDTO<EventDTO>> GetUserEventsAsync(string userId, int page, int pageSize);
         Task<PaginatedResponseDTO<LikedRecipesItemDTO>> GetLikedRecipesAsync(string userId, int page, int pageSize);
+        Task<byte[]?> GetUserBannerImageAsync(string userId);
+        Task<byte[]?> GetUserProfileImageAsync(string userId);
     }
 }

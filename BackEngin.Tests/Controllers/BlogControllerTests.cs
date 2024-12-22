@@ -269,5 +269,40 @@ namespace BackEngin.Tests.Controllers
             result.Value.Should().BeEquivalentTo(paginatedBlogs);
         }
 
+        [Fact]
+        public async Task GetBlogBanner_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var blogId = 1;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockBlogService.Setup(s => s.GetBlogBannerImage(blogId))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _blogController.GetBlogBanner(blogId);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetBlogBanner_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var blogId = 1;
+            _mockBlogService.Setup(s => s.GetBlogBannerImage(blogId))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _blogController.GetBlogBanner(blogId);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No banner image found for this blog." });
+        }
+
     }
 }

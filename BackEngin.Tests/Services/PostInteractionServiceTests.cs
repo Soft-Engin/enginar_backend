@@ -74,7 +74,7 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user123";
             var blogId = 1;
-            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Image = null };
+            var commentRequest = new CommentRequestDTO { Text = "Great blog!", Images = null };
 
             // Mock the Blog existence check
             _mockUnitOfWork.Setup(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
@@ -95,7 +95,7 @@ namespace BackEngin.Tests.Services
                                BlogId = blogId,
                                UserId = userId,
                                CommentText = "Great blog!",
-                               ImageBlob = null,
+                               Images = null,
                                CreatedAt = DateTime.UtcNow
                            });
 
@@ -119,7 +119,7 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user123";
             var commentId = 1;
-            var updatedComment = new CommentRequestDTO { Text = "Updated comment", Image = null };
+            var updatedComment = new CommentRequestDTO { Text = "Updated comment", Images = null };
 
             var existingComment = new Blog_Comments
             {
@@ -368,6 +368,140 @@ namespace BackEngin.Tests.Services
             result.Items.Count().Should().Be(2);
             result.TotalCount.Should().Be(8);
             _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogCommentImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var comment = new Blog_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { expectedImage },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetBlogCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogCommentImage_ShouldReturnNull_WhenCommentDoesNotExist()
+        {
+            // Arrange
+            var commentId = 99;
+            var imageIndex = 0;
+
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync((Blog_Comments)null);
+
+            // Act
+            var result = await _service.GetBlogCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBlogCommentImage_ShouldReturnNull_WhenImageIndexOutOfRange()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 1; // Out of range
+            var comment = new Blog_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { new byte[] { 1, 2, 3 } },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetBlogCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var comment = new Recipe_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { expectedImage },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenCommentDoesNotExist()
+        {
+            // Arrange
+            var commentId = 99;
+            var imageIndex = 0;
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync((Recipe_Comments)null);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenImageIndexOutOfRange()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 1; // Out of range
+            var comment = new Recipe_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { new byte[] { 1, 2, 3 } },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
         }
 
     }

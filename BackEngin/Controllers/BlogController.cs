@@ -152,6 +152,24 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpGet("{blogId}/banner")]
+        public async Task<IActionResult> GetBlogBanner(int blogId)
+        {
+            try
+            {
+                var image = await _blogService.GetBlogBannerImage(blogId);
+                if (image == null) 
+                    return NotFound( new { message = "No banner image found for this blog."});
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchBlogs(
             [FromQuery] BlogSearchParams searchParams,
