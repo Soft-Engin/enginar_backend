@@ -14,16 +14,44 @@ namespace BackEngin.Services
     public class FeedService : IFeedService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEventService _eventService;
 
 
-        public FeedService(IUnitOfWork unitOfWork)
+        public FeedService(IUnitOfWork unitOfWork, IEventService eventService)
         {
             _unitOfWork = unitOfWork;
+            _eventService = eventService;
         }
 
-        public async Task<PaginatedResponseDTO<UserDTO>> GetEventFeed(string seed, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<EventDTO>> GetEventFeed(string seed, int page, int pageSize)
         {
-            throw new NotImplementedException();
+            // Step 1: Calculate seed-based values
+            var seedVal = GetSeedValue(seed);
+            var mult = GetMultiplier(seedVal);
+            var limiter = (uint)10000; // Cap weights for consistent ordering
+
+            // Step 2: Fetch paginated recipes with calculated weights
+            var (events, totalCount) = await _unitOfWork.Events.GetPaginatedBySeedAsync(
+                multiplier: mult,
+                seedValue: seedVal,
+                limiter: limiter,
+                pageNumber: page,
+                pageSize: pageSize,
+                includeProperties: "Creator,Address,Address.District,Address.District.City,Address.District.City.Country",
+                predicate: e => e.Date > DateTime.Now
+            );
+
+            // Step 3: Map to DTO
+            var eventDTOs = events.Select(_eventService.MapEventToDto).ToList();
+
+            // Step 4: Construct and return the paginated response
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = eventDTOs,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<PaginatedResponseDTO<BlogDTO>> GetBlogsFeed(string seed, int page, int pageSize)
@@ -39,7 +67,8 @@ namespace BackEngin.Services
                 seedValue: seedVal,
                 limiter: limiter,
                 pageNumber: page,
-                pageSize: pageSize
+                pageSize: pageSize,
+                includeProperties: "User"
             );
 
             // Step 3: Map to DTO
@@ -49,7 +78,9 @@ namespace BackEngin.Services
                 Header = b.Header,
                 BodyText = b.BodyText,
                 UserId = b.UserId,
-                RecipeId = b.RecipeId
+                UserName = b.User.UserName,
+                RecipeId = b.RecipeId,
+                CreatedAt = b.CreatedAt
             }).ToList();
 
             // Step 4: Construct and return the paginated response
@@ -76,7 +107,8 @@ namespace BackEngin.Services
                 seedValue: seedVal,
                 limiter: limiter,
                 pageNumber: page,
-                pageSize: pageSize
+                pageSize: pageSize,
+                includeProperties: "User"
             );
 
             // Step 3: Map to DTO
@@ -84,7 +116,12 @@ namespace BackEngin.Services
             {
                 Id = r.Id,
                 Header = r.Header,
-                BodyText = r.BodyText
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = r.User.UserName,
+                ServingSize = r.ServingSize,
+                PreparationTime = r.PreparationTime,
+                CreatedAt = r.CreatedAt
             }).ToList();
 
             // Step 4: Construct and return the paginated response
