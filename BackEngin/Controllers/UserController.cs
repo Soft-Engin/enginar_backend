@@ -317,7 +317,7 @@ namespace BackEngin.Controllers
 
                 if (likedRecipes == null || !likedRecipes.Items.Any())
                 {
-                    return NotFound(new { message = "No liked blogs found for the given user." });
+                    return NotFound(new { message = "No liked recipes found for the given user." });
                 }
 
                 return Ok(likedRecipes);
@@ -357,7 +357,7 @@ namespace BackEngin.Controllers
 
                 if (bookmarks == null || !bookmarks.Items.Any())
                 {
-                    return NotFound(new { message = "No bookmarked blogs found for the given user." });
+                    return NotFound(new { message = "No bookmarked recipes found for the given user." });
                 }
 
                 return Ok(bookmarks);
