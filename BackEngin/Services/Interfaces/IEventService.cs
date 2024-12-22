@@ -22,6 +22,6 @@ namespace BackEngin.Services.Interfaces
         Task<IEnumerable<CountryDTO>> GetAllCountriesAsync();
         Task<CityDTO> GetCityByDistrictIdAsync(int districtId);
         Task<CountryDTO> GetCountryByCityIdAsync(int cityId);
-
+        Task<PaginatedResponseDTO<EventDTO>> SearchEventsAsync(EventSearchParams searchParams, int pageNumber, int pageSize);
     }
 }

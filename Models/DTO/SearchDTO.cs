@@ -72,4 +72,24 @@
         public string SortOrder { get; set; } = "asc";
     }
 
+    public class EventSearchParams
+    {
+        public string? TitleContains { get; set; }
+        public string? BodyContains { get; set; }
+        public string? CreatorUserName { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        
+        // Location filters
+        public List<int> CountryIds { get; set; } = new List<int>();
+        public List<int> CityIds { get; set; } = new List<int>();
+        public List<int> DistrictIds { get; set; } = new List<int>();
+        
+        // Requirements filter
+        public List<int> RequirementIds { get; set; } = new List<int>();
+        
+        // Sorting: Allowed fields: Title, Date, CreatorUserName
+        public string SortBy { get; set; } = "Date";
+        public string SortOrder { get; set; } = "asc"; // "asc" or "desc"
+    }
 }

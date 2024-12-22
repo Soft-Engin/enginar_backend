@@ -1,16 +1,12 @@
 ﻿using BackEngin.Services;
-using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using FluentAssertions;
 using Moq;
 using Models;
 using Models.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Xunit;
+using BackEngin.Tests.Utils;
+using MockQueryable.Moq;
 
 namespace BackEngin.Tests.Services
 {
@@ -808,6 +804,302 @@ namespace BackEngin.Tests.Services
             result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
             result.Items.First().UserName.Should().Be("UserOne");
+        }
+
+        #endregion
+
+        #region SearchEventsAsync Tests
+
+        [Fact]
+        public async Task SearchEvents_ShouldReturnAll_WhenNoFiltersApplied()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress = TestUtilities.CreateAddressFull();
+            var events = new List<Events>
+            {
+                new Events 
+                { 
+                    Id = 1, 
+                    Title = "Event 1", 
+                    CreatorId = "creator1",
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1) 
+                },
+                new Events 
+                { 
+                    Id = 2, 
+                    Title = "Event 2", 
+                    CreatorId = "creator1",
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(2) 
+                }
+            };
+
+            var mockEvents = events.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(mockEvents.Object);
+            SetupDefaultMocks(mockCreator, mockAddress);
+
+            var searchParams = new EventSearchParams();
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(2);
+            result.Items.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldFilterByTitleAndBody()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress = TestUtilities.CreateAddressFull();
+            var events = new List<Events>
+            {
+                new Events 
+                { 
+                    Id = 1, 
+                    Title = "Special Event", 
+                    BodyText = "Fun Description",
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1) 
+                },
+                new Events 
+                { 
+                    Id = 2, 
+                    Title = "Normal Event", 
+                    BodyText = "Special Description",
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1) 
+                }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(events.Object);
+            SetupDefaultMocks(mockCreator, mockAddress);
+
+            var searchParams = new EventSearchParams
+            {
+                TitleContains = "Special",
+                BodyContains = "Fun"
+            };
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Title.Should().Be("Special Event");
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldFilterByDateRange()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress = TestUtilities.CreateAddressFull();
+            var baseDate = DateTime.UtcNow;
+            var events = new List<Events>
+            {
+                new Events 
+                { 
+                    Id = 1, 
+                    Date = baseDate.AddDays(1),
+                    Creator = mockCreator,
+                    Address = mockAddress
+                },
+                new Events 
+                { 
+                    Id = 2, 
+                    Date = baseDate.AddDays(5),
+                    Creator = mockCreator,
+                    Address = mockAddress
+                }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(events.Object);
+            SetupDefaultMocks(mockCreator, mockAddress);
+
+            var searchParams = new EventSearchParams
+            {
+                FromDate = baseDate,
+                ToDate = baseDate.AddDays(3)
+            };
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Date.Should().Be(baseDate.AddDays(1));
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldFilterByLocation()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress1 = TestUtilities.CreateAddressFull(countryId: 1, cityId: 1, districtId: 1);
+            var mockAddress2 = TestUtilities.CreateAddressFull(countryId: 2, cityId: 2, districtId: 2);
+
+            var events = new List<Events>
+            {
+                new Events 
+                { 
+                    Id = 1, 
+                    Address = mockAddress1,
+                    Creator = mockCreator,
+                    Date = DateTime.UtcNow.AddDays(1)
+                },
+                new Events 
+                { 
+                    Id = 2, 
+                    Address = mockAddress2,
+                    Creator = mockCreator,
+                    Date = DateTime.UtcNow.AddDays(1)
+                }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(events.Object);
+            SetupDefaultMocks(mockCreator, mockAddress1);
+
+            var searchParams = new EventSearchParams
+            {
+                CountryIds = new List<int> { 1 },
+                CityIds = new List<int> { 1 },
+                DistrictIds = new List<int> { 1 }
+            };
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().Address.DistrictId.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldFilterByRequirements()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress = TestUtilities.CreateAddressFull();
+            var mockRequirement = new Requirements { Id = 1, Name = "Test Requirement" };
+
+            var events = new List<Events>
+            {
+                new Events 
+                { 
+                    Id = 1,
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1),
+                    Events_Requirements = new List<Events_Requirements>
+                    {
+                        new Events_Requirements 
+                        { 
+                            EventId = 1, 
+                            RequirementId = 1,
+                            Requirement = mockRequirement
+                        }
+                    }
+                },
+                new Events 
+                { 
+                    Id = 2,
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1),
+                    Events_Requirements = new List<Events_Requirements>()
+                }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(events.Object);
+            SetupDefaultMocks(mockCreator, mockAddress);
+
+            var searchParams = new EventSearchParams
+            {
+                RequirementIds = new List<int> { 1 }
+            };
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, 1, 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().HaveCount(1);
+            result.Items.First().EventId.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldApplyPagination()
+        {
+            // Arrange
+            var mockCreator = new Users { Id = "creator1", UserName = "Creator" };
+            var mockAddress = TestUtilities.CreateAddressFull();
+            var events = Enumerable.Range(1, 25)
+                .Select(i => new Events 
+                { 
+                    Id = i, 
+                    Title = $"Event {i}",
+                    Creator = mockCreator,
+                    Address = mockAddress,
+                    Date = DateTime.UtcNow.AddDays(1)
+                })
+                .AsQueryable()
+                .BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Events.GetQueryable()).Returns(events.Object);
+            SetupDefaultMocks(mockCreator, mockAddress);
+
+            var searchParams = new EventSearchParams();
+            var pageNumber = 2;
+            var pageSize = 10;
+
+            // Act
+            var result = await _eventService.SearchEventsAsync(searchParams, pageNumber, pageSize);
+
+            // Assert
+            result.TotalCount.Should().Be(25);
+            result.Items.Should().HaveCount(10);
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+        }
+
+        private void SetupDefaultMocks(Users creator, Addresses address)
+        {
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(new List<Users> { creator });
+
+            _mockUnitOfWork.Setup(u => u.Addresses.FindAsync(It.IsAny<Func<Addresses, bool>>()))
+                .ReturnsAsync(new List<Addresses> { address });
+
+            _mockUnitOfWork.Setup(u => u.Districts.FindAsync(It.IsAny<Func<Districts, bool>>()))
+                .ReturnsAsync(new List<Districts> { address.District });
+
+            _mockUnitOfWork.Setup(u => u.Cities.FindAsync(It.IsAny<Func<Cities, bool>>()))
+                .ReturnsAsync(new List<Cities> { address.District.City });
+
+            _mockUnitOfWork.Setup(u => u.Countries.FindAsync(It.IsAny<Func<Countries, bool>>()))
+                .ReturnsAsync(new List<Countries> { address.District.City.Country });
+
+            _mockUnitOfWork.Setup(u => u.Events_Requirements.FindAsync(
+                It.IsAny<Expression<Func<Events_Requirements, bool>>>(),
+                It.IsAny<string>()))
+                .ReturnsAsync(new List<Events_Requirements>());
+
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.CountAsync(
+                It.IsAny<Expression<Func<User_Event_Participations, bool>>>()))
+                .ReturnsAsync(0);
         }
 
         #endregion

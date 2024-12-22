@@ -476,5 +476,68 @@ namespace BackEngin.Services
                 Name = city.Country.Name
             };
         }
+
+        public async Task<PaginatedResponseDTO<EventDTO>> SearchEventsAsync(EventSearchParams searchParams, int pageNumber, int pageSize)
+        {
+            var query = _unitOfWork.Events.GetQueryable();
+            
+            // Apply basic filters
+            if (!string.IsNullOrEmpty(searchParams.TitleContains))
+                query = query.Where(e => e.Title.Contains(searchParams.TitleContains));
+
+            if (!string.IsNullOrEmpty(searchParams.BodyContains))
+                query = query.Where(e => e.BodyText.Contains(searchParams.BodyContains));
+
+            if (!string.IsNullOrEmpty(searchParams.CreatorUserName))
+                query = query.Where(e => e.Creator.UserName.Contains(searchParams.CreatorUserName));
+
+            if (searchParams.FromDate.HasValue)
+                query = query.Where(e => e.Date >= searchParams.FromDate.Value);
+
+            if (searchParams.ToDate.HasValue)
+                query = query.Where(e => e.Date <= searchParams.ToDate.Value);
+
+            // Location filters
+            if (searchParams.CountryIds.Any())
+                query = query.Where(e => searchParams.CountryIds.Contains(e.Address.District.City.CountryId));
+
+            if (searchParams.CityIds.Any())
+                query = query.Where(e => searchParams.CityIds.Contains(e.Address.District.CityId));
+
+            if (searchParams.DistrictIds.Any())
+                query = query.Where(e => searchParams.DistrictIds.Contains(e.Address.DistrictId));
+
+            // Requirements filter
+            if (searchParams.RequirementIds.Any())
+            {
+                query = query.Where(e => e.Events_Requirements
+                    .Any(er => searchParams.RequirementIds.Contains(er.RequirementId)));
+            }
+
+            // Rest of the method remains the same...
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
+            {
+                "title" => ascending ? query.OrderBy(e => e.Title) : query.OrderByDescending(e => e.Title),
+                "creatorusername" => ascending ? query.OrderBy(e => e.Creator.UserName) : query.OrderByDescending(e => e.Creator.UserName),
+                _ => ascending ? query.OrderBy(e => e.Date) : query.OrderByDescending(e => e.Date), // Default sort by date
+            };
+
+            var totalCount = await query.CountAsync();
+            var events = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var eventDtos = events.Select(MapEventToDto).ToList();
+
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = eventDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
     }
 }
