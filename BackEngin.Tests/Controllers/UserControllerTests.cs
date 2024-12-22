@@ -530,7 +530,7 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync(imageData);
 
             // Act
-            var result = await _userController.GetUserProfile(userId);
+            var result = await _userController.GetUserProfilePicture(userId);
 
             // Assert
             var fileResult = result.Should().BeOfType<FileContentResult>().Which;
@@ -547,7 +547,7 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _userController.GetUserProfile(userId);
+            var result = await _userController.GetUserProfilePicture(userId);
 
             // Assert
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;

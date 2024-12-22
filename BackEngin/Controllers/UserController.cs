@@ -595,8 +595,8 @@ namespace BackEngin.Controllers
             return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
         }
 
-        [HttpGet("{id}/profile")]
-        public async Task<IActionResult> GetUserProfile(string id)
+        [HttpGet("{id}/profile-picture")]
+        public async Task<IActionResult> GetUserProfilePicture(string id)
         {
             var image = await _userService.GetUserProfileImageAsync(id);
             if (image == null) 
