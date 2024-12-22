@@ -531,6 +531,7 @@ namespace BackEngin.Services
                 CreatedAt = r.CreatedAt,
                 PreparationTime = r.PreparationTime,
                 ServingSize = r.ServingSize,
+                Steps = r.Steps
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>

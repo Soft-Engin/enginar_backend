@@ -36,6 +36,9 @@ namespace Models
         [Required]
         public DateTime CreatedAt { get; set; }
 
+        [Required]
+        public string[] Steps { get; set; }
+
         // Navigation property for Recipes_Ingredients
         public ICollection<Recipes_Ingredients> Recipes_Ingredients { get; set; }
     }

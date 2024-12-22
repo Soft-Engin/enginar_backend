@@ -40,6 +40,7 @@ namespace BackEngin.Services
                 CreatedAt = r.CreatedAt,
                 PreparationTime = r.PreparationTime,
                 ServingSize = r.ServingSize,
+                Steps = r.Steps
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -63,6 +64,7 @@ namespace BackEngin.Services
                 UserId = userId,
                 BannerImage = createRecipeDTO.BannerImage,
                 StepImages = createRecipeDTO.StepImages,
+                Steps = createRecipeDTO.Steps,
                 CreatedAt = DateTime.UtcNow,
                 ServingSize = createRecipeDTO.ServingSize,
                 PreparationTime = createRecipeDTO.PreparationTime,
@@ -126,6 +128,7 @@ namespace BackEngin.Services
                 CreatedAt = newRecipe.CreatedAt,
                 ServingSize = newRecipe.ServingSize,
                 PreparationTime = newRecipe.PreparationTime,
+                Steps = newRecipe.Steps
             };
         }
 
@@ -171,7 +174,7 @@ namespace BackEngin.Services
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
                 PreparationTime = recipe.PreparationTime,
-
+                Steps = recipe.Steps
             };
         }
 
@@ -189,6 +192,7 @@ namespace BackEngin.Services
             recipe.BodyText = updateRecipeDTO.BodyText;
             recipe.BannerImage = updateRecipeDTO.BannerImage;
             recipe.StepImages = updateRecipeDTO.StepImages;
+            recipe.Steps = updateRecipeDTO.Steps;
             recipe.ServingSize = updateRecipeDTO.ServingSize;
             recipe.PreparationTime = updateRecipeDTO.PreparationTime;
 
@@ -279,6 +283,7 @@ namespace BackEngin.Services
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
                 PreparationTime = recipe.PreparationTime,
+                Steps = recipe.Steps,
             };
         }
 

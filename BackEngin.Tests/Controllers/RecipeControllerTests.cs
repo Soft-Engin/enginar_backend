@@ -80,7 +80,8 @@ namespace BackEngin.Tests.Controllers
                                     new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
                                 },
                 ServingSize = 1,
-                PreparationTime = 1
+                PreparationTime = 1,
+                Steps = new[] { "Step 1", "Step 2" }
             };
 
             var createdRecipe = new RecipeDetailsDTO
@@ -99,7 +100,8 @@ namespace BackEngin.Tests.Controllers
                                     }
                                 },
                 ServingSize = 1,
-                PreparationTime = 1
+                PreparationTime = 1,
+                Steps = new[] { "Step 1", "Step 2" }
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))

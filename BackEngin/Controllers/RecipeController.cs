@@ -69,6 +69,16 @@ namespace BackEngin.Controllers
                 return BadRequest(new { message = "Ingredient quantity must be greater than 0." });
             }
 
+            if (recipeDto.Steps == null || recipeDto.Steps.Length == 0)
+            {
+                return BadRequest(new { message = "Recipe must have at least one step." });
+            }
+
+            if (recipeDto.Steps.Any(string.IsNullOrWhiteSpace))
+            {
+                return BadRequest(new { message = "Recipe steps cannot be empty." });
+            }
+
             try
             {
                 var recipe = new CreateRecipeDTO
@@ -79,8 +89,8 @@ namespace BackEngin.Controllers
                     BannerImage = recipeDto.BannerImage,
                     StepImages = recipeDto.StepImages,
                     ServingSize = recipeDto.ServingSize,
-                    PreparationTime = recipeDto.PreparationTime
-
+                    PreparationTime = recipeDto.PreparationTime,
+                    Steps = recipeDto.Steps
                 };
 
                 string userId = await GetActiveUserId();

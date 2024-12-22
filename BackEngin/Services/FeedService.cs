@@ -121,6 +121,7 @@ namespace BackEngin.Services
                 UserName = r.User.UserName,
                 ServingSize = r.ServingSize,
                 PreparationTime = r.PreparationTime,
+                Steps = r.Steps,
                 CreatedAt = r.CreatedAt
             }).ToList();
 
