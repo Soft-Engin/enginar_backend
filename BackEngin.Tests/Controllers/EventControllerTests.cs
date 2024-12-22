@@ -164,7 +164,6 @@ namespace BackEngin.Tests.Controllers
                 Title = "New Event",
                 BodyText = "This is a new event",
                 Date = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now,
                 DistrictId = 1,
                 AddressName = "Some Place",
                 Street = "123 Main St",
@@ -205,7 +204,6 @@ namespace BackEngin.Tests.Controllers
                 Title = "New Event",
                 BodyText = "This is a new event",
                 Date = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now,
                 DistrictId = 1,
                 AddressName = "Some Place",
                 Street = "123 Main St"
@@ -232,7 +230,6 @@ namespace BackEngin.Tests.Controllers
                 Title = "New Event",
                 BodyText = "This is a new event",
                 Date = DateTime.Now.AddDays(1),
-                CreatedAt = DateTime.Now,
                 DistrictId = 1,
                 AddressName = "Some Place",
                 Street = "123 Main St"
