@@ -307,7 +307,6 @@ namespace BackEngin.Tests.Services
                 Title = "New Event",
                 BodyText = "Some body text",
                 Date = DateTime.UtcNow.AddDays(1),
-                CreatedAt = DateTime.UtcNow,
                 DistrictId = 10,
                 AddressName = "Event Location",
                 Street = "123 Main St",

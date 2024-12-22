@@ -20,6 +20,7 @@ namespace DataAccess.Repositories
         void Update(T entity);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
+        Task<int> CountAsync();
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
         IQueryable<T> GetQueryable();
     }
