@@ -172,5 +172,20 @@ namespace BackEngin.Tests.Utils
             }
             return blogs;
         }
+
+        public static Addresses CreateAddressFull(int countryId = 1, int cityId = 1, int districtId = 1)
+        {
+            var country = new Countries { Id = countryId, Name = $"Country {countryId}" };
+            var city = new Cities { Id = cityId, Name = $"City {cityId}", Country = country, CountryId = countryId };
+            var district = new Districts { Id = districtId, Name = $"District {districtId}", City = city, CityId = cityId };
+            return new Addresses
+            {
+                Id = 1,
+                Name = "Test Address",
+                Street = "Test Street",
+                District = district,
+                DistrictId = districtId
+            };
+        }
     }
 }

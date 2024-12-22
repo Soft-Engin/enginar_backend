@@ -291,5 +291,26 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchEvents(
+            [FromQuery] EventSearchParams searchParams,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid request data.", errors = ModelState });
+
+            try
+            {
+                var result = await _eventService.SearchEventsAsync(searchParams, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
     }
 }
