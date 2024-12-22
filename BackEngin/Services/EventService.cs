@@ -393,7 +393,7 @@ namespace BackEngin.Services
             if (pageSize <= 0) pageSize = 10;
 
             // Fetch the total count of requirements for pagination
-            var totalRequirements = await _unitOfWork.Requirements.CountAsync(null); // Assuming CountAsync is available in the repository
+            var totalRequirements = await _unitOfWork.Requirements.CountAsync(); // Assuming CountAsync is available in the repository
 
             // Fetch the requirements for the current page
             var requirements = await _unitOfWork.Requirements

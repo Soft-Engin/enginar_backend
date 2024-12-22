@@ -11,6 +11,7 @@ namespace BackEngin.Services.Interfaces
         Task<EventDTO?> GetEventByIdAsync(int eventId);
         Task<EventDTO?> CreateEventAsync(CreateEventDTO createEventDto, string creatorId, string creatorName);
         Task<EventDTO?> UpdateEventAsync(int eventId, UpdateEventDTO updateEventDto);
+        EventDTO MapEventToDto(Events e);
         Task<bool> DeleteEventAsync(int eventId);
         Task<string> GetEventOwnerId(int eventId);
         Task<bool> ToggleAttendToEventAsync(int eventId, string userId);
