@@ -35,6 +35,8 @@ namespace Models
         [Required]
         public string BodyText { get; set; }
 
+        // Add this navigation property
+        public ICollection<Events_Requirements> Events_Requirements { get; set; }
 
     }
 }

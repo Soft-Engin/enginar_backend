@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
+using Models;
 
 namespace BackEngin.Tests.Controllers
 {
@@ -734,6 +735,176 @@ namespace BackEngin.Tests.Controllers
             var objectResult = result as ObjectResult;
             objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
             objectResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Error" });
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldReturnOk_WithSearchResults()
+        {
+            // Arrange
+            var searchParams = new EventSearchParams
+            {
+                TitleContains = "Party",
+                FromDate = DateTime.UtcNow,
+                ToDate = DateTime.UtcNow.AddDays(7),
+                CountryIds = new List<int> { 1 },
+                CityIds = new List<int> { 1 },
+                RequirementIds = new List<int> { 1 }
+            };
+
+            var paginatedEvents = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO>
+                {
+                    new EventDTO
+                    {
+                        EventId = 1,
+                        Title = "Birthday Party",
+                        Date = DateTime.UtcNow.AddDays(1),
+                        CreatorUserName = "host1",
+                        Address = new Addresses
+                        {
+                            District = new Districts
+                            {
+                                City = new Cities
+                                {
+                                    Country = new Countries { Id = 1 }
+                                }
+                            }
+                        }
+                    }
+                },
+                TotalCount = 1,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockEventService.Setup(s => s.SearchEventsAsync(searchParams, 1, 10))
+                .ReturnsAsync(paginatedEvents);
+
+            // Act
+            var result = await _eventController.SearchEvents(searchParams, 1, 10);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            okResult.Value.Should().BeEquivalentTo(paginatedEvents);
+            okResult.StatusCode.Should().Be(200);
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            _eventController.ModelState.AddModelError("error", "some error");
+
+            // Act
+            var result = await _eventController.SearchEvents(new EventSearchParams());
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequest = result as BadRequestObjectResult;
+            badRequest.Value.Should().BeEquivalentTo(new { message = "Invalid request data.", errors = _eventController.ModelState });
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldReturnInternalServerError_WhenExceptionOccurs()
+        {
+            // Arrange
+            _mockEventService.Setup(s => s.SearchEventsAsync(
+                It.IsAny<EventSearchParams>(),
+                It.IsAny<int>(),
+                It.IsAny<int>()
+            )).ThrowsAsync(new Exception("Test error"));
+
+            // Act
+            var result = await _eventController.SearchEvents(new EventSearchParams());
+
+            // Assert
+            var statusCodeResult = result.Should().BeOfType<ObjectResult>().Subject;
+            statusCodeResult.StatusCode.Should().Be(500);
+            statusCodeResult.Value.Should().BeEquivalentTo(
+                new { message = "An unexpected error occurred.", details = "Test error" }
+            );
+        }
+
+        [Fact]
+        public async Task SearchEvents_ShouldHandleEmptyResults()
+        {
+            // Arrange
+            var searchParams = new EventSearchParams
+            {
+                TitleContains = "NonexistentEvent"
+            };
+
+            var emptyResponse = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO>(),
+                TotalCount = 0,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockEventService.Setup(s => s.SearchEventsAsync(searchParams, 1, 10))
+                .ReturnsAsync(emptyResponse);
+
+            // Act
+            var result = await _eventController.SearchEvents(searchParams);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var response = okResult.Value as PaginatedResponseDTO<EventDTO>;
+            response.Should().NotBeNull();
+            response.Items.Should().BeEmpty();
+            response.TotalCount.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(null, null, "date", "asc")]
+        [InlineData("test", "desc", "title", null)]
+        [InlineData("", "", "", "")]
+        public async Task SearchEvents_ShouldHandleVariousSearchParameters(
+            string titleContains,
+            string sortOrder,
+            string sortBy,
+            string creatorUserName)
+        {
+            // Arrange
+            var searchParams = new EventSearchParams
+            {
+                TitleContains = titleContains,
+                SortOrder = sortOrder,
+                SortBy = sortBy,
+                CreatorUserName = creatorUserName
+            };
+
+            var response = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO>(),
+                TotalCount = 0,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockEventService.Setup(s => s.SearchEventsAsync(
+                It.Is<EventSearchParams>(sp => 
+                    sp.TitleContains == titleContains &&
+                    sp.SortOrder == sortOrder &&
+                    sp.SortBy == sortBy &&
+                    sp.CreatorUserName == creatorUserName),
+                1, 10))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _eventController.SearchEvents(searchParams);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            _mockEventService.Verify(s => s.SearchEventsAsync(
+                It.Is<EventSearchParams>(sp =>
+                    sp.TitleContains == titleContains &&
+                    sp.SortOrder == sortOrder &&
+                    sp.SortBy == sortBy &&
+                    sp.CreatorUserName == creatorUserName),
+                1, 10), Times.Once);
         }
     }
 }
