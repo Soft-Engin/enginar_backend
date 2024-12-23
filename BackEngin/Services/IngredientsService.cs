@@ -260,7 +260,7 @@ namespace BackEngin.Services
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchParams.NameContains))
-                query = query.Where(i => i.Name.ToLower().Contains(searchParams.NameContains.ToLower()));
+                query = query.Where(i => i.Name.ToLowerInvariant().Contains(searchParams.NameContains.ToLowerInvariant()));
 
             if (searchParams.IngredientTypeIds.Any())
             {
@@ -272,8 +272,8 @@ namespace BackEngin.Services
                 query = query.Where(i => !i.Ingredients_Preferences.Any(ip => searchParams.AllergenIds.Contains(ip.PreferenceId)) || !i.Ingredients_Preferences.Any());
             }
 
-            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
-            query = searchParams.SortBy?.ToLower() switch
+            bool ascending = (searchParams.SortOrder?.ToLowerInvariant() != "desc");
+            query = searchParams.SortBy?.ToLowerInvariant() switch
             {
                 "type" => ascending ? query.OrderBy(i => i.Type.Name) : query.OrderByDescending(i => i.Type.Name),
                 _ => ascending ? query.OrderBy(i => i.Name) : query.OrderByDescending(i => i.Name),

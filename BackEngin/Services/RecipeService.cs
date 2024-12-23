@@ -364,13 +364,13 @@ namespace BackEngin.Services
 
             // Filters with case-insensitive comparison
             if (!string.IsNullOrEmpty(searchParams.HeaderContains))
-                query = query.Where(r => r.Header.ToLower().Contains(searchParams.HeaderContains.ToLower()));
+                query = query.Where(r => r.Header.ToLowerInvariant().Contains(searchParams.HeaderContains.ToLowerInvariant()));
 
             if (!string.IsNullOrEmpty(searchParams.BodyContains))
-                query = query.Where(r => r.BodyText.ToLower().Contains(searchParams.BodyContains.ToLower()));
+                query = query.Where(r => r.BodyText.ToLowerInvariant().Contains(searchParams.BodyContains.ToLowerInvariant()));
 
             if (!string.IsNullOrEmpty(searchParams.UserName))
-                query = query.Where(r => r.User.UserName.ToLower().Contains(searchParams.UserName.ToLower()));
+                query = query.Where(r => r.User.UserName.ToLowerInvariant().Contains(searchParams.UserName.ToLowerInvariant()));
 
             if (searchParams.IngredientIds.Any() || searchParams.AllergenIds.Any())
             {
@@ -395,8 +395,8 @@ namespace BackEngin.Services
             }
 
             // Sorting
-            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
-            query = searchParams.SortBy?.ToLower() switch
+            bool ascending = (searchParams.SortOrder?.ToLowerInvariant() != "desc");
+            query = searchParams.SortBy?.ToLowerInvariant() switch
             {
                 "bodytext" => ascending ? query.OrderBy(r => r.BodyText) : query.OrderByDescending(r => r.BodyText),
                 "userid" => ascending ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId),

@@ -246,13 +246,13 @@ namespace BackEngin.Services
 
             // Apply filters with case-insensitive comparison
             if (!string.IsNullOrEmpty(searchParams.HeaderContains))
-                query = query.Where(b => b.Header.ToLower().Contains(searchParams.HeaderContains.ToLower()));
+                query = query.Where(b => b.Header.ToLowerInvariant().Contains(searchParams.HeaderContains.ToLowerInvariant()));
 
             if (!string.IsNullOrEmpty(searchParams.BodyContains))
-                query = query.Where(b => b.BodyText.ToLower().Contains(searchParams.BodyContains.ToLower()));
+                query = query.Where(b => b.BodyText.ToLowerInvariant().Contains(searchParams.BodyContains.ToLowerInvariant()));
 
             if (!string.IsNullOrEmpty(searchParams.UserName))
-                query = query.Where(b => b.User.UserName.ToLower().Contains(searchParams.UserName.ToLower()));
+                query = query.Where(b => b.User.UserName.ToLowerInvariant().Contains(searchParams.UserName.ToLowerInvariant()));
 
             if (searchParams.RecipeId.HasValue)
                 query = query.Where(b => b.RecipeId == searchParams.RecipeId);
@@ -284,8 +284,8 @@ namespace BackEngin.Services
             }
 
             // Sorting
-            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
-            query = searchParams.SortBy?.ToLower() switch
+            bool ascending = (searchParams.SortOrder?.ToLowerInvariant() != "desc");
+            query = searchParams.SortBy?.ToLowerInvariant() switch
             {
                 "bodytext" => ascending ? query.OrderBy(b => b.BodyText) : query.OrderByDescending(b => b.BodyText),
                 "username" => ascending ? query.OrderBy(b => b.User.UserName) : query.OrderByDescending(b => b.User.UserName),
