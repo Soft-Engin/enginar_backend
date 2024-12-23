@@ -427,31 +427,27 @@ namespace BackEngin.Services
             };
         }
 
-
-
-
-
         public async Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize)
         {
             // Base query
             IQueryable<Users> query = _unitOfWork.Users.GetQueryable();
 
-            // Apply filtering
+            // Apply filtering with case-insensitive comparisons
             if (!string.IsNullOrEmpty(searchParams.UserNameContains))
             {
-                query = query.Where(u => u.UserName.Contains(searchParams.UserNameContains));
+                query = query.Where(u => u.UserName.ToLower().Contains(searchParams.UserNameContains.ToLower()));
             }
 
             if (!string.IsNullOrEmpty(searchParams.First_LastNameContains))
             {
-                query = query.Where(u => u.FirstName.Contains(searchParams.First_LastNameContains)
-                                        || u.LastName.Contains(searchParams.First_LastNameContains));
-
+                var searchTerm = searchParams.First_LastNameContains.ToLower();
+                query = query.Where(u => u.FirstName.ToLower().Contains(searchTerm) 
+                                        || u.LastName.ToLower().Contains(searchTerm));
             }
 
             if (!string.IsNullOrEmpty(searchParams.EmailContains))
             {
-                query = query.Where(u => u.Email.Contains(searchParams.EmailContains));
+                query = query.Where(u => u.Email.ToLower().Contains(searchParams.EmailContains.ToLower()));
             }
 
             // Apply sorting

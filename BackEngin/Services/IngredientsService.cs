@@ -260,7 +260,7 @@ namespace BackEngin.Services
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchParams.NameContains))
-                query = query.Where(i => i.Name.Contains(searchParams.NameContains));
+                query = query.Where(i => i.Name.ToLower().Contains(searchParams.NameContains.ToLower()));
 
             if (searchParams.IngredientTypeIds.Any())
             {

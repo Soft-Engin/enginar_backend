@@ -362,15 +362,15 @@ namespace BackEngin.Services
         {
             var query = _unitOfWork.Recipes.GetQueryable();
 
-            // Filters
+            // Filters with case-insensitive comparison
             if (!string.IsNullOrEmpty(searchParams.HeaderContains))
-                query = query.Where(r => r.Header.Contains(searchParams.HeaderContains));
+                query = query.Where(r => r.Header.ToLower().Contains(searchParams.HeaderContains.ToLower()));
 
             if (!string.IsNullOrEmpty(searchParams.BodyContains))
-                query = query.Where(r => r.BodyText.Contains(searchParams.BodyContains));
+                query = query.Where(r => r.BodyText.ToLower().Contains(searchParams.BodyContains.ToLower()));
 
             if (!string.IsNullOrEmpty(searchParams.UserName))
-                query = query.Where(r => r.User.UserName == searchParams.UserName);
+                query = query.Where(r => r.User.UserName.ToLower().Contains(searchParams.UserName.ToLower()));
 
             if (searchParams.IngredientIds.Any() || searchParams.AllergenIds.Any())
             {
