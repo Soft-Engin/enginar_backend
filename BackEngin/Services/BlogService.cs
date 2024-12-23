@@ -244,15 +244,15 @@ namespace BackEngin.Services
         {
             var query = _unitOfWork.Blogs.GetQueryable();
 
-            // Apply filters
+            // Apply filters with case-insensitive comparison
             if (!string.IsNullOrEmpty(searchParams.HeaderContains))
-                query = query.Where(b => b.Header.Contains(searchParams.HeaderContains));
+                query = query.Where(b => b.Header.ToLower().Contains(searchParams.HeaderContains.ToLower()));
 
             if (!string.IsNullOrEmpty(searchParams.BodyContains))
-                query = query.Where(b => b.BodyText.Contains(searchParams.BodyContains));
+                query = query.Where(b => b.BodyText.ToLower().Contains(searchParams.BodyContains.ToLower()));
 
             if (!string.IsNullOrEmpty(searchParams.UserName))
-                query = query.Where(b => b.User.UserName == searchParams.UserName);
+                query = query.Where(b => b.User.UserName.ToLower().Contains(searchParams.UserName.ToLower()));
 
             if (searchParams.RecipeId.HasValue)
                 query = query.Where(b => b.RecipeId == searchParams.RecipeId);

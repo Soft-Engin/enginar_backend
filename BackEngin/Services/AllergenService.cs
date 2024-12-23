@@ -132,10 +132,10 @@ namespace BackEngin.Services
             var query = unitOfWork.Preferences.GetQueryable();
 
             if (!string.IsNullOrEmpty(searchParams.NameContains))
-                query = query.Where(a => a.Name.Contains(searchParams.NameContains));
+                query = query.Where(a => a.Name.ToLower().Contains(searchParams.NameContains.ToLower()));
 
             if (!string.IsNullOrEmpty(searchParams.DescriptionContains))
-                query = query.Where(a => a.Description.Contains(searchParams.DescriptionContains));
+                query = query.Where(a => a.Description.ToLower().Contains(searchParams.DescriptionContains.ToLower()));
 
             bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
             query = searchParams.SortBy?.ToLower() switch
