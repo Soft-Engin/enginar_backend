@@ -435,19 +435,19 @@ namespace BackEngin.Services
             // Apply filtering with case-insensitive comparisons
             if (!string.IsNullOrEmpty(searchParams.UserNameContains))
             {
-                query = query.Where(u => u.UserName.ToLowerInvariant().Contains(searchParams.UserNameContains.ToLowerInvariant()));
+                query = query.Where(u => u.UserName.ToLower().Contains(searchParams.UserNameContains.ToLower()));
             }
 
             if (!string.IsNullOrEmpty(searchParams.First_LastNameContains))
             {
-                var searchTerm = searchParams.First_LastNameContains.ToLowerInvariant();
-                query = query.Where(u => u.FirstName.ToLowerInvariant().Contains(searchTerm) 
-                                        || u.LastName.ToLowerInvariant().Contains(searchTerm));
+                var searchTerm = searchParams.First_LastNameContains.ToLower();
+                query = query.Where(u => u.FirstName.ToLower().Contains(searchTerm) 
+                                        || u.LastName.ToLower().Contains(searchTerm));
             }
 
             if (!string.IsNullOrEmpty(searchParams.EmailContains))
             {
-                query = query.Where(u => u.Email.ToLowerInvariant().Contains(searchParams.EmailContains.ToLowerInvariant()));
+                query = query.Where(u => u.Email.ToLower().Contains(searchParams.EmailContains.ToLower()));
             }
 
             // Apply sorting
@@ -455,9 +455,9 @@ namespace BackEngin.Services
             {
                 query = searchParams.SortBy switch
                 {
-                    "UserName" => searchParams.SortOrder.ToLowerInvariant() == "desc" ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
-                    "Name" => searchParams.SortOrder.ToLowerInvariant() == "desc" ? query.OrderByDescending(u => u.FirstName + u.LastName) : query.OrderBy(u => u.FirstName + u.LastName),
-                    "Email" => searchParams.SortOrder.ToLowerInvariant() == "desc" ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+                    "UserName" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+                    "Name" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.FirstName + u.LastName) : query.OrderBy(u => u.FirstName + u.LastName),
+                    "Email" => searchParams.SortOrder.ToLower() == "desc" ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
                     _ => query.OrderBy(u => u.UserName) // Default sorting by Name
                 };
             }

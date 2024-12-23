@@ -127,8 +127,8 @@ namespace BackEngin.Services
 
             // Check if the address already exists
             var address = await _unitOfWork.Addresses.SingleOrDefaultAsync(a =>
-                a.Name.ToLowerInvariant() == createEventDto.AddressName.ToLowerInvariant() &&
-                a.Street.ToLowerInvariant() == createEventDto.Street.ToLowerInvariant() &&
+                a.Name.ToLower() == createEventDto.AddressName.ToLower() &&
+                a.Street.ToLower() == createEventDto.Street.ToLower() &&
                 a.DistrictId == createEventDto.DistrictId);
 
             // If the address doesn't exist, create a new one
@@ -515,8 +515,8 @@ namespace BackEngin.Services
             }
 
             // Rest of the method remains the same...
-            bool ascending = (searchParams.SortOrder?.ToLowerInvariant() != "desc");
-            query = searchParams.SortBy?.ToLowerInvariant() switch
+            bool ascending = (searchParams.SortOrder?.ToLower() != "desc");
+            query = searchParams.SortBy?.ToLower() switch
             {
                 "title" => ascending ? query.OrderBy(e => e.Title) : query.OrderByDescending(e => e.Title),
                 "creatorusername" => ascending ? query.OrderBy(e => e.Creator.UserName) : query.OrderByDescending(e => e.Creator.UserName),
