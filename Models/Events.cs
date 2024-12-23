@@ -14,7 +14,7 @@ namespace Models
         public int Id { get; set; }
 
         [Required]
-        public int CreatorId { get; set; }
+        public string CreatorId { get; set; }
         [ForeignKey("CreatorId")]
         public Users Creator { get; set; }
 
@@ -27,11 +27,16 @@ namespace Models
         public DateTime Date { get; set; }
 
         [Required]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
         public string Title { get; set; }
 
         [Required]
         public string BodyText { get; set; }
 
+        // Add this navigation property
+        public ICollection<Events_Requirements> Events_Requirements { get; set; }
 
     }
 }

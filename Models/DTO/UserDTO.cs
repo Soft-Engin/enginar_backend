@@ -52,6 +52,8 @@ namespace Models.DTO
         public string? Country { get; set; }
         public int PostCode { get; set; }
         public string? PhoneNumber { get; set; }
+        public byte[]? BannerImage { get; set; }
+        public byte[]? ProfileImage { get; set; }
 
     }
 
@@ -65,6 +67,20 @@ namespace Models.DTO
     }
 
     public class BookmarkBlogsItemDTO
+    {
+        public string UserName { get; set; }
+        public string Header { get; set; }
+        public string BodyText { get; set; }
+    }
+
+    public class LikedBlogsItemDTO
+    {
+        public string UserName { get; set; }
+        public string Header { get; set; }
+        public string BodyText { get; set; }
+    }
+
+    public class LikedRecipesItemDTO
     {
         public string UserName { get; set; }
         public string Header { get; set; }

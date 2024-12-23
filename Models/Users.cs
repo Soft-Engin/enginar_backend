@@ -27,6 +27,7 @@ namespace Models
         [ForeignKey("RoleId")]
         public Roles Role { get; set; }
 
-
+        public byte[]? BannerImage { get; set; }
+        public byte[]? ProfileImage { get; set; }
     }
 }

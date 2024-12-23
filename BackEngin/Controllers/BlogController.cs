@@ -7,7 +7,7 @@ using Models.DTO;
 namespace BackEngin.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/blog")]
+    [Route("api/v{version:apiVersion}/blogs")]
     [ApiController]
     public class BlogController : ApiControllerBase
     {
@@ -149,6 +149,24 @@ namespace BackEngin.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("{blogId}/banner")]
+        public async Task<IActionResult> GetBlogBanner(int blogId)
+        {
+            try
+            {
+                var image = await _blogService.GetBlogBannerImage(blogId);
+                if (image == null) 
+                    return NotFound( new { message = "No banner image found for this blog."});
+                
+                return File(image, "image/jpeg"); // Assuming JPEG format, adjust if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 

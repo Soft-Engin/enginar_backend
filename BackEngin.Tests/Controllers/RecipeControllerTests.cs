@@ -80,7 +80,8 @@ namespace BackEngin.Tests.Controllers
                                     new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
                                 },
                 ServingSize = 1,
-                PreparationTime = 1
+                PreparationTime = 1,
+                Steps = new[] { "Step 1", "Step 2" }
             };
 
             var createdRecipe = new RecipeDetailsDTO
@@ -99,7 +100,8 @@ namespace BackEngin.Tests.Controllers
                                     }
                                 },
                 ServingSize = 1,
-                PreparationTime = 1
+                PreparationTime = 1,
+                Steps = new[] { "Step 1", "Step 2" }
             };
 
             _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
@@ -526,6 +528,76 @@ namespace BackEngin.Tests.Controllers
             result.Value.Should().BeEquivalentTo(paginatedRecipes);
         }
 
+        [Fact]
+        public async Task GetRecipeBanner_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var recipeId = 1;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
 
+            _mockRecipeService.Setup(s => s.GetRecipeBannerImage(recipeId))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _recipeController.GetRecipeBanner(recipeId);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetRecipeBanner_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 1;
+            _mockRecipeService.Setup(s => s.GetRecipeBannerImage(recipeId))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _recipeController.GetRecipeBanner(recipeId);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No banner image found for this recipe." });
+        }
+
+        [Fact]
+        public async Task GetRecipeStepImage_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var recipeId = 1;
+            var stepIndex = 0;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockRecipeService.Setup(s => s.GetRecipeStepImage(recipeId, stepIndex))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _recipeController.GetRecipeStepImage(recipeId, stepIndex);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetRecipeStepImage_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var recipeId = 1;
+            var stepIndex = 0;
+            _mockRecipeService.Setup(s => s.GetRecipeStepImage(recipeId, stepIndex))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _recipeController.GetRecipeStepImage(recipeId, stepIndex);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No image found for step 0 of recipe 1." });
+        }
     }
 }

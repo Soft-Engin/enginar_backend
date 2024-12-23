@@ -35,6 +35,7 @@ namespace DataAccess.Repositories
         IRecipe_LikesRepository Recipe_Likes { get; }
         IRecipe_CommentsRepository Recipe_Comments { get; }
         IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
+        IUser_Event_ParticipationsRepository User_Event_Participations { get; }
 
         Task<int> CompleteAsync();
     }

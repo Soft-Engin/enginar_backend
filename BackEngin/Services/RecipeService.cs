@@ -36,10 +36,11 @@ namespace BackEngin.Services
                 BodyText = r.BodyText,
                 UserId = r.UserId,
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
-                Image = r.Image,
+                //Images = r.Images,
                 CreatedAt = r.CreatedAt,
                 PreparationTime = r.PreparationTime,
                 ServingSize = r.ServingSize,
+                Steps = r.Steps
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
@@ -61,7 +62,9 @@ namespace BackEngin.Services
                 Header = createRecipeDTO.Header,
                 BodyText = createRecipeDTO.BodyText,
                 UserId = userId,
-                Image = createRecipeDTO.Image,
+                BannerImage = createRecipeDTO.BannerImage,
+                StepImages = createRecipeDTO.StepImages,
+                Steps = createRecipeDTO.Steps,
                 CreatedAt = DateTime.UtcNow,
                 ServingSize = createRecipeDTO.ServingSize,
                 PreparationTime = createRecipeDTO.PreparationTime,
@@ -122,10 +125,10 @@ namespace BackEngin.Services
                 UserId = userId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDetailsDTOs,
-                Image = newRecipe.Image,
                 CreatedAt = newRecipe.CreatedAt,
                 ServingSize = newRecipe.ServingSize,
                 PreparationTime = newRecipe.PreparationTime,
+                Steps = newRecipe.Steps
             };
         }
 
@@ -168,11 +171,10 @@ namespace BackEngin.Services
                 UserId = recipe.UserId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDTOs,
-                Image = recipe.Image,
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
                 PreparationTime = recipe.PreparationTime,
-
+                Steps = recipe.Steps
             };
         }
 
@@ -188,7 +190,9 @@ namespace BackEngin.Services
             // Update the recipe details
             recipe.Header = updateRecipeDTO.Header;
             recipe.BodyText = updateRecipeDTO.BodyText;
-            recipe.Image = updateRecipeDTO.Image;
+            recipe.BannerImage = updateRecipeDTO.BannerImage;
+            recipe.StepImages = updateRecipeDTO.StepImages;
+            recipe.Steps = updateRecipeDTO.Steps;
             recipe.ServingSize = updateRecipeDTO.ServingSize;
             recipe.PreparationTime = updateRecipeDTO.PreparationTime;
 
@@ -267,7 +271,7 @@ namespace BackEngin.Services
 
             var user = await _unitOfWork.Users.FindAsync(u => u.Id == recipe.UserId);
 
-            // Return updated recipe details
+            // Return updated recipe details without images.
             return new RecipeDetailsDTO
             {
                 Id = recipe.Id,
@@ -276,10 +280,10 @@ namespace BackEngin.Services
                 UserId = recipe.UserId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
                 Ingredients = ingredientDTOs,
-                Image = recipe.Image,
                 CreatedAt = recipe.CreatedAt,
                 ServingSize = recipe.ServingSize,
                 PreparationTime = recipe.PreparationTime,
+                Steps = recipe.Steps,
             };
         }
 
@@ -314,6 +318,25 @@ namespace BackEngin.Services
             if (recipe == null)
                 return null;
             return recipe.UserId;
+        }
+
+        public async Task<byte[]?> GetRecipeBannerImage(int recipeId)
+        {
+            var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            if (recipe == null) return null;
+
+            return recipe.BannerImage;
+        }
+
+        public async Task<byte[]?> GetRecipeStepImage(int recipeId, int stepIndex)
+        {
+            var recipe = await _unitOfWork.Recipes.GetByIdAsync(recipeId);
+            if (recipe == null || recipe.StepImages == null) return null;
+
+            // Check if stepIndex is within bounds
+            if (stepIndex < 0 || stepIndex >= recipe.StepImages.Length) return null;
+
+            return recipe.StepImages[stepIndex];
         }
 
         private async Task<bool> IngredientCheck(List<RecipeIngredientRequestDTO> Ingredients)

@@ -20,5 +20,12 @@ namespace BackEngin.Services.Interfaces
         Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize);
         Task<PaginatedResponseDTO<BookmarkBlogsItemDTO>> GetBookmarkedBlogsAsync(string userId, int page, int pageSize);
         Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize);
+        Task<PaginatedResponseDTO<RecipeDTO>> GetUserRecipesAsync(string userId, int pageNumber, int pageSize);
+        Task<PaginatedResponseDTO<BlogDTO>> GetUserBlogsAsync(string userId, int pageNumber, int pageSize);
+        Task<PaginatedResponseDTO<LikedBlogsItemDTO>> GetLikedBlogsAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<EventDTO>> GetUserEventsAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<LikedRecipesItemDTO>> GetLikedRecipesAsync(string userId, int page, int pageSize);
+        Task<byte[]?> GetUserBannerImageAsync(string userId);
+        Task<byte[]?> GetUserProfileImageAsync(string userId);
     }
 }

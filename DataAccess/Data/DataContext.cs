@@ -5,6 +5,8 @@ using Models;
 using System.Reflection.Emit;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Models.InteractionModels;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace BackEngin.Data
 {
@@ -12,6 +14,7 @@ namespace BackEngin.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public DbSet<Roles> Roles { get; set; }
@@ -22,12 +25,21 @@ namespace BackEngin.Data
         public DbSet<Recipes> Recipes { get; set; }
         public DbSet<Recipes_Ingredients> Recipes_Ingredients { get; set; }
         public DbSet<Blogs> Blogs { get; set; }
+        public DbSet<Events> Events { get; set; }
+        public DbSet<Addresses> Addresses { get; set; }
+        public DbSet<Districts> Districts { get; set; }
+        public DbSet<Cities> Cities { get; set; }
+        public DbSet<Countries> Countries { get; set; }
+        public DbSet<Events_Requirements> Events_Requirements { get; set; }
+        public DbSet<Requirements> Requirements { get; set; }
+
+
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
         public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
-
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
+        public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
 
         public DbSet<Blog_Bookmarks> Blog_Bookmarks { get; set; }
         public DbSet<Blog_Comments> Blog_Comments { get; set; }
@@ -39,6 +51,62 @@ namespace BackEngin.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<Countries>().HasData(
+               new Countries { Id = 1, Name = "Turkey" },
+               new Countries { Id = 2, Name = "USA" }
+           );
+
+            modelBuilder.Entity<Cities>().HasData(
+                new Cities { Id = 1, Name = "Istanbul", CountryId = 1 },
+                new Cities { Id = 2, Name = "New York", CountryId = 2 }
+            );
+
+            modelBuilder.Entity<Districts>().HasData(
+                new Districts { Id = 1, Name = "Kadikoy", CityId = 1, PostCode = 34710 },
+                new Districts { Id = 2, Name = "Besiktas", CityId = 1, PostCode = 34353 },
+                new Districts { Id = 3, Name = "Rat Street", CityId = 2, PostCode = 42069 }
+            );
+
+            modelBuilder.Entity<Addresses>().HasData(
+                new Addresses { Id = 1, Name = "Office Address", DistrictId = 1, Street = "Main Avenue" },
+                new Addresses { Id = 2, Name = "Home Address", DistrictId = 2, Street = "Second Street" }
+            );
+
+            modelBuilder.Entity<Events>().HasData(
+                new Events
+                {
+                    Id = 1,
+                    CreatorId = "1",
+                    AddressId = 1,
+                    Date = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                    Title = "New Year's Eve Party",
+                    BodyText = "Celebrate the New Year with us!"
+                }
+            );
+
+            modelBuilder.Entity<User_Event_Participations>().HasData(
+                new User_Event_Participations
+                {
+                    Id = 1,
+                    UserId = "1",
+                    EventId = 1
+                }
+            );
+
+            modelBuilder.Entity<Requirements>().HasData(
+                new Requirements { Id = 1, Name = "RSVP Required", Description = "Guests must confirm attendance before the event." },
+                new Requirements { Id = 2, Name = "Dress Code", Description = "Guests are required to follow the formal dress code." },
+                new Requirements { Id = 3, Name = "Age Limit", Description = "Only guests aged 18 and above are allowed to attend." }
+            );
+
+            modelBuilder.Entity<Events_Requirements>().HasData(
+                new Events_Requirements { Id = 1, EventId = 1, RequirementId = 1 }, // "RSVP Required" for the "New Year's Eve Party"
+                new Events_Requirements { Id = 2, EventId = 1, RequirementId = 2 }, // "Dress Code" for the "New Year's Eve Party"
+                new Events_Requirements { Id = 3, EventId = 1, RequirementId = 3 }  // "Age Limit" for the "New Year's Eve Party"
+            );
+
 
             modelBuilder.Entity<Roles>().HasData(
                 new Roles { Id = 1, Name = "User", Description = "Default user role" },
@@ -59,7 +127,23 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Recipes>().HasData(
-                new Recipes { Id = 2, Header = "Enginar Şöleni", BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",ServingSize=2, PreparationTime= 45,  UserId = "1", CreatedAt = new DateTime() }
+                new Recipes { 
+                    Id = 2, 
+                    Header = "Enginar Şöleni", 
+                    BodyText = "Enginarları küp küp doğra zeytin yağında kavur zart zrut",
+                    ServingSize = 2, 
+                    PreparationTime = 45,  
+                    UserId = "1", 
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400),
+                    StepImages = GenerateStepImages(3), // Generate 3 step images
+                    
+                    Steps = new[] { 
+                        "Enginarları temizle", 
+                        "Zeytinyağında kavur", 
+                        "Servis et" 
+                    }
+                }
             );
 
             modelBuilder.Entity<Blogs>().HasData(
@@ -76,12 +160,294 @@ namespace BackEngin.Data
                 .WithMany(p => p.Ingredients_Preferences)
                 .HasForeignKey(ip => ip.PreferenceId);
 
+            // Users Table
+            modelBuilder.Entity<Users>(entity =>
+            {
+                entity.HasOne(u => u.Address)
+                    .WithMany()
+                    .HasForeignKey(u => u.AddressId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(u => u.Role)
+                    .WithMany()
+                    .HasForeignKey(u => u.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Events Table
+            modelBuilder.Entity<Events>(entity =>
+            {
+                // Ensure Date is stored as 'timestamp with time zone' in PostgreSQL
+                entity.Property(e => e.Date).HasColumnType("timestamptz");
+                entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+
+                // Apply value converter for Date and CreatedAt to convert to UTC automatically
+                entity.Property(e => e.Date)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
+
+                entity.Property(e => e.CreatedAt)
+                    .HasConversion(
+                        v => v.ToUniversalTime(),  // Convert to UTC before saving
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // Ensure it's UTC on reading
+                    );
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.HasOne(e => e.Creator)
+                    .WithMany()
+                    .HasForeignKey(e => e.CreatorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Address)
+                    .WithMany()
+                    .HasForeignKey(e => e.AddressId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // User_Event_Participations Table
+            modelBuilder.Entity<User_Event_Participations>(entity =>
+            {
+                entity.HasKey(uep => uep.Id);
+
+                entity.HasOne(uep => uep.User)
+                    .WithMany()
+                    .HasForeignKey(uep => uep.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(uep => uep.Event)
+                    .WithMany()
+                    .HasForeignKey(uep => uep.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Addresses Table
+            modelBuilder.Entity<Addresses>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+                entity.HasOne(a => a.District)
+                    .WithMany()
+                    .HasForeignKey(a => a.DistrictId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             PopulatePreferences(modelBuilder);
             ConfigureUserInteractions(modelBuilder);
             PopulateIngredientTypes(modelBuilder);
+            PopulateMockData(modelBuilder);
         }
 
-        private void PopulatePreferences(ModelBuilder modelBuilder)
+        private byte[] GenerateDummyImage(int width = 100, int height = 100)
+        {
+            using var image = new Bitmap(width, height);
+            using var graphics = Graphics.FromImage(image);
+            
+            // Fill with a random color
+            using var brush = new SolidBrush(Color.FromArgb(
+                Random.Shared.Next(256),
+                Random.Shared.Next(256),
+                Random.Shared.Next(256)
+            ));
+            graphics.FillRectangle(brush, 0, 0, width, height);
+
+            using var ms = new MemoryStream();
+            image.Save(ms, ImageFormat.Jpeg);
+            return ms.ToArray();
+        }
+
+        private byte[][] GenerateStepImages(int count)
+        {
+            var images = new byte[count][];
+            for (int i = 0; i < count; i++)
+            {
+                images[i] = GenerateDummyImage(200, 200);
+            }
+            return images;
+        }
+
+        private void PopulateMockData(ModelBuilder modelBuilder)
+        {
+
+            // Add more ingredients
+            // Existing: Id=3 (Enginar), Id=4 (Zeytinyağı)
+            // Add a variety of other ingredients
+            modelBuilder.Entity<Ingredients>().HasData(
+                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 },
+                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 },
+                new Ingredients { Id = 5, Name = "Domates", TypeId = 1 },
+                new Ingredients { Id = 6, Name = "Soğan", TypeId = 1 },
+                new Ingredients { Id = 7, Name = "Sarımsak", TypeId = 1 },
+                new Ingredients { Id = 8, Name = "Tuz", TypeId = 7 },        // Spice
+                new Ingredients { Id = 9, Name = "Biber", TypeId = 7 },      // Spice
+                new Ingredients { Id = 10, Name = "Limon Suyu", TypeId = 2 },
+                new Ingredients { Id = 11, Name = "Marul", TypeId = 1 },
+                new Ingredients { Id = 12, Name = "Peynir", TypeId = 4 },     // Dairy
+                new Ingredients { Id = 13, Name = "Bulgur", TypeId = 5 },     // Grain
+                new Ingredients { Id = 14, Name = "Balık", TypeId = 6 },      // Seafood
+                new Ingredients { Id = 15, Name = "Yumurta", TypeId = 6 },    // Let's assume seafood = animal products, or add a new type if needed
+                new Ingredients { Id = 16, Name = "Maydanoz", TypeId = 8 },   // Herb
+                new Ingredients { Id = 17, Name = "Ceviz", TypeId = 9 },       // Nuts & Seeds
+                new Ingredients { Id = 18, Name = "Nane", TypeId = 8 },        // Herb
+                new Ingredients { Id = 19, Name = "Elma", TypeId = 2 },        // Fruit
+                new Ingredients { Id = 20, Name = "Bal", TypeId = 2 }          // Fruit/honey (assuming Fruit type)
+            );
+
+
+            modelBuilder.Entity<Recipes_Ingredients>().HasData(
+                new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },          // Enginar
+                new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }  // Zeytinyağı
+            );
+
+
+
+            // Additional Recipes (20 total, including Id=2)
+            var recipesToAdd = new List<Recipes>();
+            var recipeHeaders = new[]
+            {
+        "Zeytinyağlı Enginar Kulesi", "Enginar & Zeytinli Püre", "Bahar Enginar Salatası", "Enginar Çorbası",
+        "Enginar Soslu Makarna", "Enginar & Avokado Salatası", "Zeytinyağlı Enginar Ruloları", "Enginarlı Yoğurtlu Meze",
+        "Enginar Dolgulu Kabak Çiçeği", "Enginarlı Humus", "Kremalı Enginar Çorbası", "Enginar Pane",
+        "Enginar Frittata", "Enginar & Fesleğenli Pesto", "Enginarlı Pizza", "Enginar Kebabı",
+        "Baharatlı Enginar Atıştırmalığı", "Enginar & Kuşkonmaz Garnitürü", "Enginarlı Patates Püresi", "Limonlu Enginar Tatlısı",
+        "Enginar ve Tulum Peynirli Salata", "Fırında Parmesanlı Enginar", "Zeytin Ezmesi ile Enginar Kanepesi",
+        "Enginarlı Couscous Salatası", "Kinoa ve Enginar Pilavı", "Enginarlı Karides Sote", "Enginar & Nar Ekşili Sos",
+        "Fırında Baharatlı Enginar Yaprakları", "Enginarlı Sebze Güveci", "Enginar Bruschetta", "Zeytinyağlı Enginar Şakşuka",
+        "Enginarlı Mercimek Salatası", "Enginar Tatlısı", "Enginar ve Somon Carpaccio", "Enginar Tartar",
+        "Enginar Püresi ile Dana Eti", "Enginar & Ispanaklı Pide", "Enginarlı Kabak Çorbası", "Enginar Çiçeği Tatlısı",
+        "Enginarlı Zeytinyağlı Sarma", "Fırında Enginarlı Kabak", "Enginar ve Labneli Tart", "Enginarlı Bezelye Garnitürü",
+        "Enginar Dolgulu Tavuk", "Enginarlı Makarna Salatası", "Fırında Enginarlı Yumurta", "Enginar Graten",
+        "Enginar ve Hardal Sosu", "Enginarlı Deniz Mahsulleri Tabağı", "Enginar Çıtırları", "Enginar Kalbi Mezesı",
+        "Zeytinyağlı Enginar Kulesi", "Enginar & Zeytinli Püre", "Bahar Enginar Salatası", "Enginar Çorbası",
+        "Akdeniz Enginar Tabağı", "Limonlu Enginar Sosu", "Fırında Enginar Cipsi", "Enginar & Peynir Ezmesi",
+        "Enginarlı Bulgur Pilavı", "Zeytinyağlı Enginar Dolması", "Közlenmiş Enginar Kreması", "Enginar Turşusu",
+        "Enginarlı Yeşil Salata", "Enginarlı Omlet", "Enginar Köftesi", "Enginar Smoothie",
+        "Enginar Tart", "Enginar Çayı", "Enginar Suflesi", "Enginar Patatesli Güveç",
+        "Enginar ve Tereyağlı Sos", "Enginarlı Dondurma", "Enginarlı Beyaz Peynir Ezmesi", "Enginar Kroket",
+        "Enginar & Fırında Kuşkonmaz", "Enginar Tatlı Topları", "Enginar Fırında Peynirli", "Enginar Çikolata Fonu",
+        "Enginar ve Yoğurtlu Kabak", "Enginar Çorbası Parmesanlı", "Enginar Çorbası Tavuklu", "Enginar Kalbi Pane",
+        "Zeytinli Enginar Tart", "Enginar ve Baharatlı Sebzeler", "Enginar Şiş", "Enginar Zeytinyağlı Pilaki",
+        "Enginarlı Mantı", "Enginar Tavuklu Salata", "Enginarlı Lahana Salatası", "Enginar ve Fesleğenli Frittata",
+        "Enginar Tava", "Enginar Çubukları", "Enginar & Maydanozlu Tereyağı", "Fırında Enginar Sufle",
+        "Enginar & Limonlu Patates", "Enginar Böreği", "Enginarlı Havuçlu Salata", "Enginar Tatlı Soslu",
+        "Enginar Ezmesi Pesto", "Enginarlı Balık Güveç", "Enginar ve Naneli Dip", "Enginar Kalp Tabağı", "Oğuzhan'ın Enginar Suflesi",
+    };
+
+            int recipeIdCounter = 3;
+            Random rand = new Random();
+            foreach (var header in recipeHeaders)
+            {
+                // Random userId from "1" to "5"
+                string userId = rand.Next(1, 6).ToString();
+                recipesToAdd.Add(new Recipes
+                {
+                    Id = recipeIdCounter,
+                    Header = header,
+                    BodyText = $"{header} hazırlanışı, enginar ve çeşitli malzemelerle harmanlanır.",
+                    UserId = userId,
+                    ServingSize = rand.Next(1,11),
+                    PreparationTime = rand.Next(1,25) * 15,
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400),
+                    StepImages = GenerateStepImages(3), // Generate 3 step images
+                    Steps = new[] { 
+                        "Malzemeleri hazırla", 
+                        "Karıştır ve pişir", 
+                        "Servis et" 
+                    }
+                });
+                recipeIdCounter++;
+            }
+
+            modelBuilder.Entity<Recipes>().HasData(recipesToAdd);
+
+            var recipeIngredientsToAdd = new List<Recipes_Ingredients>();
+
+            // Add Recipes_Ingredients for new Recipes
+            // Assign a random set of 2-3 ingredients for variety
+            var allIngredientsIds = new[] {1,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+            var measuremenetsUnits = new[] { "adet", "kap", "bardak", "tane", "çimdik", "avuç", "yemek kaşığı", "tatlı kaşığı", "kilo" };
+            // We'll keep it simple and just pick 3 random ingredients per recipe.
+            int riCounter = 5;
+            for (int rId = 3; rId <= 2 + recipeHeaders.Length; rId++)
+            {
+                // pick 3 distinct ingredients randomly
+                var ingSet = allIngredientsIds.OrderBy(x => rand.Next()).Take(rand.Next(3,10)).ToList();
+                foreach (var ing in ingSet)
+                {
+                    recipeIngredientsToAdd.Add(new Recipes_Ingredients
+                    {
+                        Id = riCounter,
+                        RecipeId = rId,
+                        IngredientId = ing,
+                        Quantity = rand.Next(1, 5),
+                        Unit = measuremenetsUnits.OrderBy(x => rand.Next()).First()
+                    });
+                    riCounter++;
+                }
+            }
+
+            modelBuilder.Entity<Recipes_Ingredients>().HasData(recipeIngredientsToAdd);
+
+            // Additional Blogs 100 total
+            var blogsToAdd = new List<Blogs>();
+            var blogHeaders = new[]
+                {
+                    "Makarna ve Enginar Aşkı", "Avokado ile Hafiflik", "Rulo Şıklığı", "Yoğurtlu Lezzet Patlaması",
+                    "Kabak Çiçeğinde Enginar", "Humusun Sırrı", "Kremanın Yumuşaklığı", "Kızarmış Keyif",
+                    "Frittata ile Güne Başla", "Fesleğenli Taze Notalar", "Pizzada Akdeniz Esintisi", "Kebabın Enginar Hali",
+                    "Baharatlı Atıştırmalıklar", "Kuşkonmazın Tazeliği", "Patates ve Enginar Uyumu", "Limonlu Tatlı Dokunuş",
+                    "Tulum Peynirinin Şıklığı", "Parmesan İle Fırın Keyfi", "Zeytinli Kanepenin Lezzeti",
+                    "Couscous Şöleni", "Kinoanın Gücü", "Deniz Mahsulleri ve Enginar", "Nar Ekşisinin Aroması",
+                    "Yaprakların Fırında Dansı", "Sebze Güvecin Kraliçesi", "Bruschetta ile Hafiflik", "Şakşukanın Yeni Hali",
+                    "Mercimek ve Enginar Uyumu", "Tatlıda Enginar Denemesi", "Somonun Zenginliği", "Tartarın Zerafeti",
+                    "Dana Etinin Püresi", "Pideye Yeni Bir Soluk", "Kabak ve Enginar Çorbası", "Tatlı Çiçekler",
+                    "Zeytinyağlı Dolmanın Kraliçesi", "Kabak Fırında Yeniden", "Labne İle Uyum", "Bezelye ile Taze Bir Dokunuş",
+                    "Tavuğun Dolgulu Şöleni", "Makarna Salatasında Fark", "Yumurta ve Fırında Uyumu", "Gratenin Altın Çağı",
+                    "Hardallı Sos Şıklığı", "Denizden Sofraya", "Çıtırların Cazibesi", "Kalplerde Bir Lezzet",
+                    "Kulenin Zirvesi", "Pürede Gizli Tatlar", "Baharın Getirdiği Tazelik", "Kaseye Dolu Çorba",
+                    "Akdeniz Mutfağının İncisi", "Sosun Asidik Tadına Yolculuk", "Fırından Gelen Cips Keyfi", "Peynir Ezmesi ve Lezzet",
+                    "Bulgurun Dansı", "Dolmada Şıklık", "Kremanın Közle Uyumu", "Turşuda Keskin Tatlar",
+                    "Yeşilin Ferahlığı", "Güne Omletle Başlayın", "Köfte ve Enginarın Uyumu", "Smoothie ile Sağlık",
+                    "Tartta Tatlı Kaçamak", "Çayda Farklı Bir Deneyim", "Suflede Zirve Tat", "Güveçte Lezzet Patlaması",
+                    "Tereyağında Mucize", "Dondurmanın Enginarlı Hali", "Peynir Ezmesinin Tatlı Versiyonu", "Kroket ile Atıştırmalık Keyfi",
+                    "Fırında Kuşkonmaz Uyumu", "Tatlı Topların Zirvesi", "Peynirli Fırında Harmoni", "Çikolatada Enginar Şaşkınlığı",
+                    "Yoğurt ve Kabak Uyumu", "Çorbanın Parmesan Dokunuşu", "Tavuklu Çorbanın Sırrı", "Pane ile Altın Renkler",
+                    "Tartta Zeytin Aşkı", "Sebzelerin Baharatlı Dansı", "Şiş Lezzet", "Pilakide Hafiflik",
+                    "Mantının Enginar Yorumu", "Salatada Tavuğun Efsanesi", "Lahananın Tazeliği", "Frittata Şıklığı",
+                    "Tavada Lezzet Patlaması", "Çubuklarda Hafiflik", "Maydanozla Aromalı Tereyağı", "Fırında Sufle Denemesi",
+                    "Limonun Enginarla Uyumu", "Börek ve Enginar Şıklığı", "Havuçlu Salatada Farklılık", "Tatlı Sosun Enginar Yorumu",
+                    "Ezmede Pesto Esintisi", "Balık Güveçte Tat", "Naneli Dip Ferahlığı", "Kalpten Gelen Lezzet",  "Oğuzhan'ınkini yemeden ben en iyisini yedim deme!"
+                };
+
+
+            int blogIdCounter = 2;
+            int recipeCount = 2 + recipeHeaders.Length; // total recipes
+            foreach (var bHeader in blogHeaders)
+            {
+                string userId = rand.Next(1, 6).ToString();
+                int recipeId = rand.Next(2, recipeCount + 1); // pick a random recipe from 2 to (2+length)
+                blogsToAdd.Add(new Blogs
+                {
+                    Id = blogIdCounter,
+                    RecipeId = recipeId,
+                    Header = bHeader,
+                    BodyText = $"{bHeader} blog yazısı, enginarın farklı yönlerini keşfedin.",
+                    UserId = userId,
+                    CreatedAt = new DateTime(),
+                    BannerImage = GenerateDummyImage(800, 400)
+                });
+                blogIdCounter++;
+            }
+
+            modelBuilder.Entity<Blogs>().HasData(blogsToAdd);
+        }
+
+            private void PopulatePreferences(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Preferences>(entity =>
             {
