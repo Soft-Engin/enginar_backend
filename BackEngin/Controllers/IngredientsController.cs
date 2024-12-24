@@ -4,6 +4,7 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BackEngin.Controllers
 {
@@ -135,7 +136,7 @@ namespace BackEngin.Controllers
         [HttpPost("getBatchImage")]
         public async Task<IActionResult> GetBatchImage([FromBody] List<int> ingredientIds)
         {
-            if (ingredientIds == null || !ingredientIds.Any())
+            if (ingredientIds.IsNullOrEmpty())
             {
                 return BadRequest(new { message = "Ingredient IDs must be provided." });
             }            

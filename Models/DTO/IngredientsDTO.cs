@@ -21,6 +21,7 @@ namespace Models.DTO
         public string Name { get; set; }
         [Required]
         public int TypeId { get; set; }
+        public byte[]? Image { get; set; }
 
         // List of allergen IDs associated with the ingredient
         public List<int> AllergenIds { get; set; }

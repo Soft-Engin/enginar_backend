@@ -119,7 +119,8 @@ namespace BackEngin.Services
                 var ingredient = new Ingredients
                 {
                     Name = model.Name,
-                    TypeId = model.TypeId
+                    TypeId = model.TypeId,
+                    Image = model.Image,
                 };
 
                 await unitOfWork.Ingredients.AddAsync(ingredient);
@@ -182,6 +183,7 @@ namespace BackEngin.Services
                 // Update the ingredient's properties
                 ingredient.Name = model.Name;
                 ingredient.TypeId = model.TypeId;
+                ingredient.Image = model.Image;
 
                 unitOfWork.Ingredients.Update(ingredient);
                 await unitOfWork.CompleteAsync();
