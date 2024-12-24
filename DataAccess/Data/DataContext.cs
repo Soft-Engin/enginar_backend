@@ -2,16 +2,26 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
-using System.Reflection.Emit;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Models.InteractionModels;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace BackEngin.Data
 {
     public class DataContext : IdentityDbContext<IdentityUser>
     {
+        private static readonly byte[][] PreGeneratedImages = new byte[10][]
+        {
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAtAEYDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAABQABAgMEBv/EACwQAAICAgECBgECBwAAAAAAAAECAxEABBIhMQUTIkFRYXGBoQYjJDJy0fH/xAAZAQADAQEBAAAAAAAAAAAAAAABAwQCAAX/xAAdEQACAgMBAQEAAAAAAAAAAAAAAQIRAxIhMUFR/9oADAMBAAIRAxEAPwDrgckMh7Yu2EBPK3tjQ7ZK8ybWysLBDZYqWAXuQMzOWqsKOY8emlj3XijVmWRQTQJJHbFB4U5hLzj1kdVUWV9+o/asORzqT58ilAFpuVWetAdMlLCszK/Io6EWf7T+PsZJLJ+DFHXoL0uWsgbyKZ2sdvj3yWzoa+5KNks0MnZ1FAMc2rMjTSBoTH5J6kjofu8pOvHTTPy8w+tRRB6C6OLTafDcnGat+mTR3Q0k0GxFyCMeLK1/VYsoj8JM6mWCSIpIeVMe2LKVkVCnjknR2F4142MTlBgkpu8GeORKYo5SWWRDSMPa+9/WEIm/mEfIwV/EwkOtEiAkO1NRrMz8A3QL0NlVRoCyc5HNvXItf5983aomRJBxkchwGLEBmWu+Co2EWxK+ugJBXiK7AijX64Rg3I5U4Nstzrpfc/nIZIe1xMkyCKTy0LBAORMj3be1/jvlibCyIfPlhU0VNMGBb/mB92BV2EEXmbBMYLNy9LH5Jy/RD6olHkxuQbta438HOa+napL3ptTX0tdz6QoYXRPp/TFmSXdWEIZo0DkUxBssf8fbFnayZ29fTqbxjjDHPbPRElbGjY7jLXEexrnmCyEeoDKX7ZQk7QyiuoY0RgasAF2vDNiKaPZWP+njNkGg3H/dZVpPrs0rsQgU8VZ3s0RnYkAiiLBwbs+D60kDRi1Vm5ED5u8nnj5w1HgEn2pGg8jXfzuPRpCo41lEUnmwlGWOOOMhiUvr+/3m2bwmPgyiQqbqwOlk1dYQ8P0oWSnjQlasha5fnERjbofKUNeLpgg8BG2Gn2lKNIbCKaoffTFnQk/HTFlqikqJn30//9k="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCABRAH0DASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAQIAAwUEBv/EACoQAAIDAAEDAwIGAwAAAAAAAAABAgMRBBIhMQVBURMiFDJhcbHRM0Jy/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAaEQEBAAMBAQAAAAAAAAAAAAAAAQIRMQMh/9oADAMBAAIRAxEAPwDai8LEylMsiyKtQyK0x0whiA0gBIAgVCEABGKxmxWwFaFaHYrAUIAaBXEsRVEsQFqGTK0x0wH0IiZXyeQuPU5Na/ZfIF7aitk0l8t4U/i+NufiK9/6MDk3W8iXVbJy+F7ISvjStsjBJJy7nO+ki6ehnyqoOP3b1PFhampLU9Rg3cafD6U5/UhLymsw6uLfOuSilKcGt3+zUy2upeNMDBCanHqj4JpplGBhYrYAYAsUCtDplaY0WBamMmIg6A+nB6hs5r4XZHZpTyK+uHUu+PuS8GcqQ1RspmrVDc8ad9UnCnVXut53wEJ2QioShu90/B5q3tn2Tt5Nidj3PCS7I6eNqjOO48Il03Trn+ZPz7PRpV9P3fodPPqxdxZtPpfh/wAnSY1VzqSxN/f9vf3NfTqzkIGEDKyVijMAFKLIlSZZEgsQRUECNiq36cu62L8oLKbPAHZTVCUH0S6629TX+v6BlUofc9lniMVp5/lStpn102Trl8xeHFb656pFOK5c0vnFv8GdRXoLePKtS5F6yUnqjpwcj1GEE1P836HB6fbfdTbdddOy2Us6py14jn5Dc7c8ssknG41OLarrYYuyfV/RrwlqMT02HTFv5eGxX4Kzld1dpNAArKNi6RgAq9yyLK8GRBamERMOgMyuSH0Vgcl9Smnpl8jgqW9jbkiuNXXLGu3uRWfxuA4caEdab19iu7jRphua38m28im8MnlWfVvUV4iVvfxZxY9MUjRrZx0R7HXAMLdA2DQNlQWwAIAq8IJCEDLwEhAqexGQgCSGp9/3IQLC8j8j/Yxq/wDLL9yEC3jQp8I6YkIGTAIQIAUQgH//2Q=="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAtAEYDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAABQABAgMEBv/EADAQAAIBAwMCBAMIAwAAAAAAAAECAwAEEQUSIRMxIkFRYYGRoQYUIzIzUrHRgsHh/8QAFwEBAQEBAAAAAAAAAAAAAAAAAQACA//EABoRAAMBAQEBAAAAAAAAAAAAAAABERICIQP/2gAMAwEAAhEDEQA/AOwBpwa5ObUb+CUxTTMJVbBCkfCtsFzqDE73ljx++Pv9KKOQ0f1RVgPFA3urtOeozNxx0+ag19fY8Kyn/D/lWiyHyeafPFc2+oXqleoJUUnGWXFE9MkupIme54VsFPUipOk1AjnAqBPemJqLNxWjJW54FKq5G7UqiBpkaaQs0SYbG47xk/St0V4kYBml2oeFyPnzXKJqTsu2MMW9xijrWsr6ZCtw7uGAIRAD7gH+65ttKo2lWETf27SBUmDOewFPNdCPaesmwnOc+VCLMwwzpG0EMc5HiAcqQM9sHuanNbWjmQQ2xjlIPibcoB9e/NYXcXpt/OuIaeS2ui81zdAgj8MHIAGecD4Vqj1BJbWIwvuOAvgU4474rAmh9eIrJqMnVA8LJ+UD3FRtriTRYDG9zHMC+T4skU68qDPsDyyb4kfOC3ODxWae7ZXZAMFTjjzrHFrMl2diBAMZLMcD51kurwxTyPsEqE4DRsD2rXPWlTL5jNzXjA4bB9zSoI+qdR/DCQB6mlTSgtIhSe26hVgQSMsck1OSTWLR2EL7ofJWAI+RonEFijBVQOOwqSO0uSxx7CkKc3PcXL3AmntI+qPPxL/urjqmoOuxUjx7hm/k0c6cYcnprnPoKsXaBwgzxWYjWmBLRL+4mQz3YiRTkIcKPkOK3R/Z6NI5Edt4kbcMLjHtRAAAHKqQSfKqGXClEJRTxtHY/CkKUjTzDBLZRiMoRt3MOc+YH91XBp4tbURE71ySDj+avgvGe4+7ui5HZl4+lK4laM4U4HpSRje2VDkefrSqLXBYlSMY9KVBH//Z"),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAtAEYDASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAwUAAgQGAf/EACkQAAIBAwMDAwQDAAAAAAAAAAECAwAEEQUSIRMxQSJRYRQjMnFigcH/xAAYAQEAAwEAAAAAAAAAAAAAAAACAAEDBP/EACARAQADAAEEAwEAAAAAAAAAAAEAAhEhAxIxQSIjMlH/2gAMAwEAAhEDEQA/AFdjGJI3B/qjRA20oYfiTyKPpESmBufUTxRpLdpGCquWPAApYNcZn3NbR3AkckIfjGO9Y9V06O6tyYiplTlcEc/FZ5wsel/Ti6jeeM7tinORzxSpLqJLclYwJvDCufknbTp1uKuT1LYBVLEDdTnRrBQHmIz4Fc+bplj6bj5wRTvT9YVIoIGCqvZnPv7/AKptnMYL9MEauxvJbjaeK5HUvXdMo7A12QcTR5jcEHsRyK5S5tpIriXrDByT+6lTmZrhFTLg1KtIMMalKXGOmzoq9Njgk8GmUzyw2Uskakk+ksByqkcmueC4AINOdL1EJHKk78bfSPc0n8w1r9gxS04YqEHq7ZHmisqxSB4FYkfl8H4q1nAk0ztIwiHJHFVkcQTtHAdwYdy2c1jvOE6y1bPy8zx4pboB9mMngnzV7aDY4leRTg4A+aDIZY1wzEgeB4qnTeRTKGUfxzUxSNtT+axvZXwtLx9rN03GSpPn3plrCi604TxYJXnPuPNcojFAdy8txzTZ78S6VFbYIlBH621YJMep2vMVS43VKkvepTmUNaBHJVzwaKkXQuFfG9Ac4rAGI7URJ3HmkPqBHdI7M1hcAlw0DquFI4rJDYQTwNNHc/cUchu1YGuHPtQi5Pc0O0PE1LvubBbTNJ07hxCu3dlz3H+1ezms4IH6kTyTA+lvArAzs+CxJPbk1dWqZI29za+pTzn70aSoOMFRihTTLu3KoXjAUeKzsxoZYmrAIVXzLM+41KHUqSp//9k="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAoABsDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAABgACAwQFAf/EACkQAAIBAwIFBAIDAAAAAAAAAAECAwAREgQhBRMxQVEiYXGRIzKBoeH/xAAYAQADAQEAAAAAAAAAAAAAAAAAAgMBBP/EAB0RAAICAgMBAAAAAAAAAAAAAAABAhEDIRITMVH/2gAMAwEAAhEDEQA/AB4OsSk85TKjAcsH9v5py6ksAWGJ32vT+BFpdeM0jbGLEBQF7/2a3dPLGuoMLcsEglFY2J+f9peyURljUt+A1JLkV37VVLXJPvRHxjWaWXQumluz4gsAD6bEdfehdyUcq2xplk5KzHCtFvQBpGdV39IPQeaJTr3mSYS8s5riCU2tv9+fFC3C5EXVfkHpK4k3tj71trxBoFYg6exW2eOIPx5rnyXstFxpKrZzjE+mh0nI0ShRbNwym5sR579b1RSHQyIrsZLkDuot9mpuJqicPWaOVXeYq1779qw5A2bZlsr73qmGSUfpHIm36MDMu6sR22rodxYB2AHTfpSpU9BZPlFHOrwM0m4OMg2PzUcuoMkrOI41ub2A2FKlQkEnej//2Q=="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAbABYDASIAAhEBAxEB/8QAGgAAAgIDAAAAAAAAAAAAAAAAAAUDBAECBv/EACcQAAIBBAECBgMBAAAAAAAAAAECAwAEESESBTETQVFxsfEiJJHR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAwAE/8QAHREAAgEEAwAAAAAAAAAAAAAAAAECAxESMjFRYf/aAAwDAQACEQMRAD8AqdT6RCsUPhckKEMylizA58gdfVI722ZI+U8gEuOxI9+wpvf9SmS7hBEUiOAx4jGCDis+FHK6rcxK0szcTJg7GNd/Ohcm7W4KMVFtMQyCHgrwpnlnP4ZxRW9wgt7mS2Z34KSRw3sHH8op1TLPw6q4sYXt3QeGqkEHjr6pTcx3ShmaZEQEhpFXYHqceut1PJNI9uxZiTj/AGo4ZHaKZWOQMYHud/FBS3sxZ65IrPb/ALLvaEc8AOz7GcA6+aKVvPKp4iRwB2ANFaVVXQLgz//Z"),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAfABYDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAIDBAUG/8QAJRAAAgEDBAICAwEAAAAAAAAAAQIDABESBAUTITFBMqEUIlFh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAD/8QAGhEAAgMBAQAAAAAAAAAAAAAAAAECESExEv/aAAwDAQACEQMRAD8A53TcTBxOWQ+j35p9v1XHKvJdlU9C9vulk1MmqWKAJGhQfIdX6+q0xs+O3/kZNygZEeeqy9U9E+YIIDq9RJxZuCS1yO/Q9UVRBfTuXLSI3xOB7orRMOFFrxy3UjzcVsy79LNp1QkKF8AAdn/azGhHHle9v7VuDb4m206vkbIAnHHq4NGST6UbawhllZ4g0pLMx+vVFJMMYlsf2J7opEf/2Q=="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALAA8DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAID/8QAIxAAAgICAQIHAAAAAAAAAAAAAQIDBAARMQUhEhMiQVGRwf/EABQBAQAAAAAAAAAAAAAAAAAAAAL/xAAWEQADAAAAAAAAAAAAAAAAAAAAESH/2gAMAwEAAhEDEQA/AF2LNuvAoqK3jJ9RYe2z2G/vKrTT9QllilaRPKPY60WHH5mCzyzrZeV2ZkKhTxrn4x/TGJqlySX3rZwKjcP/2Q=="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAJAA8DASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAP/xAAkEAACAQIDCQAAAAAAAAAAAAABAwIAEgQRMwUhMVFxgYOx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAME/8QAGBEBAQADAAAAAAAAAAAAAAAAAQACESH/2gAMAwEAAhEDEQA/AITxKYvWV2iIWY2kZm7ln3pSFoYoE4eNsSRESB3cKDs/Vb5fQpz9E9flTvJDEXV//9k="),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPAA8DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAEF/8QAHhAAAgICAgMAAAAAAAAAAAAAAQIDEQASITIEQWH/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAESEf/aAAwDAQACEQMRAD8AIvipLKDJP27ELePZoo3WJJCbW1OvBGZRnAQgKQxrn5lSVRJuVYj0LqsNUI5w/9k=")
+
+        };
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -135,7 +145,7 @@ namespace BackEngin.Data
                     PreparationTime = 45,  
                     UserId = "1", 
                     CreatedAt = new DateTime(),
-                    BannerImage = GenerateDummyImage(800, 400),
+                    BannerImage = GetDummyImage(),
                     StepImages = GenerateStepImages(3), // Generate 3 step images
                     
                     Steps = new[] { 
@@ -242,22 +252,10 @@ namespace BackEngin.Data
             PopulateMockData(modelBuilder);
         }
 
-        private byte[] GenerateDummyImage(int width = 100, int height = 100)
+        private byte[] GetDummyImage()
         {
-            using var image = new Bitmap(width, height);
-            using var graphics = Graphics.FromImage(image);
-            
-            // Fill with a random color
-            using var brush = new SolidBrush(Color.FromArgb(
-                Random.Shared.Next(256),
-                Random.Shared.Next(256),
-                Random.Shared.Next(256)
-            ));
-            graphics.FillRectangle(brush, 0, 0, width, height);
-
-            using var ms = new MemoryStream();
-            image.Save(ms, ImageFormat.Jpeg);
-            return ms.ToArray();
+            var randomIndex = Random.Shared.Next(PreGeneratedImages.Length);
+            return PreGeneratedImages[randomIndex];
         }
 
         private byte[][] GenerateStepImages(int count)
@@ -265,7 +263,7 @@ namespace BackEngin.Data
             var images = new byte[count][];
             for (int i = 0; i < count; i++)
             {
-                images[i] = GenerateDummyImage(200, 200);
+                images[i] = GetDummyImage();
             }
             return images;
         }
@@ -352,7 +350,7 @@ namespace BackEngin.Data
                     ServingSize = rand.Next(1,11),
                     PreparationTime = rand.Next(1,25) * 15,
                     CreatedAt = new DateTime(),
-                    BannerImage = GenerateDummyImage(800, 400),
+                    BannerImage = GetDummyImage(),
                     StepImages = GenerateStepImages(3), // Generate 3 step images
                     Steps = new[] { 
                         "Malzemeleri hazırla", 
@@ -439,7 +437,7 @@ namespace BackEngin.Data
                     BodyText = $"{bHeader} blog yazısı, enginarın farklı yönlerini keşfedin.",
                     UserId = userId,
                     CreatedAt = new DateTime(),
-                    BannerImage = GenerateDummyImage(800, 400)
+                    BannerImage = GetDummyImage()
                 });
                 blogIdCounter++;
             }

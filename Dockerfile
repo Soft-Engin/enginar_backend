@@ -29,12 +29,12 @@ RUN dotnet restore "./BackEngin.sln"
 COPY . .
 
 # Build the application
-RUN dotnet build "./BackEngin.sln" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./BackEngin.sln" -c $BUILD_CONFIGURATION -p:RunAnalyzers=false -p:UseAppHost=false
 
 # Publish the application
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./BackEngin.sln" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./BackEngin.sln" -c $BUILD_CONFIGURATION -p:PublishDir=/app/publish -p:UseAppHost=false -p:RunAnalyzers=false --no-restore --no-build
 
 # Final image with non-root user
 FROM base AS final
