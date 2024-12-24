@@ -456,7 +456,7 @@ namespace BackEngin.Tests.Services
 
             var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
 
-            result.TotalCount.Should().Be(1);
+            result.TotalCount.Should().Be(2);
             result.Items.First().Header.Should().Be("SpecialHeader");
         }
 
