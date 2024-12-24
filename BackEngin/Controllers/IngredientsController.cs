@@ -132,6 +132,25 @@ namespace BackEngin.Controllers
             }
         }
 
+        [HttpPost("getBatchImage")]
+        public async Task<IActionResult> GetBatchImage([FromBody] List<int> ingredientIds)
+        {
+            if (ingredientIds == null || !ingredientIds.Any())
+            {
+                return BadRequest(new { message = "Ingredient IDs must be provided." });
+            }            
+
+            try
+            {
+                var result = await _ingredientsService.GetBatchImage(ingredientIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchIngredients(
             [FromQuery] IngredientSearchParams searchParams,

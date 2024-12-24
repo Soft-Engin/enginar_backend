@@ -25,4 +25,10 @@ namespace Models.DTO
         // List of allergen IDs associated with the ingredient
         public List<int> AllergenIds { get; set; }
     }
+
+    public class IngredientImageDTO
+    {
+        public int Id { get; set; }
+        public byte[]? Image { get; set; }
+    }
 }

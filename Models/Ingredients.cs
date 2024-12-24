@@ -20,6 +20,7 @@ namespace Models
         public int TypeId { get; set; }
         [ForeignKey("TypeId")]
         public IngredientTypes Type { get; set; }
+        public byte[]? Image { get; set; }
 
         // Navigation property for many-to-many relationship with Preferences (Allergens)
         public ICollection<Ingredients_Preferences> Ingredients_Preferences { get; set; }
