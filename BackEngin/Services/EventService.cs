@@ -359,7 +359,7 @@ namespace BackEngin.Services
             }
         }
 
-        public async Task<PaginatedResponseDTO<ParticipantDTO>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<ParticipantDTO>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize, string currentUserId = null)
         {
             // Get paginated participants for the event
             var (items, totalCount) = await _unitOfWork.User_Event_Participations.GetPaginatedAsync(
@@ -373,7 +373,15 @@ namespace BackEngin.Services
             {
                 UserId = uep.UserId,
                 UserName = uep.User.UserName
-            });
+            }).ToList();
+
+            List<ParticipantDTO> followedParticipants = new List<ParticipantDTO>();
+
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                var followedUsers = await _unitOfWork.Users.GetFollowingAsync(currentUserId, 1, int.MaxValue);
+                followedParticipants = participants.Where(p => followedUsers.Items.Contains(p.UserId)).ToList();
+            }
 
             // Return the paginated response
             return new PaginatedResponseDTO<ParticipantDTO>
@@ -381,7 +389,8 @@ namespace BackEngin.Services
                 Items = participants,
                 TotalCount = totalCount,
                 PageNumber = page,
-                PageSize = pageSize
+                PageSize = pageSize,
+                FollowedItems = followedParticipants
             };
         }
 

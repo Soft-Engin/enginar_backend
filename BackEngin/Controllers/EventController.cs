@@ -205,7 +205,8 @@ namespace BackEngin.Controllers
 
             try
             {
-                var participants = await _eventService.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize);
+                var userId = User.Identity.IsAuthenticated ? await GetActiveUserId() : null;
+                var participants = await _eventService.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize, userId);
                 return Ok(participants);
             }
             catch (Exception ex)

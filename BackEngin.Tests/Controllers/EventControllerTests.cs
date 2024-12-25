@@ -552,7 +552,7 @@ namespace BackEngin.Tests.Controllers
                 PageSize = pageSize
             };
 
-            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize))
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize, "currentUserId"))
                              .ReturnsAsync(participantsResponse);
 
             // Act
@@ -579,6 +579,41 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
             badRequest.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
+        }
+
+        [Fact]
+        public async Task GetEventParticipants_ShouldReturnOk_WithFollowedParticipants()
+        {
+            // Arrange
+            int eventId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            var participantsResponse = new PaginatedResponseDTO<ParticipantDTO>
+            {
+                Items = new List<ParticipantDTO>
+                {
+                    new ParticipantDTO { UserId = "user1", UserName = "User One" },
+                    new ParticipantDTO { UserId = "user2", UserName = "User Two" }
+                },
+                FollowedItems = new List<ParticipantDTO>
+                {
+                    new ParticipantDTO { UserId = "user1", UserName = "User One" }
+                },
+                TotalCount = 2,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize, "currentUserId"))
+                             .ReturnsAsync(participantsResponse);
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(participantsResponse);
         }
 
         [Fact]
