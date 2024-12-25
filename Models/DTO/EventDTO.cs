@@ -86,4 +86,10 @@ namespace Models.DTO
         public string Name { get; set; }
     }
 
+    public class EventParticipantsResponseDTO
+    {
+        public PaginatedResponseDTO<ParticipantDTO> Participations { get; set; }
+        public PaginatedResponseDTO<ParticipantDTO>? FollowedParticipations { get; set; }
+    }
+
 }
