@@ -149,6 +149,9 @@ namespace BackEngin.Services
             if (userDTO.PhoneNumber != null)
                 existingUser.PhoneNumber = userDTO.PhoneNumber;
 
+            if (userDTO.Bio != null)
+                existingUser.Bio = userDTO.Bio;
+
             var validationResult = await _userManager.UserValidators[0].ValidateAsync(_userManager, existingUser);
             if (!validationResult.Succeeded)
             {

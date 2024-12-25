@@ -46,6 +46,7 @@ namespace BackEngin.Tests.Services
                     Id = "1",
                     FirstName = "John",
                     LastName = "Doe",
+                    Bio = "MyBio",
                     UserName = "johndoe",
                     Email = "john.doe@example.com",
                     Address = new Addresses
@@ -89,6 +90,7 @@ namespace BackEngin.Tests.Services
             result.Email.Should().Be("john.doe@example.com");
             result.FirstName.Should().Be("John");
             result.LastName.Should().Be("Doe");
+            result.Bio.Should().Be("MyBio");
             result.AddressName.Should().Be("Home");
             result.Street.Should().Be("123 Main St");
             result.District.Should().Be("Downtown");
@@ -163,6 +165,7 @@ namespace BackEngin.Tests.Services
                 LastName = "Doe",
                 Email = "john.doe@example.com",
                 UserName = "johndoe",
+                Bio = "Old Bio",
                 PhoneNumber = "1234567890",
                 Address = new Addresses
                 {
@@ -193,6 +196,7 @@ namespace BackEngin.Tests.Services
                 District = "Updated District",
                 City = "Updated City",
                 Country = "Updated Country",
+                Bio = "New Me",
                 PostCode = 12345
             };
 
@@ -217,6 +221,7 @@ namespace BackEngin.Tests.Services
             result.FirstName.Should().Be(updateUserDto.FirstName);
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
+            result.Bio.Should().Be(updateUserDto.Bio);
             result.UserName.Should().Be(updateUserDto.UserName);
             result.PhoneNumber.Should().Be(updateUserDto.PhoneNumber);
             result.AddressName.Should().Be(updateUserDto.AddressName);
