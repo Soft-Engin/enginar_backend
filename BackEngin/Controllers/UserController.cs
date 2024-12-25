@@ -562,6 +562,69 @@ namespace BackEngin.Controllers
         }
 
 
+        [HttpGet("allergens")]
+        [Authorize]
+        public async Task<IActionResult> GetUserAllergens( [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+
+            if (page <= 0 || pageSize <= 0)
+            {
+                return BadRequest(new { message = "Page and pageSize must be positive integers." });
+            }
+
+            try
+            {
+                var userId = await GetActiveUserId();
+                var allergens = await _userService.GetUserAllergensAsync(userId, page, pageSize);
+
+                if (allergens == null || !allergens.Items.Any())
+                {
+                    return NotFound(new { message = "No allergens for the given user." });
+                }
+
+                return Ok(allergens);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = "The specified user does not exist.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+
+        [HttpPost("allergens")]
+        [Authorize]
+        public async Task<IActionResult> SetUserAllergens([FromBody] SetUserAllergensRequestDTO request)
+        {
+            var UserId = await GetActiveUserId();
+            if (request == null || string.IsNullOrWhiteSpace(UserId) || request.AllergenIds == null)
+            {
+                return BadRequest(new { message = "Invalid request payload." }); 
+            }
+
+            try
+            {
+                
+                await _userService.SetUserAllergensAsync(UserId, request.AllergenIds);
+                return Ok(new { message = "User allergens updated successfully." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
 
         // GET /users/search - Search users
         [HttpGet("search")]

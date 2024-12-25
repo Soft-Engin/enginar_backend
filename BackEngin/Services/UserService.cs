@@ -68,7 +68,6 @@ namespace BackEngin.Services
                 .ThenInclude(d => d.City)
                 .ThenInclude(c => c.Country)
                 .Include(u => u.Role)
-                .Include(b => b.Bio)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             // If no user is found, return null
@@ -89,7 +88,8 @@ namespace BackEngin.Services
                 Country = user.Address?.District?.City?.Country?.Name ?? "Country",
                 PostCode = user.Address?.District?.PostCode ?? 0, // Default to 0 if null
                 RoleName = user.Role?.Name ?? "Role Name",
-                Bio = user.Bio ?? "Bio"
+                Bio = user.Bio ?? "Bio",
+                UserId = user.Id
             };
         }
 
@@ -664,6 +664,95 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+
+        public async Task<PaginatedResponseDTO<AllergenIdDTO>> GetUserAllergensAsync(string userId, int pageNumber, int pageSize)
+        {
+            
+            var User_AllergensIDs = (await _unitOfWork.User_Allergens.FindAsync(bl => bl.UserId == userId))
+                .Select(bl => bl.PreferenceId)
+                .ToList();
+
+            if (!User_AllergensIDs.Any())
+            {
+                return new PaginatedResponseDTO<AllergenIdDTO>
+                {
+                    Items = new List<AllergenIdDTO>(),
+                    TotalCount = 0,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+
+            
+            var allergensQuery = (await _unitOfWork.Preferences.FindAsync(b => User_AllergensIDs.Contains(b.Id))).AsQueryable();
+
+            
+            var totalCount = allergensQuery.Count();
+            var paginatedAllergens = allergensQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            
+            var allergenDtos = paginatedAllergens.Select(b => new AllergenIdDTO
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Description = b.Description
+            }).ToList();
+
+            
+            return new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                Items = allergenDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+
+        public async Task SetUserAllergensAsync(string userId, List<int> allergenIds)
+        {
+            
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.", nameof(userId));
+            }
+
+            
+            var existingPreferenceIds = (await _unitOfWork.Preferences.GetAllAsync())
+                .Select(p => p.Id)
+                .ToHashSet();
+            var invalidIds = allergenIds.Except(existingPreferenceIds).ToList();
+
+            if (invalidIds.Any())
+            {
+                throw new ArgumentException($"Invalid allergen IDs: {string.Join(", ", invalidIds)}", nameof(allergenIds));
+            }
+
+
+            var existingUserAllergens = await _unitOfWork.User_Allergens
+                        .FindAsync(ua => ua.UserId == userId, includeProperties: "");
+
+
+
+            _unitOfWork.User_Allergens.DeleteRange(existingUserAllergens);
+
+            
+            var newAllergens = allergenIds.Select(allergenId => new User_Allergens
+            {
+                UserId = userId,
+                PreferenceId = allergenId
+            }).ToList();
+            await _unitOfWork.User_Allergens.AddRangeAsync(newAllergens);
+
+            
+            await _unitOfWork.CompleteAsync();
+        }
+
 
         public async Task<byte[]?> GetUserBannerImageAsync(string userId)
         {

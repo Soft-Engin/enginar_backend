@@ -35,6 +35,7 @@ namespace Models.DTO
         public int PostCode { get; set; }
         public string RoleName { get; set; }
         public string Bio { get; set; }
+        public string UserId { get; set; }
 
     }
 
@@ -87,6 +88,11 @@ namespace Models.DTO
         public string UserName { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+    }
+
+    public class SetUserAllergensRequestDTO
+    {
+        public List<int> AllergenIds { get; set; }
     }
 
 }

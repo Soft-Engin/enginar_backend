@@ -91,6 +91,7 @@ namespace BackEngin.Tests.Services
             result.FirstName.Should().Be("John");
             result.LastName.Should().Be("Doe");
             result.Bio.Should().Be("MyBio");
+            result.UserId.Should().Be("1");
             result.AddressName.Should().Be("Home");
             result.Street.Should().Be("123 Main St");
             result.District.Should().Be("Downtown");
@@ -129,6 +130,7 @@ namespace BackEngin.Tests.Services
             result.Email.Should().Be("E-Mail");
             result.AddressName.Should().Be("Address Name");
             result.Street.Should().Be("Street");
+            result.UserId.Should().Be(userId);
             result.District.Should().Be("District");
             result.City.Should().Be("City");
             result.Country.Should().Be("Country");
