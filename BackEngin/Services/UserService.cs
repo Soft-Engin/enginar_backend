@@ -68,6 +68,7 @@ namespace BackEngin.Services
                 .ThenInclude(d => d.City)
                 .ThenInclude(c => c.Country)
                 .Include(u => u.Role)
+                .Include(b => b.Bio)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             // If no user is found, return null
@@ -87,7 +88,8 @@ namespace BackEngin.Services
                 City = user.Address?.District?.City?.Name ?? "City",
                 Country = user.Address?.District?.City?.Country?.Name ?? "Country",
                 PostCode = user.Address?.District?.PostCode ?? 0, // Default to 0 if null
-                RoleName = user.Role?.Name ?? "Role Name"
+                RoleName = user.Role?.Name ?? "Role Name",
+                Bio = user.Bio ?? "Bio"
             };
         }
 
@@ -139,9 +141,13 @@ namespace BackEngin.Services
             if (userDTO.ProfileImage != null)
                 existingUser.ProfileImage = userDTO.ProfileImage;
 
-            existingUser.Email = userDTO.Email;
-            existingUser.UserName = userDTO.UserName;
-            existingUser.PhoneNumber = userDTO.PhoneNumber;
+            if(userDTO.Email != null) 
+                existingUser.Email = userDTO.Email;
+
+            if(userDTO.UserName != null) 
+                existingUser.UserName = userDTO.UserName;
+            if (userDTO.PhoneNumber != null)
+                existingUser.PhoneNumber = userDTO.PhoneNumber;
 
             var validationResult = await _userManager.UserValidators[0].ValidateAsync(_userManager, existingUser);
             if (!validationResult.Succeeded)
@@ -176,7 +182,8 @@ namespace BackEngin.Services
                 PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15,
                 // Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...
                 BannerImage = null,
-                ProfileImage = null
+                ProfileImage = null,
+                Bio = existingUser.Bio
             };
         }
 

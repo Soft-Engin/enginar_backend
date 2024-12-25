@@ -34,6 +34,7 @@ namespace Models.DTO
         public string Country { get; set; }
         public int PostCode { get; set; }
         public string RoleName { get; set; }
+        public string Bio { get; set; }
 
     }
 
@@ -54,6 +55,7 @@ namespace Models.DTO
         public string? PhoneNumber { get; set; }
         public byte[]? BannerImage { get; set; }
         public byte[]? ProfileImage { get; set; }
+        public string? Bio {  get; set; }
 
     }
 
