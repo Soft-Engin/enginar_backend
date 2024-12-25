@@ -14,19 +14,18 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy all .csproj files and restore dependencies
-COPY BackEngin/BackEngin.csproj ./BackEngin/.
-COPY DataAccess/DataAccess.csproj ./DataAccess/.
-COPY Models/Models.csproj ./Models/.
-COPY BackEngin.Tests/BackEngin.Tests.csproj ./BackEngin.Tests/.
-COPY BackEngin.sln . 
+COPY ./BackEngin/BackEngin.csproj ./BackEngin/
+COPY ./DataAccess/DataAccess.csproj ./DataAccess/
+COPY ./Models/Models.csproj ./Models/
+COPY ./BackEngin.Tests/BackEngin.Tests.csproj ./BackEngin.Tests/
+COPY ./BackEngin.sln . 
 RUN dotnet restore
 
-# Copy remaining files.
-COPY BackEngin/* ./BackEngin/.
-COPY DataAccess/* ./DataAccess/.
-COPY Models/* ./Models/.
-COPY BackEngin.Tests/* ./BackEngin.Tests/.
-COPY BackEngin.sln .
+# Merge remaining files.
+COPY ./BackEngin/. ./BackEngin/
+COPY ./DataAccess/. ./DataAccess/
+COPY ./Models/. ./Models/
+COPY ./BackEngin.Tests/. ./BackEngin.Tests/
 
 # Build the application
 RUN dotnet build \
@@ -62,17 +61,14 @@ RUN dotnet publish \
 # Final image with non-root user
 FROM base AS final
 
-# Set working directory and copy files
 WORKDIR /app
 
 COPY --from=publish /app/publish .
-COPY --from=migrations /app/migration/db-migration .
-COPY entrypoint.sh /app/entrypoint.sh
-
-RUN chmod +x /app/entrypoint.sh /app/db-migration
+COPY --from=migrations /app/migration/db-migration ./db-migration
+COPY --chmod=0755 entrypoint.sh ./entrypoint.sh
 
 # Set non-root user explicitly (redundant if already done in `base`)
 USER non-root
 
 # Set entry point
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
