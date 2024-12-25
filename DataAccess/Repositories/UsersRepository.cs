@@ -65,6 +65,19 @@ namespace DataAccess.Repositories
             };
         }
 
+        public async Task<IEnumerable<UserCompactDTO>> GetAllFollowingAsync(string userId)
+        {
+            var followingsQuery = _db.Users_Interactions
+                .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
+                .Select(ui => new UserCompactDTO{Id = ui.TargetUser.Id, UserName = ui.TargetUser.UserName });
+
+
+            var usernames = await followingsQuery
+                .ToListAsync();
+
+            return usernames;
+        }
+
         public async Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId)
         {
             var existingInteraction = await _db.Users_Interactions

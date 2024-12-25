@@ -87,4 +87,10 @@ namespace Models.DTO
         public string BodyText { get; set; }
     }
 
+    public class UserCompactDTO
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
+    }
+
 }
