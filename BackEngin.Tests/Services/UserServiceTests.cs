@@ -939,5 +939,277 @@ namespace BackEngin.Tests.Services
             result.Should().BeNull();
             _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetUserAllergensAsync_ShouldReturnPaginatedAllergens_WhenUserHasAllergens()
+        {
+            // Arrange
+            var userId = "1";
+            var pageNumber = 1;
+            var pageSize = 2;
+
+            var userAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 },
+                new User_Allergens { UserId = userId, PreferenceId = 3 }
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1, Name = "Peanuts", Description = "Nut allergy" },
+                new Preferences { Id = 2, Name = "Dairy", Description = "Lactose intolerance" },
+                new Preferences { Id = 3, Name = "Shellfish", Description = "Seafood allergy" }
+            };
+
+            var mockUserAllergensDbSet = userAllergens.AsQueryable().BuildMockDbSet();
+            var mockPreferencesDbSet = preferences.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync((Func<User_Allergens, bool> predicate) => userAllergens.Where(predicate));
+
+            _mockUnitOfWork.Setup(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()))
+                .ReturnsAsync((Func<Preferences, bool> predicate) => preferences.Where(predicate));
+
+            // Act
+            var result = await _userService.GetUserAllergensAsync(userId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.Should().BeEquivalentTo(preferences.Take(pageSize).Select(p => new AllergenIdDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description
+            }));
+
+            _mockUnitOfWork.Verify(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserAllergensAsync_ShouldReturnEmptyResult_WhenUserHasNoAllergens()
+        {
+            // Arrange
+            var userId = "1";
+            var pageNumber = 1;
+            var pageSize = 10;
+
+            _mockUnitOfWork.Setup(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(Enumerable.Empty<User_Allergens>());
+
+            // Act
+            var result = await _userService.GetUserAllergensAsync(userId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+
+            _mockUnitOfWork.Verify(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldUpdateAllergens_WhenValidDataIsProvided()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 3 };
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe",
+                Address = new Addresses
+                {
+                    Name = "Home",
+                    Street = "123 Main St",
+                    District = new Districts
+                    {
+                        Name = "Downtown",
+                        City = new Cities
+                        {
+                            Name = "Metropolis",
+                            Country = new Countries { Name = "Countryland" }
+                        },
+                        PostCode = 12345
+                    }
+                },
+                Role = new Roles { Name = "Admin" }
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 }
+            };
+
+            var existingUserAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 }
+            };
+
+            // Mocking _userManager.Users
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork methods
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Expression<Func<User_Allergens, bool>>>(), ""))
+                .ReturnsAsync(existingUserAllergens);
+
+            // Act
+            await _userService.SetUserAllergensAsync(userId, allergenIds);
+
+            // Assert
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(existingUserAllergens), Times.Once);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.Is<List<User_Allergens>>(list =>
+                list.Count == 3 &&
+                list.Any(a => a.PreferenceId == 1) &&
+                list.Any(a => a.PreferenceId == 2) &&
+                list.Any(a => a.PreferenceId == 3)
+            )), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldThrowArgumentException_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = "nonexistent_user";
+            var allergenIds = new List<int> { 1, 2, 3 };
+
+            // Mocking _userManager.Users to simulate an empty user set
+            var users = new List<Users>().AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => _userService.SetUserAllergensAsync(userId, allergenIds)
+            );
+
+            exception.Message.Should().Be("User not found. (Parameter 'userId')");
+            exception.ParamName.Should().Be("userId");
+
+            // Verify that no database calls were made to update or delete allergens
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldThrowArgumentException_WhenInvalidAllergenIdsAreProvided()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 999 }; // 999 is invalid
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 }
+            };
+
+            // Mocking _userManager.Users to simulate user retrieval
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork.Preferences.GetAllAsync to simulate valid preferences
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => _userService.SetUserAllergensAsync(userId, allergenIds)
+            );
+
+            exception.Message.Should().Contain("Invalid allergen IDs: 999");
+            exception.ParamName.Should().Be("allergenIds");
+
+            // Verify that no database calls were made to update or delete allergens
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldDeleteAndAddAllergens()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 4 };
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 },
+                new Preferences { Id = 4 }
+            };
+
+            var existingUserAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 }
+            };
+
+            // Mocking _userManager.Users
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork methods
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Expression<Func<User_Allergens, bool>>>(), ""))
+                .ReturnsAsync(existingUserAllergens);
+
+            // Act
+            await _userService.SetUserAllergensAsync(userId, allergenIds);
+
+            // Assert
+            // Verify that old allergens were deleted
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(existingUserAllergens), Times.Once);
+
+            // Verify that new allergens were added
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.Is<List<User_Allergens>>(list =>
+                list.Count == 3 &&
+                list.Any(a => a.PreferenceId == 1) &&
+                list.Any(a => a.PreferenceId == 2) &&
+                list.Any(a => a.PreferenceId == 4)
+            )), Times.Once);
+
+            // Verify that changes were saved
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+
+
     }
 }

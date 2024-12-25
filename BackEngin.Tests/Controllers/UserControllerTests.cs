@@ -553,5 +553,178 @@ namespace BackEngin.Tests.Controllers
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
             notFoundResult.Value.Should().BeEquivalentTo(new { message = "No profile image found for this user." });
         }
+
+        [Fact]
+        public async Task GetUserAllergens_ShouldReturnOk_WithPaginatedAllergens()
+        {
+            // Arrange
+            var paginatedAllergens = new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                TotalCount = 3,
+                Items = new List<AllergenIdDTO>
+                {
+                    new AllergenIdDTO { Id = 1, Name = "Peanuts" },
+                    new AllergenIdDTO { Id = 2, Name = "Dairy" },
+                    new AllergenIdDTO { Id = 3, Name = "Shellfish" }
+                }
+            };
+
+            _mockUserService.Setup(us => us.GetUserAllergensAsync("currentUserId", 1, 10))
+                .ReturnsAsync(paginatedAllergens);
+
+            // Act
+            var result = await _userController.GetUserAllergens(1, 10);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(paginatedAllergens);
+
+            _mockUserService.Verify(us => us.GetUserAllergensAsync("currentUserId", 1, 10), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserAllergens_ShouldReturnBadRequest_WhenPageOrPageSizeIsInvalid()
+        {
+            // Act
+            var result = await _userController.GetUserAllergens(0, 10);
+
+            // Assert
+            var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Which;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
+
+            _mockUserService.Verify(us => us.GetUserAllergensAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetUserAllergens_ShouldReturnNotFound_WhenNoAllergensExist()
+        {
+            // Arrange
+            _mockUserService.Setup(us => us.GetUserAllergensAsync("currentUserId", 1, 10))
+                .ReturnsAsync(new PaginatedResponseDTO<AllergenIdDTO> { Items = new List<AllergenIdDTO>() });
+
+            // Act
+            var result = await _userController.GetUserAllergens(1, 10);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No allergens for the given user." });
+
+            _mockUserService.Verify(us => us.GetUserAllergensAsync("currentUserId", 1, 10), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserAllergens_ShouldReturnInternalServerError_OnUnexpectedError()
+        {
+            // Arrange
+            _mockUserService.Setup(us => us.GetUserAllergensAsync("currentUserId", 1, 10))
+                .ThrowsAsync(new Exception("Something went wrong"));
+
+            // Act
+            var result = await _userController.GetUserAllergens(1, 10);
+
+            // Assert
+            var statusCodeResult = result.Should().BeOfType<ObjectResult>().Which;
+            statusCodeResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            statusCodeResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Something went wrong" });
+
+            _mockUserService.Verify(us => us.GetUserAllergensAsync("currentUserId", 1, 10), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetUserAllergens_ShouldReturnOk_WhenRequestIsValid()
+        {
+            // Arrange
+            var userId = "currentUserId";
+            var request = new SetUserAllergensRequestDTO
+            {
+                AllergenIds = new List<int> { 1, 2, 3 }
+            };
+
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.NameIdentifier))
+                     .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+
+            _mockUserService.Setup(us => us.SetUserAllergensAsync(userId, request.AllergenIds))
+                            .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _userController.SetUserAllergens(request);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(new { message = "User allergens updated successfully." });
+
+            _mockUserService.Verify(us => us.SetUserAllergensAsync(userId, request.AllergenIds), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetUserAllergens_ShouldReturnBadRequest_WhenRequestIsInvalid()
+        {
+            // Arrange
+            SetUserAllergensRequestDTO request = null;
+
+            // Act
+            var result = await _userController.SetUserAllergens(request);
+
+            // Assert
+            var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Which;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Invalid request payload." });
+
+            _mockUserService.Verify(us => us.SetUserAllergensAsync(It.IsAny<string>(), It.IsAny<List<int>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SetUserAllergens_ShouldReturnBadRequest_WhenArgumentExceptionIsThrown()
+        {
+            // Arrange
+            var userId = "currentUserId";
+            var request = new SetUserAllergensRequestDTO
+            {
+                AllergenIds = new List<int> { 99, 100 }
+            };
+
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.NameIdentifier))
+                     .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+
+            _mockUserService.Setup(us => us.SetUserAllergensAsync(userId, request.AllergenIds))
+                            .ThrowsAsync(new ArgumentException("Invalid allergen IDs."));
+
+            // Act
+            var result = await _userController.SetUserAllergens(request);
+
+            // Assert
+            var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Which;
+            badRequestResult.Value.Should().BeEquivalentTo(new { message = "Invalid allergen IDs." });
+
+            _mockUserService.Verify(us => us.SetUserAllergensAsync(userId, request.AllergenIds), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetUserAllergens_ShouldReturnInternalServerError_WhenUnhandledExceptionOccurs()
+        {
+            // Arrange
+            var userId = "currentUserId";
+            var request = new SetUserAllergensRequestDTO
+            {
+                AllergenIds = new List<int> { 1, 2, 3 }
+            };
+
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.NameIdentifier))
+                     .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+
+            _mockUserService.Setup(us => us.SetUserAllergensAsync(userId, request.AllergenIds))
+                            .ThrowsAsync(new Exception("Unexpected error."));
+
+            // Act
+            var result = await _userController.SetUserAllergens(request);
+
+            // Assert
+            var internalServerErrorResult = result.Should().BeOfType<ObjectResult>().Which;
+            internalServerErrorResult.StatusCode.Should().Be(500);
+            internalServerErrorResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Unexpected error." });
+
+            _mockUserService.Verify(us => us.SetUserAllergensAsync(userId, request.AllergenIds), Times.Once);
+        }
+
+
     }
 }
