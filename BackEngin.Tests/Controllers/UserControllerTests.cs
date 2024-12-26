@@ -161,13 +161,29 @@ namespace BackEngin.Tests.Controllers
                 PostCode = 12345
             };
 
-            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync(updateUserDto);
+            var updateResultUserDto = new UpdateUserResultDto
+            {
+                FirstName = "UpdatedFirstName",
+                LastName = "UpdatedLastName",
+                Email = "updated.email@example.com",
+                UserName = "updatedusername",
+                PhoneNumber = "9876543210",
+                AddressName = "Updated Address",
+                Street = "Updated Street",
+                District = "Updated District",
+                City = "Updated City",
+                Country = "Updated Country",
+                PostCode = 12345,
+                UserId = userId
+            };
+
+            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync(updateResultUserDto);
 
             // Act
             var result = await _userController.UpdateUser(userId, updateUserDto);
 
             // Assert
-            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(updateUserDto);
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(updateResultUserDto);
         }
 
         [Fact]
@@ -190,7 +206,7 @@ namespace BackEngin.Tests.Controllers
                 PostCode = 12345
             };
 
-            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync((UpdateUserDto)null);
+            _mockUserService.Setup(us => us.UpdateUserAsync(userId, updateUserDto)).ReturnsAsync((UpdateUserResultDto)null);
 
             // Act
             var result = await _userController.UpdateUser(userId, updateUserDto);
@@ -274,9 +290,13 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var userId = "user1";
-            var followersDto = new PaginatedResponseDTO<string>
+            var followersDto = new PaginatedResponseDTO<FollowerDTO>
             {
-                Items = new List<string> { "follower1", "follower2" },
+                Items = new List<FollowerDTO>
+                {
+                    new FollowerDTO { UserId = "following1", UserName = "Following1" },
+                    new FollowerDTO { UserId = "following2", UserName = "Following2" }
+                },
                 TotalCount = 2
             };
 

@@ -94,7 +94,7 @@ namespace BackEngin.Services
         }
 
 
-        public async Task<UpdateUserDto> UpdateUserAsync(string id, UpdateUserDto userDTO)
+        public async Task<UpdateUserResultDto> UpdateUserAsync(string id, UpdateUserDto userDTO)
         {
             var existingUser = await _userManager.FindByIdAsync(id);
             if (existingUser == null)
@@ -170,7 +170,7 @@ namespace BackEngin.Services
                 return null;
             }
 
-            return new UpdateUserDto
+            return new UpdateUserResultDto
             {
                 FirstName = existingUser.FirstName,
                 LastName = existingUser.LastName,
@@ -186,7 +186,8 @@ namespace BackEngin.Services
                 // Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...
                 BannerImage = null,
                 ProfileImage = null,
-                Bio = existingUser.Bio
+                Bio = existingUser.Bio,
+                UserId = existingUser.Id
             };
         }
 
@@ -203,7 +204,7 @@ namespace BackEngin.Services
             return result.Succeeded;
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -215,7 +216,7 @@ namespace BackEngin.Services
             return await _unitOfWork.Users.GetFollowersAsync(userId, page, pageSize);
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 

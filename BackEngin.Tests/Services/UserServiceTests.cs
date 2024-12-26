@@ -220,6 +220,7 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
+            result.UserId.Should().Be(userId);
             result.FirstName.Should().Be(updateUserDto.FirstName);
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
@@ -283,6 +284,7 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
+            result.UserId.Should().Be(userId);
             result.FirstName.Should().Be(updateUserDto.FirstName);
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
@@ -359,11 +361,19 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user1";
             var user = new Users { Id = userId, UserName = "User1" }; // Mock user
-            var expectedDto = new PaginatedResponseDTO<string>
+
+            var expectedDto = new PaginatedResponseDTO<FollowerDTO>
             {
-                Items = new List<string> { "follower1", "follower2" },
-                TotalCount = 2
+                Items = new List<FollowerDTO>
+        {
+            new FollowerDTO { UserId = "follower1", UserName = "Follower1" },
+            new FollowerDTO { UserId = "follower2", UserName = "Follower2" }
+        },
+                TotalCount = 2,
+                PageNumber = 1,
+                PageSize = 10
             };
+
             var page = 1;
             var pageSize = 10;
 
@@ -383,6 +393,7 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Users.GetFollowersAsync(userId, page, pageSize), Times.Once);
             _mockUserManager.Verify(u => u.FindByIdAsync(userId), Times.Once);
         }
+
 
 
         [Fact]
@@ -418,6 +429,46 @@ namespace BackEngin.Tests.Services
             result.Should().BeTrue();
             _mockUnitOfWork.Verify(u => u.Users.FollowUserAsync(initiatorUserId, targetUserId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetFollowingAsync_ShouldReturnFollowingDTO()
+        {
+            // Arrange
+            var userId = "user1";
+            var user = new Users { Id = userId, UserName = "User1" }; // Mock user
+
+            var expectedDto = new PaginatedResponseDTO<FollowerDTO>
+            {
+                Items = new List<FollowerDTO>
+                {
+                    new FollowerDTO { UserId = "following1", UserName = "Following1" },
+                    new FollowerDTO { UserId = "following2", UserName = "Following2" }
+                },
+                TotalCount = 2,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            var page = 1;
+            var pageSize = 10;
+
+            // Setup UserManager to find the user
+            _mockUserManager.Setup(u => u.FindByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            // Setup UnitOfWork to return the expected DTO
+            _mockUnitOfWork.Setup(u => u.Users.GetFollowingAsync(userId, page, pageSize))
+                .ReturnsAsync(expectedDto);
+
+            // Act
+            var result = await _userService.GetFollowingAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedDto);
+            _mockUnitOfWork.Verify(u => u.Users.GetFollowingAsync(userId, page, pageSize), Times.Once);
+            _mockUserManager.Verify(u => u.FindByIdAsync(userId), Times.Once);
+        }
+
 
         [Fact]
         public async Task FollowUserAsync_ShouldThrowInvalidOperationException_WhenUserTriesToFollowSelf()
