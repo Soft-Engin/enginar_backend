@@ -15,18 +15,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
-  enginar-backend-migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile.migration
-    image: enginar-backend-migrator
-    container_name: enginar_backend_migrator
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
 
   enginar-backend:
     build:  
@@ -35,8 +23,8 @@ services:
     image: enginar-backend
     container_name: enginar_backend
     depends_on:
-      enginar-backend-migrator:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     env_file:
       - .env
     environment:
