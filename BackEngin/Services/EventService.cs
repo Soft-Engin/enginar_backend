@@ -539,5 +539,16 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<bool> IsUserParticipantAsync(int eventId, string userId)
+        {
+            var participantCount = await _unitOfWork.User_Event_Participations.CountAsync(
+                uep => uep.EventId == eventId && uep.UserId == userId
+            );
+
+            return participantCount > 0;
+        }
+
+
     }
 }
