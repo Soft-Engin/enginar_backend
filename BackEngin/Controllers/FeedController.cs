@@ -74,7 +74,7 @@ namespace BackEngin.Controllers
         }
 
         // GET /ingredients - Get paginated list of Recipes
-        [HttpGet("recipe/recent-followed-feed")]
+        [HttpGet("recipe/followed")]
         [Authorize]
         public async Task<IActionResult> GetPaginatedRecentFollowedRecipes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
@@ -93,7 +93,7 @@ namespace BackEngin.Controllers
         }
 
         // GET /ingredients - Get paginated list of Blogs
-        [HttpGet("blog/recent-followed-feed")]
+        [HttpGet("blog/followed")]
         public async Task<IActionResult> GetPaginatedRecentFollowedBlogs([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -111,7 +111,7 @@ namespace BackEngin.Controllers
         }
 
         // GET /ingredients - Get paginated list of Events
-        [HttpGet("event/recent-followed-feed")]
+        [HttpGet("event/followed")]
         public async Task<IActionResult> GetPaginatedRecentFollowedEvents([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -129,7 +129,7 @@ namespace BackEngin.Controllers
         }
 
         // GET /ingredients - Get paginated list of Events
-        [HttpGet("event/upcoming-followed-feed")]
+        [HttpGet("event/upcoming-followed")]
         public async Task<IActionResult> GetPaginatedUpcomingFollowedEvents([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
