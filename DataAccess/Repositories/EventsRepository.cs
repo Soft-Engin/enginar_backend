@@ -145,8 +145,7 @@ namespace DataAccess.Repositories
             // Calculate weighted order dynamically
             var dateOrderedQuery = query
                 .Where(predicate)
-                .OrderBy(item => item.CreatedAt)
-                .Reverse();
+                .OrderByDescending(item => item.CreatedAt);
 
             // Execute the query
             var items = dateOrderedQuery
