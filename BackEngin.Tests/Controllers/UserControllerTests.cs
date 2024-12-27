@@ -626,8 +626,8 @@ namespace BackEngin.Tests.Controllers
             var result = await _userController.GetUserAllergens(1, 10);
 
             // Assert
-            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
-            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No allergens for the given user." });
+            var notFoundResult = result.Should().BeOfType<OkObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = "No allergens found for the given user." });
 
             _mockUserService.Verify(us => us.GetUserAllergensAsync("currentUserId", 1, 10), Times.Once);
         }

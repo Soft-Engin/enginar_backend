@@ -579,7 +579,7 @@ namespace BackEngin.Controllers
 
                 if (allergens == null || !allergens.Items.Any())
                 {
-                    return NotFound(new { message = "No allergens for the given user." });
+                    return Ok(new { message = "No allergens found for the given user." });
                 }
 
                 return Ok(allergens);
