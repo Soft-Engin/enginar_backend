@@ -36,6 +36,7 @@ namespace DataAccess.Repositories
         IRecipe_CommentsRepository Recipe_Comments { get; }
         IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
         IUser_Event_ParticipationsRepository User_Event_Participations { get; }
+        IUser_AllergensRepository User_Allergens { get; }
 
         Task<int> CompleteAsync();
     }

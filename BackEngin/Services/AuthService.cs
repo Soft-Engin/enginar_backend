@@ -27,7 +27,7 @@ namespace BackEngin.Services
         {
             var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "User");
             var roleId = role.First().Id;
-            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = roleId };
+            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = roleId, FirstName = model.FirstName, LastName = model.LastName };
             return await _userManager.CreateAsync(user, model.Password);
         }
 

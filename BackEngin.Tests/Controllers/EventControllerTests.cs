@@ -589,6 +589,67 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
+        public async Task IsUserParticipant_ShouldReturnOk_WithTrue_WhenUserIsParticipant()
+        {
+            // Arrange
+            var eventId = 1;
+            var userId = "currentUserId";
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(eventId, userId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(new { isParticipant = true });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(eventId, userId), Times.Once);
+  
+        }
+
+        [Fact]
+        public async Task IsUserParticipant_ShouldReturnOk_WithFalse_WhenUserIsNotParticipant()
+        {
+            // Arrange
+            var eventId = 1;
+            var userId = "currentUserId";
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(eventId, userId)).ReturnsAsync(false);
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(new { isParticipant = false });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(eventId, userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task IsUserParticipant_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(It.IsAny<int>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception("Something went wrong"));
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var objectResult = result.Should().BeOfType<ObjectResult>().Which;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "An unexpected error occurred.",
+                details = "Something went wrong"
+            });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        }
+
+
+        [Fact]
         public async Task GetDistrictsByCityId_ShouldReturnOk_WithDistricts()
         {
             // Arrange

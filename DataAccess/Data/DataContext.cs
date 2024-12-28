@@ -57,6 +57,7 @@ namespace BackEngin.Data
         public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
         public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
         public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
+        public DbSet<User_Allergens> User_Allergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -129,11 +130,11 @@ namespace BackEngin.Data
             );
 
             modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 },
-                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 },
-                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 },
-                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 },
-                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 }
+                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 , Bio = "Bio1"},
+                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 , Bio = "Bio2" },
+                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 , Bio = "Bio3" },
+                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 , Bio = "Bio4" },
+                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 , Bio = "Bio5" }
             );
 
             modelBuilder.Entity<Recipes>().HasData(
@@ -299,6 +300,12 @@ namespace BackEngin.Data
             modelBuilder.Entity<Recipes_Ingredients>().HasData(
                 new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },          // Enginar
                 new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }  // Zeytinyağı
+            );
+
+            modelBuilder.Entity<User_Allergens>().HasData(
+                new User_Allergens { Id = 1, UserId = "1", PreferenceId = 1 }, 
+                new User_Allergens { Id = 2, UserId = "2", PreferenceId = 2 },
+                new User_Allergens { Id = 3, UserId = "3", PreferenceId = 3 }
             );
 
 
@@ -575,6 +582,20 @@ namespace BackEngin.Data
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure User_Allergens
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.User)
+                .WithMany()
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.Preference)
+                .WithMany()
+                .HasForeignKey(ua => ua.PreferenceId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)

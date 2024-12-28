@@ -1260,6 +1260,70 @@ namespace BackEngin.Tests.Services
 
         #endregion
 
+        #region IsUserParticipantAsync Tests
+
+        [Fact]
+        public async Task IsUserParticipantAsync_ShouldReturnTrue_WhenUserIsParticipant()
+        {
+            // Arrange
+            int eventId = 77;
+            string userId = "u1";
+
+            // Mock the repository call for CountAsync instead of FindAsync
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.CountAsync(
+                    It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                        predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId }) // Ensure it matches the condition
+                    )
+                ))
+                .ReturnsAsync(1); // Return 1 to simulate the user being a participant
+
+            // Act
+            var result = await _eventService.IsUserParticipantAsync(eventId, userId);
+
+            // Assert
+            result.Should().BeTrue();
+
+            _mockUnitOfWork.Verify(u => u.User_Event_Participations.CountAsync(
+                It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                    predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId })
+                )
+            ), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task IsUserParticipantAsync_ShouldReturnFalse_WhenUserIsNotParticipant()
+        {
+            // Arrange
+            int eventId = 77;
+            string userId = "u1";
+
+            // Mock the repository call for CountAsync to return 0, meaning no participations
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.CountAsync(
+                    It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                        predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId }) // Ensure it matches the condition
+                    )
+                ))
+                .ReturnsAsync(0); // Return 0 to simulate the user not being a participant
+
+            // Act
+            var result = await _eventService.IsUserParticipantAsync(eventId, userId);
+
+            // Assert
+            result.Should().BeFalse();
+
+            _mockUnitOfWork.Verify(u => u.User_Event_Participations.CountAsync(
+                It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                    predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId })
+                )
+            ), Times.Once);
+        }
+
+        #endregion
+
+
+
+
         // ... Additional tests for GetAllRequirementsAsync, GetDistrictsByCityIdAsync, etc. ...
     }
 }

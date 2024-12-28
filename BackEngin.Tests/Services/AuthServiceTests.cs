@@ -37,7 +37,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task RegisterUser_ShouldReturnSuccess_WhenUserCreated()
         {
-            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123" };
+            var model = new RegisterRequestDTO { UserName = "testuser", Email = "test@example.com", Password = "Password123", FirstName =  "John", LastName = "Doe" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<Users>(), model.Password))
                 .ReturnsAsync(IdentityResult.Success);
             var role = new Roles { Id = 1, Name = "User", Description = "Default user role" };

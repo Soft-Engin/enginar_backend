@@ -314,5 +314,23 @@ namespace BackEngin.Controllers
                     new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        [HttpGet("{eventId}/is-participant")]
+        [Authorize]
+        public async Task<IActionResult> IsUserParticipant(int eventId)
+        {
+            try
+            {
+                var userId = await GetActiveUserId();
+                var isParticipant = await _eventService.IsUserParticipantAsync(eventId, userId);
+
+                return Ok(new { isParticipant });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
     }
 }
