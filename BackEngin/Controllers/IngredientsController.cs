@@ -4,6 +4,7 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BackEngin.Controllers
 {
@@ -125,6 +126,25 @@ namespace BackEngin.Controllers
                     return BadRequest(new { message = "Ingredient cannot be deleted." });
                 }
                 return Ok(new { message = "Ingredient deleted successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
+        [HttpGet("Images")]
+        public async Task<IActionResult> GetBatchImage([FromQuery] List<int> ingredientIds)
+        {
+            if (ingredientIds.IsNullOrEmpty())
+            {
+                return BadRequest(new { message = "Ingredient IDs must be provided." });
+            }
+
+            try
+            {
+                var result = await _ingredientsService.GetBatchImage(ingredientIds);
+                return Ok(result);
             }
             catch (Exception ex)
             {

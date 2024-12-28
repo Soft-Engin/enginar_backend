@@ -22,6 +22,14 @@ namespace BackEngin.Data
             Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPAA8DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAEF/8QAHhAAAgICAgMAAAAAAAAAAAAAAQIDEQASITIEQWH/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAESEf/aAAwDAQACEQMRAD8AIvipLKDJP27ELePZoo3WJJCbW1OvBGZRnAQgKQxrn5lSVRJuVYj0LqsNUI5w/9k=")
 
         };
+
+        private static readonly byte[][] IngredientImages = new byte[2][]
+        {
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFA3PEY8MlBGQUZaVVBfeMiCeG5uePWvuZHI////////////////////////////////////////////////////2wBDAVVaWnhpeOuCguv/////////////////////////////////////////////////////////////////////////wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCT73QimsOcdagVsHg1ajORk1IyIxk9qZ5RIz2qWaXHAqNfMl4HSmBEVpCtWvIwOopjRgdxSuBXxSYqYp3NNK07gP8A3a9Fz9TS+e2MAAVBu9KsWyAZlft0oAekGfnl/KpSwUccDFN3EtuIIGKhkkyT1qR2HPJURYmm9TSjoc0DFQkHB6GnMOeKaen1qQ/dH0piIESrBO2NRnFMQUsqkqCO3WhghC7MuSeKizmlJwgUU2gY8dMGjOOKZmkLUCJEG9gBU7VVSRl6VIWYjmiwCqalDdhUANPDYoENm4PAqHJqwSCKjZRTAi5NLilxUkUW75m+6P1oAWGLje3TtQ7c8U+SQYwDUJOaAP/Z"),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFA3PEY8MlBGQUZaVVBfeMiCeG5uePWvuZHI////////////////////////////////////////////////////2wBDAVVaWnhpeOuCguv/////////////////////////////////////////////////////////////////////////wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCsKcKQU4UDJRHkcOp9s0gpSAwBH40eWEPXg9Km4gopxGOKQcj0pjGEU0ipCKaRQBEKcKaKUUwJFpz5YADqRxSBTkAc56VMIj8hOODk1NrgiJCGC9m9+9SbTtz6VG3yvtb14pshIyFb8KOtirDzTTSq24Z796DTJK4pwpgqSMkMB68c0wLcKlYwT1NO3D14pCRwKQcYxSER3BA296rMcsTUsrbnwOwqEZoL8iSM7eT0NPJyKj4wM9qec0CZY8iMdqDEuMgfSq4uCevSpBc560CFLFRyCPWoZJSeADUxmVuucfWmbYSc4IP1oHcg2nknj60mCBmrBSMjhm/Ok8qI87jQFxYYQPmdhn0zUxVfUVB5UXqaNkY9aBH/2Q==")
+        };
+
+
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -282,8 +290,8 @@ namespace BackEngin.Data
             // Existing: Id=3 (Enginar), Id=4 (Zeytinyağı)
             // Add a variety of other ingredients
             modelBuilder.Entity<Ingredients>().HasData(
-                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 },
-                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 },
+                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 , Image = IngredientImages[0] },
+                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 , Image = IngredientImages[1] },
                 new Ingredients { Id = 5, Name = "Domates", TypeId = 1 },
                 new Ingredients { Id = 6, Name = "Soğan", TypeId = 1 },
                 new Ingredients { Id = 7, Name = "Sarımsak", TypeId = 1 },
