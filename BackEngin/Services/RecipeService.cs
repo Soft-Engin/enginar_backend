@@ -86,6 +86,8 @@ namespace BackEngin.Services
                 };
 
                 await _unitOfWork.Recipes_Ingredients.AddAsync(recipeIngredient);
+                await _unitOfWork.CompleteAsync();
+
 
                 // Add to DTO for returning details
                 ingredientDTOs.Add(new RecipeIngredientRequestDTO
