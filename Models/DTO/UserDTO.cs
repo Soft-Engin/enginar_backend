@@ -116,11 +116,9 @@ namespace Models.DTO
         public List<int> AllergenIds { get; set; }
     }
 
-    public class FollowerDTO
+    public class UserCompactDTO
     {
         public string UserId { get; set; }
         public string UserName { get; set; }
     }
-
-
 }

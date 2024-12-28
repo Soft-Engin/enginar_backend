@@ -176,7 +176,7 @@ namespace BackEngin.Services
 
             if (!(await _unitOfWork.Recipes.FindAsync(r => r.Id == recipeId)).Any())
             {
-                throw new Exception("Recipe with the provided recipeId does not exits");
+                throw new Exception("Recipe with the provided recipeId does not exists");
             }
 
 

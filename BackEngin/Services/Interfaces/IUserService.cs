@@ -13,8 +13,8 @@ namespace BackEngin.Services.Interfaces
         Task<UpdateUserResultDto> UpdateUserAsync(string id, UpdateUserDto userDTO);
         Task<bool> DeleteUserAsync(string id);
 
-        Task<PaginatedResponseDTO<FollowerDTO>> GetFollowersAsync(string userId, int page, int pageSize);
-        Task<PaginatedResponseDTO<FollowerDTO>> GetFollowingAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowersAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowingAsync(string userId, int page, int pageSize);
         Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId);
         Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
         Task<PaginatedResponseDTO<BookmarkRecipesItemDTO>> GetBookmarkedRecipesAsync(string userId, int page, int pageSize);
