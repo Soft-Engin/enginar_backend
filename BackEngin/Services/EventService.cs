@@ -384,7 +384,7 @@ namespace BackEngin.Services
             var participants = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(uep => new ParticipantDTO
+                .Select(uep => new UserCompactDTO
                 {
                     UserId = uep.UserId,
                     UserName = uep.User.UserName
@@ -394,7 +394,7 @@ namespace BackEngin.Services
             // Rest of the method remains the same...
             var (regularParticipants, followedParticipants) = participants
                 .GroupBy(p => followedUserIds.Contains(p.UserId))
-                .Aggregate((new List<ParticipantDTO>(), new List<ParticipantDTO>()), (acc, group) =>
+                .Aggregate((new List<UserCompactDTO>(), new List<UserCompactDTO>()), (acc, group) =>
                 {
                     if (group.Key) // Is followed
                         acc.Item2.AddRange(group);
@@ -405,14 +405,14 @@ namespace BackEngin.Services
 
             return new EventParticipantsResponseDTO
             {
-                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
                 {
                     Items = regularParticipants,
                     TotalCount = totalCount,
                     PageNumber = page,
                     PageSize = pageSize
                 },
-                FollowedParticipations = userId != null ? new PaginatedResponseDTO<ParticipantDTO>
+                FollowedParticipations = userId != null ? new PaginatedResponseDTO<UserCompactDTO>
                 {
                     Items = followedParticipants,
                     TotalCount = followedParticipants.Count,

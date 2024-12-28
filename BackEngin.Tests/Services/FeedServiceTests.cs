@@ -217,8 +217,8 @@ namespace BackEngin.Tests.Services
             var pageSize = 10;
             var following = new List<UserCompactDTO>
             {
-                new UserCompactDTO { Id = "user2", UserName = "TestUser" },
-                new UserCompactDTO { Id = "user3", UserName = "TestUser2" }
+                new UserCompactDTO { UserId = "user2", UserName = "TestUser" },
+                new UserCompactDTO { UserId = "user3", UserName = "TestUser2" }
             };
 
             var recipes = new List<Recipes>
@@ -270,7 +270,7 @@ namespace BackEngin.Tests.Services
             var pageSize = 10;
             var following = new List<UserCompactDTO>
             {
-                new UserCompactDTO { Id = "user2", UserName = "TestUser" }
+                new UserCompactDTO { UserId = "user2", UserName = "TestUser" }
             };
 
             var blogs = new List<Blogs>
@@ -314,7 +314,7 @@ namespace BackEngin.Tests.Services
             var pageSize = 10;
             var following = new List<UserCompactDTO>
             {
-                new UserCompactDTO { Id = "user2", UserName = "TestUser" }
+                new UserCompactDTO { UserId = "user2", UserName = "TestUser" }
             };
 
             var futureDate = DateTime.Now.AddDays(7);
@@ -445,7 +445,7 @@ namespace BackEngin.Tests.Services
             var pageSize = 10;
             var following = new List<UserCompactDTO> 
             { 
-                new UserCompactDTO { Id = "user2" } 
+                new UserCompactDTO { UserId = "user2" } 
             };
         
             _mockUnitOfWork.Setup(u => u.Users.GetAllFollowingAsync(userId))

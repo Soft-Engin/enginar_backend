@@ -204,7 +204,7 @@ namespace BackEngin.Services
             return result.Succeeded;
         }
 
-        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -216,7 +216,7 @@ namespace BackEngin.Services
             return await _unitOfWork.Users.GetFollowersAsync(userId, page, pageSize);
         }
 
-        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 

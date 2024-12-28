@@ -290,12 +290,12 @@ namespace BackEngin.Tests.Controllers
         {
             // Arrange
             var userId = "user1";
-            var followersDto = new PaginatedResponseDTO<FollowerDTO>
+            var followersDto = new PaginatedResponseDTO<UserCompactDTO>
             {
-                Items = new List<FollowerDTO>
+                Items = new List<UserCompactDTO>
                 {
-                    new FollowerDTO { UserId = "following1", UserName = "Following1" },
-                    new FollowerDTO { UserId = "following2", UserName = "Following2" }
+                    new UserCompactDTO { UserId = "following1", UserName = "Following1" },
+                    new UserCompactDTO { UserId = "following2", UserName = "Following2" }
                 },
                 TotalCount = 2
             };

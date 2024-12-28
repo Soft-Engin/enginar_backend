@@ -542,12 +542,12 @@ namespace BackEngin.Tests.Controllers
             int pageSize = 10;
             var participantsResponse = new EventParticipantsResponseDTO
             {
-                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
                 {
-                    Items = new List<ParticipantDTO>
+                    Items = new List<UserCompactDTO>
                     {
-                        new ParticipantDTO { UserId = "user1", UserName = "User One" },
-                        new ParticipantDTO { UserId = "user2", UserName = "User Two" }
+                        new UserCompactDTO { UserId = "user1", UserName = "User One" },
+                        new UserCompactDTO { UserId = "user2", UserName = "User Two" }
                     },
                     TotalCount = 2,
                     PageNumber = pageNumber,
@@ -982,12 +982,12 @@ namespace BackEngin.Tests.Controllers
             int eventId = 1;
             var expectedResponse = new EventParticipantsResponseDTO
             {
-                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
                 {
-                    Items = new List<ParticipantDTO> 
+                    Items = new List<UserCompactDTO> 
                     {
-                        new ParticipantDTO { UserId = "1", UserName = "user1" },
-                        new ParticipantDTO { UserId = "2", UserName = "user2" }
+                        new UserCompactDTO { UserId = "1", UserName = "user1" },
+                        new UserCompactDTO { UserId = "2", UserName = "user2" }
                     },
                     TotalCount = 2,
                     PageNumber = 1,
@@ -1020,22 +1020,22 @@ namespace BackEngin.Tests.Controllers
             int eventId = 1;
             var expectedResponse = new EventParticipantsResponseDTO
             {
-                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
                 {
-                    Items = new List<ParticipantDTO> 
+                    Items = new List<UserCompactDTO> 
                     {
-                        new ParticipantDTO { UserId = "1", UserName = "user1" },
-                        new ParticipantDTO { UserId = "2", UserName = "user2" }
+                        new UserCompactDTO { UserId = "1", UserName = "user1" },
+                        new UserCompactDTO { UserId = "2", UserName = "user2" }
                     },
                     TotalCount = 2,
                     PageNumber = 1,
                     PageSize = 10
                 },
-                FollowedParticipations = new PaginatedResponseDTO<ParticipantDTO>
+                FollowedParticipations = new PaginatedResponseDTO<UserCompactDTO>
                 {
-                    Items = new List<ParticipantDTO> 
+                    Items = new List<UserCompactDTO> 
                     {
-                        new ParticipantDTO { UserId = "1", UserName = "user1" }
+                        new UserCompactDTO { UserId = "1", UserName = "user1" }
                     },
                     TotalCount = 1,
                     PageNumber = 1,
@@ -1068,9 +1068,9 @@ namespace BackEngin.Tests.Controllers
             int eventId = 1;
             var emptyResponse = new EventParticipantsResponseDTO
             {
-                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
                 {
-                    Items = new List<ParticipantDTO>(),
+                    Items = new List<UserCompactDTO>(),
                     TotalCount = 0,
                     PageNumber = 1,
                     PageSize = 10

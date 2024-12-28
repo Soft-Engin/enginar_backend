@@ -156,7 +156,7 @@ namespace BackEngin.Services
             //get followings from db
             var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
 
-            var followingIdList = followings.Select(user => user.Id).ToList();
+            var followingIdList = followings.Select(user => user.UserId).ToList();
 
             //get feed from db and order by date
             var (blogs, totalCount) = await _unitOfWork.Blogs.GetPaginatedByFollowedAsync(r => followingIdList.Contains(r.UserId), page, pageSize, includeProperties: "User");
@@ -191,7 +191,7 @@ namespace BackEngin.Services
             var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
 
             //get following id list
-            var followingIdList = followings.Select(u => u.Id).ToList();
+            var followingIdList = followings.Select(u => u.UserId).ToList();
 
             //get feed from db and order by date
             var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedByFollowedAsync(r => followingIdList.Contains(r.UserId), page, pageSize, includeProperties: "User");
@@ -227,7 +227,7 @@ namespace BackEngin.Services
             //get followings from db
             var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
 
-            var followingIdList = followings.Select(user => user.Id).ToList();
+            var followingIdList = followings.Select(user => user.UserId).ToList();
 
             // Step 2: Fetch paginated recipes with calculated weights
             var (events, totalCount) = await _unitOfWork.Events.GetPaginatedByFollowedAsync(
@@ -257,7 +257,7 @@ namespace BackEngin.Services
             //get followings from db
             var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
 
-            var followingIdList = followings.Select(user => user.Id).ToList();
+            var followingIdList = followings.Select(user => user.UserId).ToList();
 
             // Step 2: Fetch paginated recipes with calculated weights
             var (events, totalCount) = await _unitOfWork.Events.GetPaginatedByFollowedAsync(

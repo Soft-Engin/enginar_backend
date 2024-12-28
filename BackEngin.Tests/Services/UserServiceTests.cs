@@ -362,12 +362,12 @@ namespace BackEngin.Tests.Services
             var userId = "user1";
             var user = new Users { Id = userId, UserName = "User1" }; // Mock user
 
-            var expectedDto = new PaginatedResponseDTO<FollowerDTO>
+            var expectedDto = new PaginatedResponseDTO<UserCompactDTO>
             {
-                Items = new List<FollowerDTO>
+                Items = new List<UserCompactDTO>
         {
-            new FollowerDTO { UserId = "follower1", UserName = "Follower1" },
-            new FollowerDTO { UserId = "follower2", UserName = "Follower2" }
+            new UserCompactDTO { UserId = "follower1", UserName = "Follower1" },
+            new UserCompactDTO { UserId = "follower2", UserName = "Follower2" }
         },
                 TotalCount = 2,
                 PageNumber = 1,
@@ -437,12 +437,12 @@ namespace BackEngin.Tests.Services
             var userId = "user1";
             var user = new Users { Id = userId, UserName = "User1" }; // Mock user
 
-            var expectedDto = new PaginatedResponseDTO<FollowerDTO>
+            var expectedDto = new PaginatedResponseDTO<UserCompactDTO>
             {
-                Items = new List<FollowerDTO>
+                Items = new List<UserCompactDTO>
                 {
-                    new FollowerDTO { UserId = "following1", UserName = "Following1" },
-                    new FollowerDTO { UserId = "following2", UserName = "Following2" }
+                    new UserCompactDTO { UserId = "following1", UserName = "Following1" },
+                    new UserCompactDTO { UserId = "following2", UserName = "Following2" }
                 },
                 TotalCount = 2,
                 PageNumber = 1,

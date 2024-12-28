@@ -21,11 +21,11 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var followersQuery = _db.Users_Interactions
                 .Where(ui => ui.TargetUserId == userId && ui.Interaction.Name == "Follow")
-                .Select(ui => new FollowerDTO
+                .Select(ui => new UserCompactDTO
                 {
                     UserId = ui.InitiatorUser.Id,
                     UserName = ui.InitiatorUser.UserName
@@ -38,7 +38,7 @@ namespace DataAccess.Repositories
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new PaginatedResponseDTO<FollowerDTO>
+            return new PaginatedResponseDTO<UserCompactDTO>
             {
                 Items = followers,
                 TotalCount = totalCount,
@@ -48,11 +48,11 @@ namespace DataAccess.Repositories
         }
 
 
-        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var followingsQuery = _db.Users_Interactions
                 .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
-                .Select(ui => new FollowerDTO
+                .Select(ui => new UserCompactDTO
                 {
                     UserId = ui.TargetUser.Id,
                     UserName = ui.TargetUser.UserName
@@ -65,7 +65,7 @@ namespace DataAccess.Repositories
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new PaginatedResponseDTO<FollowerDTO>
+            return new PaginatedResponseDTO<UserCompactDTO>
             {
                 Items = followings,
                 TotalCount = totalCount,
@@ -78,7 +78,7 @@ namespace DataAccess.Repositories
         {
             var followingsQuery = _db.Users_Interactions
                 .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
-                .Select(ui => new UserCompactDTO{Id = ui.TargetUser.Id, UserName = ui.TargetUser.UserName });
+                .Select(ui => new UserCompactDTO{UserId = ui.TargetUser.Id, UserName = ui.TargetUser.UserName });
 
 
             var usernames = await followingsQuery
