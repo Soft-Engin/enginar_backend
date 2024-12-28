@@ -359,32 +359,68 @@ namespace BackEngin.Services
             }
         }
 
-        public async Task<PaginatedResponseDTO<ParticipantDTO>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize)
+        public async Task<EventParticipantsResponseDTO> GetPaginatedParticipantsAsync(int eventId, string? userId, int page, int pageSize)
         {
-            // Get paginated participants for the event
-            var (items, totalCount) = await _unitOfWork.User_Event_Participations.GetPaginatedAsync(
-                includeProperties: "User",
-                uep => uep.EventId == eventId,
-                pageNumber: page,
-                pageSize: pageSize
-                );
+            var query = _unitOfWork.User_Event_Participations
+                .GetQueryable()
+                .Where(uep => uep.EventId == eventId)
+                .Include(uep => uep.User);
 
-            var participants = items.Select(uep => new ParticipantDTO
-            {
-                UserId = uep.UserId,
-                UserName = uep.User.UserName
-            });
+            var totalCount = await query.CountAsync();
 
-            // Return the paginated response
-            return new PaginatedResponseDTO<ParticipantDTO>
+            // If user is authenticated, get their followed users
+            HashSet<string> followedUserIds = new HashSet<string>();
+            if (userId != null)
             {
-                Items = participants,
-                TotalCount = totalCount,
-                PageNumber = page,
-                PageSize = pageSize
+                followedUserIds = (await _unitOfWork.Users_Interactions
+                    .GetQueryable()
+                    .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
+                    .Select(ui => ui.TargetUserId)
+                    .ToListAsync())
+                    .ToHashSet();
+            }
+
+            // Get all participants in one query
+            var participants = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(uep => new UserCompactDTO
+                {
+                    UserId = uep.UserId,
+                    UserName = uep.User.UserName
+                })
+                .ToListAsync();
+
+            // Rest of the method remains the same...
+            var (regularParticipants, followedParticipants) = participants
+                .GroupBy(p => followedUserIds.Contains(p.UserId))
+                .Aggregate((new List<UserCompactDTO>(), new List<UserCompactDTO>()), (acc, group) =>
+                {
+                    if (group.Key) // Is followed
+                        acc.Item2.AddRange(group);
+                    else
+                        acc.Item1.AddRange(group);
+                    return acc;
+                });
+
+            return new EventParticipantsResponseDTO
+            {
+                Participations = new PaginatedResponseDTO<UserCompactDTO>
+                {
+                    Items = regularParticipants,
+                    TotalCount = totalCount,
+                    PageNumber = page,
+                    PageSize = pageSize
+                },
+                FollowedParticipations = userId != null ? new PaginatedResponseDTO<UserCompactDTO>
+                {
+                    Items = followedParticipants,
+                    TotalCount = followedParticipants.Count,
+                    PageNumber = page,
+                    PageSize = pageSize
+                } : null
             };
         }
-
 
         public async Task<PaginatedResponseDTO<RequirementDTO>> GetAllRequirementsAsync(int pageNumber, int pageSize)
         {
@@ -539,5 +575,16 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<bool> IsUserParticipantAsync(int eventId, string userId)
+        {
+            var participantCount = await _unitOfWork.User_Event_Participations.CountAsync(
+                uep => uep.EventId == eventId && uep.UserId == userId
+            );
+
+            return participantCount > 0;
+        }
+
+
     }
 }
