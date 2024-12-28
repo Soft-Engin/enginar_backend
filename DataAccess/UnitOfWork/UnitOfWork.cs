@@ -41,6 +41,7 @@ namespace DataAccess.Repositories
         public IRecipe_CommentsRepository Recipe_Comments { get; }
         public IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
         public IUser_Event_ParticipationsRepository User_Event_Participations { get; }
+        public IUser_AllergensRepository User_Allergens { get; }
 
         public UnitOfWork(DataContext db)
         {
@@ -75,6 +76,7 @@ namespace DataAccess.Repositories
             Recipe_Comments = new Recipe_CommentsRepository(_db);
             Recipe_Bookmarks = new Recipe_BookmarksRepository(_db);
             User_Event_Participations = new User_Event_ParticipationsRepository(db);
+            User_Allergens = new User_AllergensRepository(_db);
 
         }
 

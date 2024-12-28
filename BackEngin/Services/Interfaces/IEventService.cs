@@ -15,7 +15,7 @@ namespace BackEngin.Services.Interfaces
         Task<bool> DeleteEventAsync(int eventId);
         Task<string> GetEventOwnerId(int eventId);
         Task<bool> ToggleAttendToEventAsync(int eventId, string userId);
-        Task<PaginatedResponseDTO<ParticipantDTO>> GetPaginatedParticipantsAsync(int eventId, int page, int pageSize);
+        Task<EventParticipantsResponseDTO> GetPaginatedParticipantsAsync(int eventId, string? userId, int page, int pageSize);
         Task<PaginatedResponseDTO<RequirementDTO>> GetAllRequirementsAsync(int pageNumber, int pageSize);
         Task<IEnumerable<DistrictDTO>> GetDistrictsByCityIdAsync(int cityId);
         Task<IEnumerable<CityDTO>> GetCitiesByCountryIdAsync(int countryId);
@@ -23,5 +23,6 @@ namespace BackEngin.Services.Interfaces
         Task<CityDTO> GetCityByDistrictIdAsync(int districtId);
         Task<CountryDTO> GetCountryByCityIdAsync(int cityId);
         Task<PaginatedResponseDTO<EventDTO>> SearchEventsAsync(EventSearchParams searchParams, int pageNumber, int pageSize);
+        Task<bool> IsUserParticipantAsync(int eventId, string userId);
     }
 }

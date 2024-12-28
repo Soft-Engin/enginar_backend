@@ -21,44 +21,53 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var followersQuery = _db.Users_Interactions
                 .Where(ui => ui.TargetUserId == userId && ui.Interaction.Name == "Follow")
-                .Select(ui => ui.InitiatorUser.UserName);
+                .Select(ui => new FollowerDTO
+                {
+                    UserId = ui.InitiatorUser.Id,
+                    UserName = ui.InitiatorUser.UserName
+                });
 
             var totalCount = await followersQuery.CountAsync();
 
-            var usernames = await followersQuery
+            var followers = await followersQuery
                 .Skip((page - 1) * pageSize) // Skip records of previous pages
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new PaginatedResponseDTO<string>
+            return new PaginatedResponseDTO<FollowerDTO>
             {
-                Items = usernames,
+                Items = followers,
                 TotalCount = totalCount,
                 PageNumber = page,
                 PageSize = pageSize
             };
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
+
+        public async Task<PaginatedResponseDTO<FollowerDTO>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var followingsQuery = _db.Users_Interactions
                 .Where(ui => ui.InitiatorUserId == userId && ui.Interaction.Name == "Follow")
-                .Select(ui => ui.TargetUser.UserName);
+                .Select(ui => new FollowerDTO
+                {
+                    UserId = ui.TargetUser.Id,
+                    UserName = ui.TargetUser.UserName
+                });
 
             var totalCount = await followingsQuery.CountAsync();
 
-            var usernames = await followingsQuery
+            var followings = await followingsQuery
                 .Skip((page - 1) * pageSize) // Skip records of previous pages
                 .Take(pageSize)              // Take the records for the current page
                 .ToListAsync();
 
-            return new PaginatedResponseDTO<string>
+            return new PaginatedResponseDTO<FollowerDTO>
             {
-                Items = usernames,
+                Items = followings,
                 TotalCount = totalCount,
                 PageNumber = page,
                 PageSize = pageSize

@@ -57,6 +57,7 @@ namespace BackEngin.Data
         public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
         public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
         public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
+        public DbSet<User_Allergens> User_Allergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -307,6 +308,12 @@ namespace BackEngin.Data
                 new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }  // Zeytinyağı
             );
 
+            modelBuilder.Entity<User_Allergens>().HasData(
+                new User_Allergens { Id = 1, UserId = "1", PreferenceId = 1 }, 
+                new User_Allergens { Id = 2, UserId = "2", PreferenceId = 2 },
+                new User_Allergens { Id = 3, UserId = "3", PreferenceId = 3 }
+            );
+
 
 
             // Additional Recipes (20 total, including Id=2)
@@ -469,6 +476,7 @@ namespace BackEngin.Data
                     LastName = lastName,
                     UserName = $"{firstName}{lastName}{i}",
                     Email = $"{firstName.ToLower()}.{lastName.ToLower()}{i}@email.com",
+                    Bio = $"Hello, I'm {firstName} {lastName}! Let's eat!!",
                     BannerImage = GetDummyImage(),
                     ProfileImage = GetDummyImage(),
                     RoleId = 1,
@@ -682,6 +690,20 @@ namespace BackEngin.Data
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure User_Allergens
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.User)
+                .WithMany()
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.Preference)
+                .WithMany()
+                .HasForeignKey(ua => ua.PreferenceId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)

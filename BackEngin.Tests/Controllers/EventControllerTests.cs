@@ -540,20 +540,27 @@ namespace BackEngin.Tests.Controllers
             int eventId = 1;
             int pageNumber = 1;
             int pageSize = 10;
-            var participantsResponse = new PaginatedResponseDTO<ParticipantDTO>
+            var participantsResponse = new EventParticipantsResponseDTO
             {
-                Items = new List<ParticipantDTO>
+                Participations = new PaginatedResponseDTO<ParticipantDTO>
                 {
-                    new ParticipantDTO { UserId = "user1", UserName = "User One" },
-                    new ParticipantDTO { UserId = "user2", UserName = "User Two" }
+                    Items = new List<ParticipantDTO>
+                    {
+                        new ParticipantDTO { UserId = "user1", UserName = "User One" },
+                        new ParticipantDTO { UserId = "user2", UserName = "User Two" }
+                    },
+                    TotalCount = 2,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
                 },
-                TotalCount = 2,
-                PageNumber = pageNumber,
-                PageSize = pageSize
+                FollowedParticipations = null // Not authenticated case
             };
 
-            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, pageNumber, pageSize))
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, null, pageNumber, pageSize))
                              .ReturnsAsync(participantsResponse);
+
+            // Mock unauthenticated user
+            _mockUser.Setup(u => u.Identity.IsAuthenticated).Returns(false);
 
             // Act
             var result = await _eventController.GetEventParticipants(eventId, pageNumber, pageSize);
@@ -580,6 +587,67 @@ namespace BackEngin.Tests.Controllers
             var badRequest = result as BadRequestObjectResult;
             badRequest.Value.Should().BeEquivalentTo(new { message = "Page and pageSize must be positive integers." });
         }
+
+        [Fact]
+        public async Task IsUserParticipant_ShouldReturnOk_WithTrue_WhenUserIsParticipant()
+        {
+            // Arrange
+            var eventId = 1;
+            var userId = "currentUserId";
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(eventId, userId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(new { isParticipant = true });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(eventId, userId), Times.Once);
+  
+        }
+
+        [Fact]
+        public async Task IsUserParticipant_ShouldReturnOk_WithFalse_WhenUserIsNotParticipant()
+        {
+            // Arrange
+            var eventId = 1;
+            var userId = "currentUserId";
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(eventId, userId)).ReturnsAsync(false);
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            okResult.Value.Should().BeEquivalentTo(new { isParticipant = false });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(eventId, userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task IsUserParticipant_ShouldReturnInternalServerError_OnException()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockEventService.Setup(es => es.IsUserParticipantAsync(It.IsAny<int>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception("Something went wrong"));
+
+            // Act
+            var result = await _eventController.IsUserParticipant(eventId);
+
+            // Assert
+            var objectResult = result.Should().BeOfType<ObjectResult>().Which;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "An unexpected error occurred.",
+                details = "Something went wrong"
+            });
+
+            _mockEventService.Verify(es => es.IsUserParticipantAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+        }
+
 
         [Fact]
         public async Task GetDistrictsByCityId_ShouldReturnOk_WithDistricts()
@@ -905,6 +973,121 @@ namespace BackEngin.Tests.Controllers
                     sp.SortBy == sortBy &&
                     sp.CreatorUserName == creatorUserName),
                 1, 10), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventParticipants_ShouldReturnBasicResponse_WhenUserNotAuthenticated()
+        {
+            // Arrange
+            int eventId = 1;
+            var expectedResponse = new EventParticipantsResponseDTO
+            {
+                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                {
+                    Items = new List<ParticipantDTO> 
+                    {
+                        new ParticipantDTO { UserId = "1", UserName = "user1" },
+                        new ParticipantDTO { UserId = "2", UserName = "user2" }
+                    },
+                    TotalCount = 2,
+                    PageNumber = 1,
+                    PageSize = 10
+                },
+                FollowedParticipations = null // Should be null for unauthenticated users
+            };
+
+            // Setup mock without user authentication
+            _mockUser.Setup(u => u.Identity.IsAuthenticated).Returns(false);
+            
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, null, 1, 10))
+                .ReturnsAsync(expectedResponse);
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            var response = okResult.Value.Should().BeOfType<EventParticipantsResponseDTO>().Which;
+            response.Participations.Should().NotBeNull();
+            response.FollowedParticipations.Should().BeNull();
+            response.Participations.Items.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task GetEventParticipants_ShouldReturnFullResponse_WhenUserAuthenticated()
+        {
+            // Arrange
+            int eventId = 1;
+            var expectedResponse = new EventParticipantsResponseDTO
+            {
+                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                {
+                    Items = new List<ParticipantDTO> 
+                    {
+                        new ParticipantDTO { UserId = "1", UserName = "user1" },
+                        new ParticipantDTO { UserId = "2", UserName = "user2" }
+                    },
+                    TotalCount = 2,
+                    PageNumber = 1,
+                    PageSize = 10
+                },
+                FollowedParticipations = new PaginatedResponseDTO<ParticipantDTO>
+                {
+                    Items = new List<ParticipantDTO> 
+                    {
+                        new ParticipantDTO { UserId = "1", UserName = "user1" }
+                    },
+                    TotalCount = 1,
+                    PageNumber = 1,
+                    PageSize = 10
+                }
+            };
+
+            // Setup mock with user authentication
+            _mockUser.Setup(u => u.Identity.IsAuthenticated).Returns(true);
+            
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, "currentUserId", 1, 10))
+                .ReturnsAsync(expectedResponse);
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            var response = okResult.Value.Should().BeOfType<EventParticipantsResponseDTO>().Which;
+            response.Participations.Should().NotBeNull();
+            response.FollowedParticipations.Should().NotBeNull();
+            response.Participations.Items.Should().HaveCount(2);
+            response.FollowedParticipations.Items.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetEventParticipants_ShouldHandleEmptyResults()
+        {
+            // Arrange
+            int eventId = 1;
+            var emptyResponse = new EventParticipantsResponseDTO
+            {
+                Participations = new PaginatedResponseDTO<ParticipantDTO>
+                {
+                    Items = new List<ParticipantDTO>(),
+                    TotalCount = 0,
+                    PageNumber = 1,
+                    PageSize = 10
+                }
+            };
+
+            _mockEventService.Setup(s => s.GetPaginatedParticipantsAsync(eventId, null, 1, 10))
+                .ReturnsAsync(emptyResponse);
+
+            // Act
+            var result = await _eventController.GetEventParticipants(eventId);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            var response = okResult.Value.Should().BeOfType<EventParticipantsResponseDTO>().Which;
+            response.Participations.Items.Should().BeEmpty();
+            response.Participations.TotalCount.Should().Be(0);
         }
     }
 }
