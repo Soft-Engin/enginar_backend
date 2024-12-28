@@ -417,16 +417,28 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchRecipes_ShouldReturnAll_WhenNoFilter()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(2);
-            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1), true, TestUtilities.CreateAllergens(2));
-            var recipes = TestUtilities.CreateRecipes(10, users, ingredients).AsQueryable().BuildMockDbSet();
+            var ingredientTypes = TestUtilities.CreateIngredientTypes(1);
+            var allergens = TestUtilities.CreateAllergens(2);
+            var ingredients = TestUtilities.CreateIngredients(5, ingredientTypes, true, allergens);
+            var recipeList = TestUtilities.CreateRecipes(10, users, ingredients);
 
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            // Set up the recipe queryable
+            var recipes = recipeList.AsQueryable().BuildMockDbSet();
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams();
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, 1, 20);
 
+            // Assert 
             result.TotalCount.Should().Be(10);
             result.Items.Should().HaveCount(10);
         }
@@ -434,6 +446,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchRecipes_ShouldFilterByHeaderAndBody()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(1);
             var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
             var recipeList = TestUtilities.CreateRecipes(5, users, ingredients);
@@ -445,8 +458,14 @@ namespace BackEngin.Tests.Services
             recipeList[2].Header = "Irrelevant";
             recipeList[2].BodyText = "SweetBodyText";
 
+            // Set up the recipe queryable
             var recipes = recipeList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams
             {
@@ -454,8 +473,10 @@ namespace BackEngin.Tests.Services
                 BodyContains = "Sweet"
             };
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
 
+            // Assert
             result.TotalCount.Should().Be(2);
             result.Items.First().Header.Should().Be("SpecialHeader");
         }
@@ -463,6 +484,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchRecipes_ShouldFilterByUserName()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(2);
             users[0].UserName = "recipeUser";
             var ingredients = TestUtilities.CreateIngredients(3, TestUtilities.CreateIngredientTypes(1));
@@ -470,15 +492,24 @@ namespace BackEngin.Tests.Services
             recipeList[0].UserId = users[0].Id;
             recipeList[1].UserId = users[1].Id;
 
+            // Set up the recipe queryable
             var recipes = recipeList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams
             {
                 UserName = "recipeUser"
             };
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+
+            // Assert
             result.Items.Should().AllSatisfy(r => r.Header.StartsWith("Recipe"));
             result.Items.Count().Should().Be(recipeList.Count(r => r.UserId == users[0].Id));
         }
@@ -486,6 +517,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchRecipes_ShouldFilterByIngredientsAndAllergens()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(1);
             var allAllergens = TestUtilities.CreateAllergens(2);
             var ingredientTypes = TestUtilities.CreateIngredientTypes(1);
@@ -519,8 +551,14 @@ namespace BackEngin.Tests.Services
                 Ingredient = ingWithAllergen
             });
 
+            // Set up the recipe queryable
             var recipes = recipeList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams
             {
@@ -528,7 +566,10 @@ namespace BackEngin.Tests.Services
                 AllergenIds = new List<int> { 2 }
             };
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+
+            // Assert
             result.TotalCount.Should().Be(4);
             result.Items.First().Id.Should().Be(recipeList[0].Id);
         }
@@ -536,6 +577,7 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchRecipes_ShouldApplySorting()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(1);
             var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
             var recipeList = TestUtilities.CreateRecipes(3, users, ingredients);
@@ -544,8 +586,14 @@ namespace BackEngin.Tests.Services
             recipeList[1].Header = "A-Recipe";
             recipeList[2].Header = "M-Recipe";
 
+            // Set up the recipe queryable
             var recipes = recipeList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams
             {
@@ -553,25 +601,38 @@ namespace BackEngin.Tests.Services
                 SortOrder = "asc"
             };
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, 1, 10);
+
+            // Assert
             result.Items.First().Header.Should().Be("A-Recipe");
         }
 
         [Fact]
         public async Task SearchRecipes_ShouldPaginate()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(1);
             var ingredients = TestUtilities.CreateIngredients(2, TestUtilities.CreateIngredientTypes(1));
             var recipeList = TestUtilities.CreateRecipes(25, users, ingredients);
+            
+            // Set up the recipe queryable
             var recipes = recipeList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable()).Returns(recipes.Object);
+            _mockUnitOfWork.Setup(u => u.Recipes.GetQueryable())
+                .Returns(recipes.Object);
+
+            // Set up the users mock
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new RecipeSearchParams();
             var pageNumber = 3;
             var pageSize = 5;
 
+            // Act
             var result = await _recipeService.SearchRecipes(searchParams, pageNumber, pageSize);
 
+            // Assert
             result.PageNumber.Should().Be(pageNumber);
             result.PageSize.Should().Be(pageSize);
             result.TotalCount.Should().Be(25);

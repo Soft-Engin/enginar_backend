@@ -145,7 +145,7 @@ namespace BackEngin.Tests.Utils
         {
             var blogs = new List<Blogs>();
             int userCount = users.Count;
-            int recipeCount = recipes.Count;
+            int recipeCount = recipes?.Count ?? 0;
 
             for (int i = 1; i <= count; i++)
             {
@@ -154,7 +154,7 @@ namespace BackEngin.Tests.Utils
 
                 // For recipes, let's assign a recipe to every second blog if recipes are available.
                 Recipes selectedRecipe = null;
-                if (recipeCount > 0 && i % 2 == 0) // every even blog gets a recipe
+                if (recipes != null && recipeCount > 0 && i % 2 == 0) // check if recipes is not null
                 {
                     selectedRecipe = recipes[(i - 1) % recipeCount];
                 }
@@ -167,7 +167,8 @@ namespace BackEngin.Tests.Utils
                     UserId = user.Id,
                     User = user,
                     RecipeId = selectedRecipe?.Id,
-                    Recipe = selectedRecipe
+                    Recipe = selectedRecipe,
+                    CreatedAt = DateTime.UtcNow // Add CreatedAt value
                 });
             }
             return blogs;
