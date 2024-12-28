@@ -7,6 +7,8 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace BackEngin.Tests.Controllers
 {
@@ -200,6 +202,219 @@ namespace BackEngin.Tests.Controllers
             // Assert
             result.Should().BeOfType<ObjectResult>()
                   .Which.StatusCode.Should().Be(500);
+        }
+
+                private void SetupUserAuth(string userId)
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+            var identity = new ClaimsIdentity(claims);
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+            };
+        }
+        
+        [Fact]
+        public async Task GetPaginatedRecentFollowedRecipes_ShouldReturnOk()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = new List<RecipeDTO> { new RecipeDTO { Id = 1, UserId = "user2", UserName = "TestUser" } },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedRecentRecipeFeed(pageNumber, pageSize, userId))
+                .ReturnsAsync(paginatedResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedRecipes(pageNumber, pageSize);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<RecipeDTO>>().Subject;
+            returnValue.Should().BeEquivalentTo(paginatedResponse);
+        }
+        
+        [Fact]
+        public async Task GetPaginatedRecentFollowedBlogs_ShouldReturnOk()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = new List<BlogDTO> { new BlogDTO { Id = 1, UserId = "user2", UserName = "TestUser" } },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedRecentBlogsFeed(pageNumber, pageSize, userId))
+                .ReturnsAsync(paginatedResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedBlogs(pageNumber, pageSize);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<BlogDTO>>().Subject;
+            returnValue.Should().BeEquivalentTo(paginatedResponse);
+        }
+        
+        [Fact]
+        public async Task GetPaginatedRecentFollowedEvents_ShouldReturnOk()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO> { new EventDTO { EventId = 1, CreatorId = "user2", CreatorUserName = "TestUser" } },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedRecentEventFeed(pageNumber, pageSize, userId))
+                .ReturnsAsync(paginatedResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedEvents(pageNumber, pageSize);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<EventDTO>>().Subject;
+            returnValue.Should().BeEquivalentTo(paginatedResponse);
+        }
+        
+        [Fact]
+        public async Task GetPaginatedUpcomingFollowedEvents_ShouldReturnOk()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO> { new EventDTO { EventId = 1, CreatorId = "user2", Date = DateTime.Now.AddDays(7) } },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedUpcomingEventFeed(pageNumber, pageSize, userId))
+                .ReturnsAsync(paginatedResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedUpcomingFollowedEvents(pageNumber, pageSize);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<EventDTO>>().Subject;
+            returnValue.Should().BeEquivalentTo(paginatedResponse);
+        }
+
+        [Fact]
+        public async Task GetPaginatedRecentFollowedBlogs_ShouldHandleException()
+        {
+            // Arrange
+            var userId = "testUserId";
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedRecentBlogsFeed(It.IsAny<int>(), It.IsAny<int>(), userId))
+                .ThrowsAsync(new Exception("Test exception"));
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedBlogs(1, 10);
+        
+            // Assert
+            result.Should().BeOfType<ObjectResult>()
+                  .Which.StatusCode.Should().Be(500);
+        }
+        
+        [Fact]
+        public async Task GetPaginatedUpcomingFollowedEvents_ShouldHandleException()
+        {
+            // Arrange
+            var userId = "testUserId";
+            SetupUserAuth(userId);
+            _mockFeedService.Setup(s => s.GetFollowedUpcomingEventFeed(It.IsAny<int>(), It.IsAny<int>(), userId))
+                .ThrowsAsync(new Exception("Test exception"));
+        
+            // Act
+            var result = await _feedController.GetPaginatedUpcomingFollowedEvents(1, 10);
+        
+            // Assert
+            result.Should().BeOfType<ObjectResult>()
+                  .Which.StatusCode.Should().Be(500);
+        }
+        
+        [Theory]
+        [InlineData(0, 10)]
+        [InlineData(1, 0)]
+        public async Task GetPaginatedRecentFollowedFeeds_ShouldAdjustInvalidParameters(int pageNumber, int pageSize)
+        {
+            // Arrange
+            var userId = "testUserId";
+            SetupUserAuth(userId);
+            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = new List<RecipeDTO>(),
+                TotalCount = 0,
+                PageNumber = 1,
+                PageSize = 10
+            };
+        
+            _mockFeedService.Setup(s => s.GetFollowedRecentRecipeFeed(1, 10, userId))
+                .ReturnsAsync(paginatedResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedRecipes(pageNumber, pageSize);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<RecipeDTO>>().Subject;
+            returnValue.PageNumber.Should().Be(1);
+            returnValue.PageSize.Should().Be(10);
+        }
+        
+        [Fact]
+        public async Task GetPaginatedRecentFollowedEvents_ShouldReturnEmptyList_WhenNoEvents()
+        {
+            // Arrange
+            var userId = "testUserId";
+            SetupUserAuth(userId);
+            var emptyResponse = new PaginatedResponseDTO<EventDTO>
+            {
+                Items = new List<EventDTO>(),
+                TotalCount = 0,
+                PageNumber = 1,
+                PageSize = 10
+            };
+        
+            _mockFeedService.Setup(s => s.GetFollowedRecentEventFeed(1, 10, userId))
+                .ReturnsAsync(emptyResponse);
+        
+            // Act
+            var result = await _feedController.GetPaginatedRecentFollowedEvents(1, 10);
+        
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<EventDTO>>().Subject;
+            returnValue.Items.Should().BeEmpty();
+            returnValue.TotalCount.Should().Be(0);
         }
     }
 }

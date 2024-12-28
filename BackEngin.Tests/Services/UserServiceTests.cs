@@ -46,6 +46,7 @@ namespace BackEngin.Tests.Services
                     Id = "1",
                     FirstName = "John",
                     LastName = "Doe",
+                    Bio = "MyBio",
                     UserName = "johndoe",
                     Email = "john.doe@example.com",
                     Address = new Addresses
@@ -89,6 +90,8 @@ namespace BackEngin.Tests.Services
             result.Email.Should().Be("john.doe@example.com");
             result.FirstName.Should().Be("John");
             result.LastName.Should().Be("Doe");
+            result.Bio.Should().Be("MyBio");
+            result.UserId.Should().Be("1");
             result.AddressName.Should().Be("Home");
             result.Street.Should().Be("123 Main St");
             result.District.Should().Be("Downtown");
@@ -127,6 +130,7 @@ namespace BackEngin.Tests.Services
             result.Email.Should().Be("E-Mail");
             result.AddressName.Should().Be("Address Name");
             result.Street.Should().Be("Street");
+            result.UserId.Should().Be(userId);
             result.District.Should().Be("District");
             result.City.Should().Be("City");
             result.Country.Should().Be("Country");
@@ -163,6 +167,7 @@ namespace BackEngin.Tests.Services
                 LastName = "Doe",
                 Email = "john.doe@example.com",
                 UserName = "johndoe",
+                Bio = "Old Bio",
                 PhoneNumber = "1234567890",
                 Address = new Addresses
                 {
@@ -193,6 +198,7 @@ namespace BackEngin.Tests.Services
                 District = "Updated District",
                 City = "Updated City",
                 Country = "Updated Country",
+                Bio = "New Me",
                 PostCode = 12345
             };
 
@@ -214,9 +220,11 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
+            result.UserId.Should().Be(userId);
             result.FirstName.Should().Be(updateUserDto.FirstName);
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
+            result.Bio.Should().Be(updateUserDto.Bio);
             result.UserName.Should().Be(updateUserDto.UserName);
             result.PhoneNumber.Should().Be(updateUserDto.PhoneNumber);
             result.AddressName.Should().Be(updateUserDto.AddressName);
@@ -276,6 +284,7 @@ namespace BackEngin.Tests.Services
 
             // Assert
             result.Should().NotBeNull();
+            result.UserId.Should().Be(userId);
             result.FirstName.Should().Be(updateUserDto.FirstName);
             result.LastName.Should().Be(updateUserDto.LastName);
             result.Email.Should().Be(updateUserDto.Email);
@@ -352,11 +361,19 @@ namespace BackEngin.Tests.Services
             // Arrange
             var userId = "user1";
             var user = new Users { Id = userId, UserName = "User1" }; // Mock user
-            var expectedDto = new PaginatedResponseDTO<string>
+
+            var expectedDto = new PaginatedResponseDTO<UserCompactDTO>
             {
-                Items = new List<string> { "follower1", "follower2" },
-                TotalCount = 2
+                Items = new List<UserCompactDTO>
+        {
+            new UserCompactDTO { UserId = "follower1", UserName = "Follower1" },
+            new UserCompactDTO { UserId = "follower2", UserName = "Follower2" }
+        },
+                TotalCount = 2,
+                PageNumber = 1,
+                PageSize = 10
             };
+
             var page = 1;
             var pageSize = 10;
 
@@ -376,6 +393,7 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Users.GetFollowersAsync(userId, page, pageSize), Times.Once);
             _mockUserManager.Verify(u => u.FindByIdAsync(userId), Times.Once);
         }
+
 
 
         [Fact]
@@ -411,6 +429,46 @@ namespace BackEngin.Tests.Services
             result.Should().BeTrue();
             _mockUnitOfWork.Verify(u => u.Users.FollowUserAsync(initiatorUserId, targetUserId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetFollowingAsync_ShouldReturnFollowingDTO()
+        {
+            // Arrange
+            var userId = "user1";
+            var user = new Users { Id = userId, UserName = "User1" }; // Mock user
+
+            var expectedDto = new PaginatedResponseDTO<UserCompactDTO>
+            {
+                Items = new List<UserCompactDTO>
+                {
+                    new UserCompactDTO { UserId = "following1", UserName = "Following1" },
+                    new UserCompactDTO { UserId = "following2", UserName = "Following2" }
+                },
+                TotalCount = 2,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            var page = 1;
+            var pageSize = 10;
+
+            // Setup UserManager to find the user
+            _mockUserManager.Setup(u => u.FindByIdAsync(userId))
+                .ReturnsAsync(user);
+
+            // Setup UnitOfWork to return the expected DTO
+            _mockUnitOfWork.Setup(u => u.Users.GetFollowingAsync(userId, page, pageSize))
+                .ReturnsAsync(expectedDto);
+
+            // Act
+            var result = await _userService.GetFollowingAsync(userId, page, pageSize);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedDto);
+            _mockUnitOfWork.Verify(u => u.Users.GetFollowingAsync(userId, page, pageSize), Times.Once);
+            _mockUserManager.Verify(u => u.FindByIdAsync(userId), Times.Once);
+        }
+
 
         [Fact]
         public async Task FollowUserAsync_ShouldThrowInvalidOperationException_WhenUserTriesToFollowSelf()
@@ -932,5 +990,277 @@ namespace BackEngin.Tests.Services
             result.Should().BeNull();
             _mockUserManager.Verify(m => m.FindByIdAsync(userId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetUserAllergensAsync_ShouldReturnPaginatedAllergens_WhenUserHasAllergens()
+        {
+            // Arrange
+            var userId = "1";
+            var pageNumber = 1;
+            var pageSize = 2;
+
+            var userAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 },
+                new User_Allergens { UserId = userId, PreferenceId = 3 }
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1, Name = "Peanuts", Description = "Nut allergy" },
+                new Preferences { Id = 2, Name = "Dairy", Description = "Lactose intolerance" },
+                new Preferences { Id = 3, Name = "Shellfish", Description = "Seafood allergy" }
+            };
+
+            var mockUserAllergensDbSet = userAllergens.AsQueryable().BuildMockDbSet();
+            var mockPreferencesDbSet = preferences.AsQueryable().BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync((Func<User_Allergens, bool> predicate) => userAllergens.Where(predicate));
+
+            _mockUnitOfWork.Setup(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()))
+                .ReturnsAsync((Func<Preferences, bool> predicate) => preferences.Where(predicate));
+
+            // Act
+            var result = await _userService.GetUserAllergensAsync(userId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(pageSize);
+            result.TotalCount.Should().Be(3);
+            result.Items.Should().BeEquivalentTo(preferences.Take(pageSize).Select(p => new AllergenIdDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description
+            }));
+
+            _mockUnitOfWork.Verify(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserAllergensAsync_ShouldReturnEmptyResult_WhenUserHasNoAllergens()
+        {
+            // Arrange
+            var userId = "1";
+            var pageNumber = 1;
+            var pageSize = 10;
+
+            _mockUnitOfWork.Setup(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(Enumerable.Empty<User_Allergens>());
+
+            // Act
+            var result = await _userService.GetUserAllergensAsync(userId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+            result.PageNumber.Should().Be(pageNumber);
+            result.PageSize.Should().Be(pageSize);
+
+            _mockUnitOfWork.Verify(uow => uow.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.Preferences.FindAsync(It.IsAny<Func<Preferences, bool>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldUpdateAllergens_WhenValidDataIsProvided()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 3 };
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe",
+                Address = new Addresses
+                {
+                    Name = "Home",
+                    Street = "123 Main St",
+                    District = new Districts
+                    {
+                        Name = "Downtown",
+                        City = new Cities
+                        {
+                            Name = "Metropolis",
+                            Country = new Countries { Name = "Countryland" }
+                        },
+                        PostCode = 12345
+                    }
+                },
+                Role = new Roles { Name = "Admin" }
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 }
+            };
+
+            var existingUserAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 }
+            };
+
+            // Mocking _userManager.Users
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork methods
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Expression<Func<User_Allergens, bool>>>(), ""))
+                .ReturnsAsync(existingUserAllergens);
+
+            // Act
+            await _userService.SetUserAllergensAsync(userId, allergenIds);
+
+            // Assert
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(existingUserAllergens), Times.Once);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.Is<List<User_Allergens>>(list =>
+                list.Count == 3 &&
+                list.Any(a => a.PreferenceId == 1) &&
+                list.Any(a => a.PreferenceId == 2) &&
+                list.Any(a => a.PreferenceId == 3)
+            )), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldThrowArgumentException_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = "nonexistent_user";
+            var allergenIds = new List<int> { 1, 2, 3 };
+
+            // Mocking _userManager.Users to simulate an empty user set
+            var users = new List<Users>().AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => _userService.SetUserAllergensAsync(userId, allergenIds)
+            );
+
+            exception.Message.Should().Be("User not found. (Parameter 'userId')");
+            exception.ParamName.Should().Be("userId");
+
+            // Verify that no database calls were made to update or delete allergens
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldThrowArgumentException_WhenInvalidAllergenIdsAreProvided()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 999 }; // 999 is invalid
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 }
+            };
+
+            // Mocking _userManager.Users to simulate user retrieval
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork.Preferences.GetAllAsync to simulate valid preferences
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => _userService.SetUserAllergensAsync(userId, allergenIds)
+            );
+
+            exception.Message.Should().Contain("Invalid allergen IDs: 999");
+            exception.ParamName.Should().Be("allergenIds");
+
+            // Verify that no database calls were made to update or delete allergens
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.IsAny<IEnumerable<User_Allergens>>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task SetUserAllergensAsync_ShouldDeleteAndAddAllergens()
+        {
+            // Arrange
+            var userId = "user123";
+            var allergenIds = new List<int> { 1, 2, 4 };
+            var user = new Users
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe"
+            };
+
+            var preferences = new List<Preferences>
+            {
+                new Preferences { Id = 1 },
+                new Preferences { Id = 2 },
+                new Preferences { Id = 3 },
+                new Preferences { Id = 4 }
+            };
+
+            var existingUserAllergens = new List<User_Allergens>
+            {
+                new User_Allergens { UserId = userId, PreferenceId = 1 },
+                new User_Allergens { UserId = userId, PreferenceId = 2 }
+            };
+
+            // Mocking _userManager.Users
+            var users = new List<Users> { user }.AsQueryable();
+            var mockDbSet = users.BuildMockDbSet();
+            _mockUserManager.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Mocking _unitOfWork methods
+            _mockUnitOfWork.Setup(u => u.Preferences.GetAllAsync())
+                .ReturnsAsync(preferences);
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Expression<Func<User_Allergens, bool>>>(), ""))
+                .ReturnsAsync(existingUserAllergens);
+
+            // Act
+            await _userService.SetUserAllergensAsync(userId, allergenIds);
+
+            // Assert
+            // Verify that old allergens were deleted
+            _mockUnitOfWork.Verify(u => u.User_Allergens.DeleteRange(existingUserAllergens), Times.Once);
+
+            // Verify that new allergens were added
+            _mockUnitOfWork.Verify(u => u.User_Allergens.AddRangeAsync(It.Is<List<User_Allergens>>(list =>
+                list.Count == 3 &&
+                list.Any(a => a.PreferenceId == 1) &&
+                list.Any(a => a.PreferenceId == 2) &&
+                list.Any(a => a.PreferenceId == 4)
+            )), Times.Once);
+
+            // Verify that changes were saved
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+
+
     }
 }

@@ -76,18 +76,16 @@ namespace BackEngin.Tests.Services
             var blogId = 1;
             var commentRequest = new CommentRequestDTO { Text = "Great blog!", Images = null };
 
-            // Mock the Blog existence check
+            var timestamp = DateTime.UtcNow;
+
             _mockUnitOfWork.Setup(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
                            .ReturnsAsync(new List<Blogs> { new Blogs { Id = blogId } });
 
-            // Mock adding the comment
             _mockUnitOfWork.Setup(u => u.Blog_Comments.AddAsync(It.IsAny<Blog_Comments>()))
-                           .Verifiable();
+                           .Callback<Blog_Comments>(comment => comment.CreatedAt = timestamp);
 
-            // Mock completing the transaction
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
-            // Mock returned comment ID
             _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(It.IsAny<int>()))
                            .ReturnsAsync(new Blog_Comments
                            {
@@ -95,9 +93,11 @@ namespace BackEngin.Tests.Services
                                BlogId = blogId,
                                UserId = userId,
                                CommentText = "Great blog!",
-                               Images = null,
-                               CreatedAt = DateTime.UtcNow
+                               CreatedAt = timestamp
                            });
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                           .ReturnsAsync(new List<Users> { new Users { Id = userId, UserName = "TestUser" } });
 
             // Act
             var result = await _service.CommentOnBlog(userId, blogId, commentRequest);
@@ -106,13 +106,17 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Text.Should().Be("Great blog!");
             result.Recipe_blog_id.Should().Be(blogId);
+            result.Timestamp.Should().Be(timestamp);
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be("TestUser");
+
             _mockUnitOfWork.Verify(u => u.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.Blog_Comments.AddAsync(It.IsAny<Blog_Comments>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }
+              
 
 
-        // Test for UpdateBlogComment
         [Fact]
         public async Task UpdateBlogComment_ShouldUpdateComment()
         {
@@ -125,11 +129,22 @@ namespace BackEngin.Tests.Services
             {
                 Id = commentId,
                 UserId = userId,
-                CommentText = "Original comment"
+                BlogId = 10,
+                CommentText = "Original comment",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var user = new Users
+            {
+                Id = userId,
+                UserName = "TestUser"
             };
 
             _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
                 .ReturnsAsync(existingComment);
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(new List<Users> { user });
 
             _mockUnitOfWork.Setup(u => u.Blog_Comments.Update(existingComment)).Verifiable();
             _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
@@ -140,8 +155,11 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Text.Should().Be("Updated comment");
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be("TestUser");
             _mockUnitOfWork.Verify(u => u.Blog_Comments.Update(existingComment), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()), Times.Once);
         }
 
         // Test for DeleteBlogComment
@@ -327,12 +345,33 @@ namespace BackEngin.Tests.Services
             var pageSize = 2;
             var comments = new List<Blog_Comments>
     {
-        new Blog_Comments { Id = 1, BlogId = blogId, CommentText = "Comment 1" },
-        new Blog_Comments { Id = 2, BlogId = blogId, CommentText = "Comment 2" }
+        new Blog_Comments
+        {
+            Id = 1,
+            BlogId = blogId,
+            CommentText = "Comment 1",
+            UserId = "user1",
+            CreatedAt = DateTime.UtcNow
+        },
+        new Blog_Comments
+        {
+            Id = 2,
+            BlogId = blogId,
+            CommentText = "Comment 2",
+            UserId = "user2",
+            CreatedAt = DateTime.UtcNow
+        }
     };
 
             _mockUnitOfWork.Setup(u => u.Blog_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize))
                 .ReturnsAsync((comments, 10));
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+            .ReturnsAsync(new List<Users>
+            {
+        new Users { Id = "user1", UserName = "User One" },
+        new Users { Id = "user2", UserName = "User Two" }
+            });
 
             // Act
             var result = await _service.GetBlogComments(blogId, pageNumber, pageSize);
@@ -341,7 +380,19 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Count().Should().Be(2);
             result.TotalCount.Should().Be(10);
-            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+
+            var firstComment = result.Items.First();
+            firstComment.UserName.Should().Be("User One");
+            firstComment.UserId.Should().Be("user1");
+
+            var secondComment = result.Items.Last();
+            secondComment.UserName.Should().Be("User Two");
+            secondComment.UserId.Should().Be("user2");
+
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetPaginatedAsync(
+                It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+
+            _mockUnitOfWork.Verify(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()), Times.Once);
         }
 
         [Fact]
@@ -352,13 +403,35 @@ namespace BackEngin.Tests.Services
             var pageNumber = 1;
             var pageSize = 2;
             var comments = new List<Recipe_Comments>
-    {
-        new Recipe_Comments { Id = 1, RecipeId = recipeId, CommentText = "Comment 1" },
-        new Recipe_Comments { Id = 2, RecipeId = recipeId, CommentText = "Comment 2" }
-    };
+            {
+                new Recipe_Comments
+                {
+                    Id = 1,
+                    RecipeId = recipeId,
+                    CommentText = "Comment 1",
+                    UserId = "user1",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Recipe_Comments
+                {
+                    Id = 2,
+                    RecipeId = recipeId,
+                    CommentText = "Comment 2",
+                    UserId = "user2",
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
 
-            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize))
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetPaginatedAsync(
+                It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize))
                 .ReturnsAsync((comments, 8));
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+            .ReturnsAsync(new List<Users>
+            {
+                new Users { Id = "user1", UserName = "User One" },
+                new Users { Id = "user2", UserName = "User Two" }
+            });
 
             // Act
             var result = await _service.GetRecipeComments(recipeId, pageNumber, pageSize);
@@ -367,8 +440,21 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Count().Should().Be(2);
             result.TotalCount.Should().Be(8);
-            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+
+            var firstComment = result.Items.First();
+            firstComment.UserName.Should().Be("User One");
+            firstComment.UserId.Should().Be("user1");
+
+            var secondComment = result.Items.Last();
+            secondComment.UserName.Should().Be("User Two");
+            secondComment.UserId.Should().Be("user2");
+
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetPaginatedAsync(
+                It.IsAny<Expression<Func<Recipe_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+
+            _mockUnitOfWork.Verify(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()), Times.Once);
         }
+
 
         [Fact]
         public async Task GetBlogCommentImage_ShouldReturnImage_WhenExists()

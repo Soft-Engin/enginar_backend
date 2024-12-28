@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTO;
 using System.Reflection.Metadata.Ecma335;
@@ -150,5 +151,136 @@ namespace BackEngin.Services
             return seedValue;
         }
 
+        public async Task<PaginatedResponseDTO<BlogDTO>> GetFollowedRecentBlogsFeed(int page, int pageSize, string userId)
+        {
+            //get followings from db
+            var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
+
+            var followingIdList = followings.Select(user => user.UserId).ToList();
+
+            //get feed from db and order by date
+            var (blogs, totalCount) = await _unitOfWork.Blogs.GetPaginatedByFollowedAsync(r => followingIdList.Contains(r.UserId), page, pageSize, includeProperties: "User");
+
+
+            //map to DTO
+            var blogDTOs = blogs.Select(b => new BlogDTO
+            {
+                Id = b.Id,
+                Header = b.Header,
+                BodyText = b.BodyText,
+                UserId = b.UserId,
+                UserName = b.User.UserName,
+                RecipeId = b.RecipeId,
+                CreatedAt = b.CreatedAt
+            }).ToList();
+
+            //return paginated response
+            return new PaginatedResponseDTO<BlogDTO>
+            {
+                Items = blogDTOs,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+        }
+
+        public async Task<PaginatedResponseDTO<RecipeDTO>> GetFollowedRecentRecipeFeed(int page, int pageSize, string userId)
+        {
+            //get followings from db
+            var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
+
+            //get following id list
+            var followingIdList = followings.Select(u => u.UserId).ToList();
+
+            //get feed from db and order by date
+            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedByFollowedAsync(r => followingIdList.Contains(r.UserId), page, pageSize, includeProperties: "User");
+
+
+            // Step 3: Map to DTO
+            var recipeDTOs = recipes.Select(r => new RecipeDTO
+            {
+                Id = r.Id,
+                Header = r.Header,
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = r.User.UserName,
+                ServingSize = r.ServingSize,
+                PreparationTime = r.PreparationTime,
+                Steps = r.Steps,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            // Step 4: Construct and return the paginated response
+            return new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = recipeDTOs,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+        }
+
+        public async Task<PaginatedResponseDTO<EventDTO>> GetFollowedRecentEventFeed(int page, int pageSize, string userId)
+        {
+            //get followings from db
+            var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
+
+            var followingIdList = followings.Select(user => user.UserId).ToList();
+
+            // Step 2: Fetch paginated recipes with calculated weights
+            var (events, totalCount) = await _unitOfWork.Events.GetPaginatedByFollowedAsync(
+                pageNumber: page,
+                pageSize: pageSize,
+                includeProperties: "Creator,Address,Address.District,Address.District.City,Address.District.City.Country",
+                predicate: e => e.Date > DateTime.Now && followingIdList.Contains(e.CreatorId)
+            );
+
+
+            // Step 3: Map to DTO
+            var eventDTOs = events.Select(_eventService.MapEventToDto).ToList();
+
+            // Step 4: Construct and return the paginated response
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = eventDTOs,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+        }
+
+        public async Task<PaginatedResponseDTO<EventDTO>> GetFollowedUpcomingEventFeed(int page, int pageSize, string userId)
+        {
+            //get followings from db
+            var followings = await _unitOfWork.Users.GetAllFollowingAsync(userId);
+
+            var followingIdList = followings.Select(user => user.UserId).ToList();
+
+            // Step 2: Fetch paginated recipes with calculated weights
+            var (events, totalCount) = await _unitOfWork.Events.GetPaginatedByFollowedAsync(
+                pageNumber: page,
+                pageSize: pageSize,
+                includeProperties: "Creator,Address,Address.District,Address.District.City,Address.District.City.Country",
+                predicate: e => e.Date > DateTime.Now && followingIdList.Contains(e.CreatorId),
+                orderBy: e => e.Date
+            );
+
+
+            // Step 3: Map to DTO
+            var eventDTOs = events.Select(_eventService.MapEventToDto).ToList();
+
+            // Step 4: Construct and return the paginated response
+            return new PaginatedResponseDTO<EventDTO>
+            {
+                Items = eventDTOs,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+        }
     }
 }

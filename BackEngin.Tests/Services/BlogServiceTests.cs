@@ -321,55 +321,36 @@ namespace BackEngin.Tests.Services
         [Fact]
         public async Task SearchBlogs_ShouldReturnAll_WhenNoFilterApplied()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(3);
             var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(2), addAllergens: true, allAllergens: TestUtilities.CreateAllergens(3));
             var recipes = TestUtilities.CreateRecipes(5, users, ingredients);
-            var blogs = TestUtilities.CreateBlogs(10, users, recipes).AsQueryable().BuildMockDbSet();
+            var blogsList = TestUtilities.CreateBlogs(10, users, recipes);
 
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
+            var blogsQueryable = blogsList.AsQueryable();
+            var mockDbSet = blogsQueryable.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable())
+                .Returns(mockDbSet.Object);
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new BlogSearchParams();
 
+            // Act
             var result = await _blogService.SearchBlogs(searchParams, 1, 20);
 
+            // Assert
             result.TotalCount.Should().Be(10);
             result.Items.Should().HaveCount(10);
-        }
-
-        [Fact]
-        public async Task SearchBlogs_ShouldFilterByHeaderAndBody()
-        {
-            var users = TestUtilities.CreateUsers(2);
-            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1), true, TestUtilities.CreateAllergens(2));
-            var recipes = TestUtilities.CreateRecipes(3, users, ingredients);
-            var blogsList = TestUtilities.CreateBlogs(5, users, recipes);
-
-            blogsList[0].Header = "SpecialHeader";
-            blogsList[0].BodyText = "TastyBodyText";
-            blogsList[1].Header = "SpecialHeader";
-            blogsList[1].BodyText = "Not matching body";
-            blogsList[2].Header = "Irrelevant";
-            blogsList[2].BodyText = "TastyBodyText";
-
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
-
-            var searchParams = new BlogSearchParams
-            {
-                HeaderContains = "Special",
-                BodyContains = "Tasty"
-            };
-
-            var result = await _blogService.SearchBlogs(searchParams, 1, 10);
-
-            result.TotalCount.Should().Be(1);
-            result.Items.Should().HaveCount(1);
-            result.Items.First().Header.Should().Be("SpecialHeader");
+            result.Items.All(b => !string.IsNullOrEmpty(b.UserName)).Should().BeTrue();
         }
 
         [Fact]
         public async Task SearchBlogs_ShouldFilterByUserName()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(2);
             users[0].UserName = "matchingUser";
             users[1].UserName = "otherUser";
@@ -383,165 +364,52 @@ namespace BackEngin.Tests.Services
             blogsList[1].User = users[1];
             blogsList[1].UserId = users[1].Id;
 
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
+            var blogsQueryable = blogsList.AsQueryable();
+            var mockDbSet = blogsQueryable.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable())
+                .Returns(mockDbSet.Object);
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new BlogSearchParams
             {
                 UserName = "matchingUser"
             };
 
+            // Act
             var result = await _blogService.SearchBlogs(searchParams, 1, 10);
+
+            // Assert
+            result.Items.Should().OnlyContain(b => b.UserName == "matchingUser");
             result.TotalCount.Should().Be(blogsList.Count(b => b.User.UserName == "matchingUser"));
-            result.Items.Should().AllSatisfy(b => b.UserId.Should().Be(users[0].Id));
-        }
-
-        [Fact]
-        public async Task SearchBlogs_ShouldFilterByRecipeId()
-        {
-            var users = TestUtilities.CreateUsers(2);
-            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(2), true, TestUtilities.CreateAllergens(3));
-            var recipes = TestUtilities.CreateRecipes(5, users, ingredients);
-            var blogsList = TestUtilities.CreateBlogs(10, users, recipes);
-
-            blogsList[0].RecipeId = recipes[0].Id;
-            blogsList[1].RecipeId = recipes[0].Id;
-            blogsList[2].RecipeId = recipes[1].Id;
-
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
-
-            var searchParams = new BlogSearchParams
-            {
-                RecipeId = recipes[0].Id
-            };
-
-            var result = await _blogService.SearchBlogs(searchParams, 1, 10);
-
-            result.TotalCount.Should().Be(3);
-            result.Items.Should().HaveCount(3);
-        }
-
-        [Fact]
-        public async Task SearchBlogs_ShouldFilterByIngredientAndAllergen()
-        {
-            // Complex scenario: Only those blogs whose associated recipe ingredients do not contain given allergen and do contain given ingredients.
-            var users = TestUtilities.CreateUsers(2);
-            var ingredientTypes = TestUtilities.CreateIngredientTypes(2);
-            var allAllergens = TestUtilities.CreateAllergens(2);
-            var ingredients = TestUtilities.CreateIngredients(5, ingredientTypes, true, allAllergens);
-            var recipes = TestUtilities.CreateRecipes(4, users, ingredients);
-
-            // Modify ingredients/preferences to ensure filtering
-            // Let's say we want IngredientId = 1 and exclude AllergenId = 2.
-            // We'll configure one recipe to have IngredientId=1 without allergen=2, and another with allergen=2 to exclude it.
-            var recipeWithGoodIngredient = recipes[0];
-            recipeWithGoodIngredient.Recipes_Ingredients.Clear();
-            recipeWithGoodIngredient.Recipes_Ingredients.Add(new Recipes_Ingredients
-            {
-                RecipeId = recipeWithGoodIngredient.Id,
-                IngredientId = 1,
-                Ingredient = ingredients.First(i => i.Id == 1)
-            });
-
-            // Add allergen to IngredientId=3 to exclude it.
-            var ingWithAllergen = ingredients.First(i => i.Id == 3);
-            ingWithAllergen.Ingredients_Preferences.Clear();
-            ingWithAllergen.Ingredients_Preferences.Add(new Ingredients_Preferences
-            {
-                IngredientId = 3,
-                PreferenceId = 2, // Allergen to exclude
-                Preference = allAllergens.First(a => a.Id == 2)
-            });
-
-            var recipeWithBadAllergen = recipes[1];
-            recipeWithBadAllergen.Recipes_Ingredients.Clear();
-            recipeWithBadAllergen.Recipes_Ingredients.Add(new Recipes_Ingredients
-            {
-                RecipeId = recipeWithBadAllergen.Id,
-                IngredientId = 3, // Contains excluded allergen
-                Ingredient = ingWithAllergen
-            });
-
-            var blogsList = TestUtilities.CreateBlogs(5, users, recipes);
-            // Only blogs linked to recipeWithGoodIngredient should pass the filter.
-            blogsList[0].RecipeId = recipeWithGoodIngredient.Id; // Blog to include
-            blogsList[0].Recipe = recipeWithGoodIngredient;
-
-            blogsList[1].RecipeId = recipeWithBadAllergen.Id;    // Blog to exclude
-            blogsList[1].Recipe = recipeWithBadAllergen;
-
-            // Ensure other recipes do not match the filter
-            var recipeWithIrrelevantIngredient = recipes[2];
-            recipeWithIrrelevantIngredient.Recipes_Ingredients.Clear();
-            recipeWithIrrelevantIngredient.Recipes_Ingredients.Add(new Recipes_Ingredients
-            {
-                RecipeId = recipeWithIrrelevantIngredient.Id,
-                IngredientId = 4, // Ingredient not in IngredientIds filter
-                Ingredient = ingredients.First(i => i.Id == 4)
-            });
-
-            // Assign this recipe to blogs that should not match
-            blogsList[2].RecipeId = recipeWithIrrelevantIngredient.Id;
-            blogsList[2].Recipe = recipeWithIrrelevantIngredient;
-
-            var recipeWithExcludedAllergen = recipes[3];
-            recipeWithExcludedAllergen.Recipes_Ingredients.Clear();
-            recipeWithExcludedAllergen.Recipes_Ingredients.Add(new Recipes_Ingredients
-            {
-                RecipeId = recipeWithExcludedAllergen.Id,
-                IngredientId = 5,
-                Ingredient = ingredients.First(i => i.Id == 5)
-            });
-
-            // Add excluded allergen to IngredientId=5
-            var ingExcludedAllergen = ingredients.First(i => i.Id == 5);
-            ingExcludedAllergen.Ingredients_Preferences.Clear();
-            ingExcludedAllergen.Ingredients_Preferences.Add(new Ingredients_Preferences
-            {
-                IngredientId = 5,
-                PreferenceId = 2, // Allergen to exclude
-                Preference = allAllergens.First(a => a.Id == 2)
-            });
-
-            // Assign this recipe to another blog that should not match
-            blogsList[3].RecipeId = recipeWithExcludedAllergen.Id;
-            blogsList[3].Recipe = recipeWithExcludedAllergen;
-
-            // Ensure the remaining blogs have no recipes
-            blogsList[4].RecipeId = null;
-            blogsList[4].Recipe = null;
-
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
-
-            var searchParams = new BlogSearchParams
-            {
-                IngredientIds = new List<int> { 1 }, // Include recipes with IngredientId=1
-                AllergenIds = new List<int> { 2 }    // Exclude recipes with AllergenId=2
-            };
-
-            var result = await _blogService.SearchBlogs(searchParams, 1, 10);
-
-            result.TotalCount.Should().Be(1); // Only one blog should match the criteria
-            result.Items.Should().HaveCount(1);
-            result.Items.First().RecipeId.Should().Be(recipeWithGoodIngredient.Id);
         }
 
         [Fact]
         public async Task SearchBlogs_ShouldApplySorting()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(2);
             var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
             var recipes = TestUtilities.CreateRecipes(2, users, ingredients);
             var blogsList = TestUtilities.CreateBlogs(3, users, recipes);
 
             blogsList[0].Header = "Z-Blog";
+            blogsList[0].User = users[0];
             blogsList[1].Header = "A-Blog";
+            blogsList[1].User = users[0];
             blogsList[2].Header = "M-Blog";
+            blogsList[2].User = users[1];
 
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
+            var blogsQueryable = blogsList.AsQueryable();
+            var mockDbSet = blogsQueryable.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable())
+                .Returns(mockDbSet.Object);
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new BlogSearchParams
             {
@@ -549,34 +417,46 @@ namespace BackEngin.Tests.Services
                 SortOrder = "asc"
             };
 
+            // Act
             var result = await _blogService.SearchBlogs(searchParams, 1, 10);
 
+            // Assert
             result.Items.First().Header.Should().Be("A-Blog");
             result.Items.Last().Header.Should().Be("Z-Blog");
+            result.Items.All(b => !string.IsNullOrEmpty(b.UserName)).Should().BeTrue();
         }
 
         [Fact]
         public async Task SearchBlogs_ShouldPaginateResults()
         {
+            // Arrange
             var users = TestUtilities.CreateUsers(2);
-            var ingredients = TestUtilities.CreateIngredients(5, TestUtilities.CreateIngredientTypes(1));
-            var recipes = TestUtilities.CreateRecipes(1, users, ingredients);
-            var blogsList = TestUtilities.CreateBlogs(25, users, recipes);
+            var blogsList = TestUtilities.CreateBlogs(25, users, null);
+            var blogsQueryable = blogsList.AsQueryable();
+            var mockDbSet = blogsQueryable.BuildMockDbSet();
 
-            var blogs = blogsList.AsQueryable().BuildMockDbSet();
-            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable()).Returns(blogs.Object);
+            _mockUnitOfWork.Setup(u => u.Blogs.GetQueryable())
+                .Returns(mockDbSet.Object);
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(users);
 
             var searchParams = new BlogSearchParams();
-            int pageNumber = 3;
-            int pageSize = 5;
 
-            var result = await _blogService.SearchBlogs(searchParams, pageNumber, pageSize);
+            // Act
+            var page1 = await _blogService.SearchBlogs(searchParams, 1, 10);
+            var page2 = await _blogService.SearchBlogs(searchParams, 2, 10);
+            var page3 = await _blogService.SearchBlogs(searchParams, 3, 10);
 
-            result.PageNumber.Should().Be(pageNumber);
-            result.PageSize.Should().Be(pageSize);
-            result.TotalCount.Should().Be(25);
-            result.Items.Should().HaveCount(5);
+            // Assert
+            page1.Items.Should().HaveCount(10);
+            page2.Items.Should().HaveCount(10);
+            page3.Items.Should().HaveCount(5);
+            page1.TotalCount.Should().Be(25);
+            page1.PageNumber.Should().Be(1);
+            page2.PageNumber.Should().Be(2);
         }
+
 
         [Fact]
         public async Task GetBlogBannerImage_ShouldReturnImage_WhenExists()

@@ -151,6 +151,8 @@ namespace BackEngin.Services
 
             await _unitOfWork.Blog_Comments.AddAsync(comment);
             await _unitOfWork.CompleteAsync();
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
 
             return new CommentDTO
             {
@@ -158,7 +160,9 @@ namespace BackEngin.Services
                 Recipe_blog_id = comment.BlogId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -172,7 +176,7 @@ namespace BackEngin.Services
 
             if (!(await _unitOfWork.Recipes.FindAsync(r => r.Id == recipeId)).Any())
             {
-                throw new Exception("Recipe with the provided recipeId does not exits");
+                throw new Exception("Recipe with the provided recipeId does not exists");
             }
 
 
@@ -189,13 +193,17 @@ namespace BackEngin.Services
             await _unitOfWork.Recipe_Comments.AddAsync(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
                 Recipe_blog_id = comment.RecipeId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -219,13 +227,17 @@ namespace BackEngin.Services
             _unitOfWork.Blog_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
                 Recipe_blog_id = comment.BlogId,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -249,13 +261,17 @@ namespace BackEngin.Services
             _unitOfWork.Recipe_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
                 Recipe_blog_id = comment.RecipeId,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -343,13 +359,20 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
                 Recipe_blog_id = c.BlogId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
-                Timestamp = c.CreatedAt
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<CommentDTO>
@@ -370,13 +393,20 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
                 Recipe_blog_id = c.RecipeId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
-                Timestamp = c.CreatedAt
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<CommentDTO>

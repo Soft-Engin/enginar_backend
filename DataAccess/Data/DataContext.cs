@@ -22,6 +22,14 @@ namespace BackEngin.Data
             Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPAA8DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAEF/8QAHhAAAgICAgMAAAAAAAAAAAAAAQIDEQASITIEQWH/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAESEf/aAAwDAQACEQMRAD8AIvipLKDJP27ELePZoo3WJJCbW1OvBGZRnAQgKQxrn5lSVRJuVYj0LqsNUI5w/9k=")
 
         };
+
+        private static readonly byte[][] IngredientImages = new byte[2][]
+        {
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFA3PEY8MlBGQUZaVVBfeMiCeG5uePWvuZHI////////////////////////////////////////////////////2wBDAVVaWnhpeOuCguv/////////////////////////////////////////////////////////////////////////wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCT73QimsOcdagVsHg1ajORk1IyIxk9qZ5RIz2qWaXHAqNfMl4HSmBEVpCtWvIwOopjRgdxSuBXxSYqYp3NNK07gP8A3a9Fz9TS+e2MAAVBu9KsWyAZlft0oAekGfnl/KpSwUccDFN3EtuIIGKhkkyT1qR2HPJURYmm9TSjoc0DFQkHB6GnMOeKaen1qQ/dH0piIESrBO2NRnFMQUsqkqCO3WhghC7MuSeKizmlJwgUU2gY8dMGjOOKZmkLUCJEG9gBU7VVSRl6VIWYjmiwCqalDdhUANPDYoENm4PAqHJqwSCKjZRTAi5NLilxUkUW75m+6P1oAWGLje3TtQ7c8U+SQYwDUJOaAP/Z"),
+            Convert.FromBase64String("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFA3PEY8MlBGQUZaVVBfeMiCeG5uePWvuZHI////////////////////////////////////////////////////2wBDAVVaWnhpeOuCguv/////////////////////////////////////////////////////////////////////////wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCsKcKQU4UDJRHkcOp9s0gpSAwBH40eWEPXg9Km4gopxGOKQcj0pjGEU0ipCKaRQBEKcKaKUUwJFpz5YADqRxSBTkAc56VMIj8hOODk1NrgiJCGC9m9+9SbTtz6VG3yvtb14pshIyFb8KOtirDzTTSq24Z796DTJK4pwpgqSMkMB68c0wLcKlYwT1NO3D14pCRwKQcYxSER3BA296rMcsTUsrbnwOwqEZoL8iSM7eT0NPJyKj4wM9qec0CZY8iMdqDEuMgfSq4uCevSpBc560CFLFRyCPWoZJSeADUxmVuucfWmbYSc4IP1oHcg2nknj60mCBmrBSMjhm/Ok8qI87jQFxYYQPmdhn0zUxVfUVB5UXqaNkY9aBH/2Q==")
+        };
+
+
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -57,11 +65,13 @@ namespace BackEngin.Data
         public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
         public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
         public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
+        public DbSet<User_Allergens> User_Allergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            AddMockUsers(modelBuilder);
 
             modelBuilder.Entity<Countries>().HasData(
                new Countries { Id = 1, Name = "Turkey" },
@@ -108,7 +118,19 @@ namespace BackEngin.Data
             modelBuilder.Entity<Requirements>().HasData(
                 new Requirements { Id = 1, Name = "RSVP Required", Description = "Guests must confirm attendance before the event." },
                 new Requirements { Id = 2, Name = "Dress Code", Description = "Guests are required to follow the formal dress code." },
-                new Requirements { Id = 3, Name = "Age Limit", Description = "Only guests aged 18 and above are allowed to attend." }
+                new Requirements { Id = 3, Name = "Age Limit", Description = "Only guests aged 18 and above are allowed to attend." },
+                new Requirements { Id = 4, Name = "Bring Your Own Beverage (BYOB)", Description = "Guests are encouraged to bring their own beverages to the event." },
+                new Requirements { Id = 5, Name = "No Pets Allowed", Description = "Pets are not allowed at the event venue." },
+                new Requirements { Id = 6, Name = "ID Verification", Description = "Guests must present valid identification upon entry." },
+                new Requirements { Id = 7, Name = "Allergy Notification", Description = "Guests should inform the host of any food allergies in advance." },
+                new Requirements { Id = 8, Name = "Photography Policy", Description = "Photography is allowed, but guests must respect the privacy of others." },
+                new Requirements { Id = 9, Name = "Non-Smoking", Description = "The event venue is a non-smoking area." },
+                new Requirements { Id = 10, Name = "Timing Restrictions", Description = "Guests must arrive on time; late arrivals may not be admitted." },
+                new Requirements { Id = 11, Name = "Ticket Required", Description = "Guests must bring their tickets for entry." },
+                new Requirements { Id = 12, Name = "Child-Friendly", Description = "Children are welcome but must be supervised at all times." },
+                new Requirements { Id = 13, Name = "Accessible Venue", Description = "The venue is fully accessible for guests with disabilities." },
+                new Requirements { Id = 14, Name = "Reusable Utensils", Description = "Guests are encouraged to bring their own reusable utensils to support sustainability." },
+                new Requirements { Id = 15, Name = "Meal Preferences", Description = "Guests should specify their meal preferences (e.g., vegetarian, vegan) in advance." }
             );
 
             modelBuilder.Entity<Events_Requirements>().HasData(
@@ -126,14 +148,6 @@ namespace BackEngin.Data
             modelBuilder.Entity<Ingredients>().HasData(
                 new Ingredients { Id = 3, Name = "Enginar", TypeId = 1 },
                 new Ingredients { Id = 4, Name = "Zeytinyağı", TypeId = 2 }
-            );
-
-            modelBuilder.Entity<Users>().HasData(
-                new Users { Id = "1", FirstName = "Engin", LastName = "Adam", UserName = "EnginarAdam",  RoleId = 1 },
-                new Users { Id = "2", FirstName = "Engin", LastName = "Kadın", UserName = "EnginarKadın", RoleId = 1 },
-                new Users { Id = "3", FirstName = "Engin", LastName = "Çocuk", UserName = "EnginarÇocuk", RoleId = 1 },
-                new Users { Id = "4", FirstName = "Engin", LastName = "Yaşlı", UserName = "EnginarYaşlı", RoleId = 1 },
-                new Users { Id = "5", FirstName = "Engin", LastName = "Enginar", UserName = "EnginarDouble", RoleId = 2 }
             );
 
             modelBuilder.Entity<Recipes>().HasData(
@@ -245,7 +259,8 @@ namespace BackEngin.Data
                     .HasForeignKey(a => a.DistrictId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-
+            
+            AddMoreUsersAndEvents(modelBuilder);
             PopulatePreferences(modelBuilder);
             ConfigureUserInteractions(modelBuilder);
             PopulateIngredientTypes(modelBuilder);
@@ -275,8 +290,8 @@ namespace BackEngin.Data
             // Existing: Id=3 (Enginar), Id=4 (Zeytinyağı)
             // Add a variety of other ingredients
             modelBuilder.Entity<Ingredients>().HasData(
-                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 },
-                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 },
+                new Ingredients { Id = 1, Name = "Patates", TypeId = 1 , Image = IngredientImages[0] },
+                new Ingredients { Id = 2, Name = "Ejder Meyvesi", TypeId = 2 , Image = IngredientImages[1] },
                 new Ingredients { Id = 5, Name = "Domates", TypeId = 1 },
                 new Ingredients { Id = 6, Name = "Soğan", TypeId = 1 },
                 new Ingredients { Id = 7, Name = "Sarımsak", TypeId = 1 },
@@ -299,6 +314,12 @@ namespace BackEngin.Data
             modelBuilder.Entity<Recipes_Ingredients>().HasData(
                 new Recipes_Ingredients { Id = 3, RecipeId = 2, IngredientId = 3, Quantity = 2, Unit = "adet" },          // Enginar
                 new Recipes_Ingredients { Id = 4, RecipeId = 2, IngredientId = 4, Quantity = 3, Unit = "yemek kaşığı" }  // Zeytinyağı
+            );
+
+            modelBuilder.Entity<User_Allergens>().HasData(
+                new User_Allergens { Id = 1, UserId = "1", PreferenceId = 1 }, 
+                new User_Allergens { Id = 2, UserId = "2", PreferenceId = 2 },
+                new User_Allergens { Id = 3, UserId = "3", PreferenceId = 3 }
             );
 
 
@@ -349,7 +370,8 @@ namespace BackEngin.Data
                     UserId = userId,
                     ServingSize = rand.Next(1,11),
                     PreparationTime = rand.Next(1,25) * 15,
-                    CreatedAt = new DateTime(),
+                    // create random date
+                    CreatedAt = new DateTime(2018, 1, 1).AddDays(rand.Next(0, 6 * 365)),
                     BannerImage = GetDummyImage(),
                     StepImages = GenerateStepImages(3), // Generate 3 step images
                     Steps = new[] { 
@@ -436,13 +458,114 @@ namespace BackEngin.Data
                     Header = bHeader,
                     BodyText = $"{bHeader} blog yazısı, enginarın farklı yönlerini keşfedin.",
                     UserId = userId,
-                    CreatedAt = new DateTime(),
+                    CreatedAt = new DateTime(2018, 1, 1).AddDays(rand.Next(0, 6 * 365)),
                     BannerImage = GetDummyImage()
                 });
                 blogIdCounter++;
             }
 
             modelBuilder.Entity<Blogs>().HasData(blogsToAdd);
+        }
+
+        private void AddMockUsers(ModelBuilder modelBuilder){
+            string[] firstNames = {"Engin", "Engin", "Engin", "Engin", "Engin", "John", "Jane", "Michael", "Sarah", "David", "Emma", "James", "Emily", "Robert", "Lisa" };
+            string[] lastNames = {"Adam", "Kadın", "Çocuk", "Yaşlı", "Enginar", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Wilson", "Taylor" };
+            
+            // Generate 25 Users
+            var users = new List<Users>();
+            for (int i = 1; i <= 25; i++)
+            {
+                var firstName = firstNames[Random.Shared.Next(firstNames.Length)];
+                var lastName = lastNames[Random.Shared.Next(lastNames.Length)];
+                users.Add(new Users 
+                { 
+                    Id = i.ToString(),
+                    FirstName = firstName,
+                    LastName = lastName,
+                    UserName = $"{firstName}{lastName}{i}",
+                    Email = $"{firstName.ToLower()}.{lastName.ToLower()}{i}@email.com",
+                    Bio = $"Hello, I'm {firstName} {lastName}! Let's eat!!",
+                    BannerImage = GetDummyImage(),
+                    ProfileImage = GetDummyImage(),
+                    RoleId = 1,
+                    AddressId = Random.Shared.Next(1, 3)
+                });
+            }
+            modelBuilder.Entity<Users>().HasData(users);
+        }
+
+        private void AddMoreUsersAndEvents(ModelBuilder modelBuilder)
+        {
+            // Generate 100 Events
+            var events = new List<Events>();
+            string[] eventTypes = { "Workshop", "Conference", "Meetup", "Party", "Seminar", "Training", "Concert", "Exhibition", "Child Kidnapping Event" };
+            
+            for (int i = 2; i <= 101; i++)
+            {
+                var eventType = eventTypes[Random.Shared.Next(eventTypes.Length)];
+                var startDate = new DateTime(2018, 1, 1).AddDays(Random.Shared.Next(0, 8 * 365));
+
+
+                events.Add(new Events
+                {
+                    Id = i,
+                    CreatorId = Random.Shared.Next(1, 26).ToString(),
+                    AddressId = Random.Shared.Next(1, 3),
+                    Date = startDate,
+                    CreatedAt = startDate.AddDays(-1 * Random.Shared.Next(10,31)),
+                    Title = $"{eventType} - {i}",
+                    BodyText = $"Join us for an amazing {eventType.ToLower()} event! Details will be provided to confirmed participants.",
+                });
+            }
+            modelBuilder.Entity<Events>().HasData(events);
+
+            //Add random requirements for each event
+            var eventRequirements = new List<Events_Requirements>();
+            int eventRequirementId = 4;
+            foreach (var evt in events)
+            {
+                int requirementCount = Random.Shared.Next(1, 6); // 1-5 requirements per event
+                var eventReqIds = new List<int>();
+                for (int i = 0; i < requirementCount; i++)
+                {
+                    eventReqIds.Add(Random.Shared.Next(1, 16)); // 1-15 requirements
+                }
+
+                foreach (var reqId in eventReqIds)
+                {
+                    eventRequirements.Add(new Events_Requirements
+                    {
+                        Id = eventRequirementId++,
+                        EventId = evt.Id,
+                        RequirementId = reqId
+                    });
+                }
+            }
+
+            // Generate random event participations
+            var participations = new List<User_Event_Participations>();
+            int participationId = 2;
+            
+            foreach (var evt in events)
+            {
+                int participantCount = Random.Shared.Next(5, 16); // 5-15 participants per event
+                var eventParticipants = new List<string>();
+                for (int i = 0; i < participantCount; i++)
+                {
+                    eventParticipants.Add(Random.Shared.Next(1, 26).ToString());
+                }
+
+                foreach (var participant in eventParticipants)
+                {
+                    participations.Add(new User_Event_Participations
+                    {
+                        Id = participationId++,
+                        UserId = participant,
+                        EventId = evt.Id
+                    });
+                }
+            }
+            modelBuilder.Entity<User_Event_Participations>().HasData(participations);
         }
 
             private void PopulatePreferences(ModelBuilder modelBuilder)
@@ -575,6 +698,20 @@ namespace BackEngin.Data
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure User_Allergens
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.User)
+                .WithMany()
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<User_Allergens>()
+                .HasOne(ua => ua.Preference)
+                .WithMany()
+                .HasForeignKey(ua => ua.PreferenceId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
         }
 
         private void PopulateIngredientTypes(ModelBuilder modelBuilder)

@@ -390,6 +390,66 @@ namespace BackEngin.Tests.Controllers
             result.Value.Should().BeEquivalentTo(paginatedIngredients);
         }
 
+        [Fact]
+        public async Task GetBatchImage_ShouldReturnOk_WithIngredientImages()
+        {
+            // Arrange
+            var ingredientIds = new List<int> { 1, 2, 3 };
+            var ingredientImages = new List<IngredientImageDTO>
+            {
+                new IngredientImageDTO { Id = 1, Image = new byte[] { 1, 2, 3 } },
+                new IngredientImageDTO { Id = 2, Image = new byte[] { 4, 5, 6 } },
+                new IngredientImageDTO { Id = 3, Image = null }
+            };
+
+            _mockIngredientsService.Setup(s => s.GetBatchImage(ingredientIds))
+                                   .ReturnsAsync(ingredientImages);
+
+            // Act
+            var result = await _ingredientsController.GetBatchImage(ingredientIds);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.Value.Should().BeEquivalentTo(ingredientImages);
+            okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+        }
+
+        [Fact]
+        public async Task GetBatchImage_ShouldReturnBadRequest_WhenIngredientIdsAreEmpty()
+        {
+            // Arrange
+            var ingredientIds = new List<int>();
+
+            // Act
+            var result = await _ingredientsController.GetBatchImage(ingredientIds);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Should().NotBeNull();
+            badRequestResult!.Value.Should().BeEquivalentTo(new { message = "Ingredient IDs must be provided." });
+            badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        }
+
+        [Fact]
+        public async Task GetBatchImage_ShouldReturn500_WhenExceptionOccurs()
+        {
+            // Arrange
+            var ingredientIds = new List<int> { 1, 2, 3 };
+
+            _mockIngredientsService.Setup(s => s.GetBatchImage(ingredientIds))
+                                   .ThrowsAsync(new Exception("Database error"));
+
+            // Act
+            var result = await _ingredientsController.GetBatchImage(ingredientIds);
+
+            // Assert
+            var statusCodeResult = result as ObjectResult;
+            statusCodeResult.Should().NotBeNull();
+            statusCodeResult!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            statusCodeResult.Value.Should().BeEquivalentTo(new { message = "An unexpected error occurred.", details = "Database error" });
+        }
+
 
     }
 }

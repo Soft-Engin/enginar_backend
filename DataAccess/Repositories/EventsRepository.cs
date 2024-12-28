@@ -21,6 +21,7 @@ namespace DataAccess.Repositories
 
         }
 
+
         public async Task<(IEnumerable<Events> Items, int TotalCount)> GetPaginatedBySeedAsync(uint multiplier, uint seedValue, uint limiter, int pageNumber = 1, int pageSize = 10)
         {
             if (pageNumber <= 0) pageNumber = 1;
@@ -124,6 +125,71 @@ namespace DataAccess.Repositories
 
             return (items, totalCount);
         }
+
+        public async Task<(IEnumerable<Events> Items, int TotalCount)> GetPaginatedByFollowedAsync(Expression<Func<Events, bool>> predicate, int pageNumber = 1, int pageSize = 10, string includeProperties = "")
+        {
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            IQueryable<Events> query = _dbSet;
+
+            // Add eager loading for included properties
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+            }
+
+            // Calculate weighted order dynamically
+            var dateOrderedQuery = query
+                .Where(predicate)
+                .OrderByDescending(item => item.CreatedAt);
+
+            // Execute the query
+            var items = dateOrderedQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var totalCount = await dateOrderedQuery.CountAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<(IEnumerable<Events> Items, int TotalCount)> GetPaginatedByFollowedAsync(Expression<Func<Events, bool>> predicate, Expression<Func<Events, DateTime>> orderBy, int pageNumber = 1, int pageSize = 10, string includeProperties = "")
+        {
+            if (pageNumber <= 0) pageNumber = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            IQueryable<Events> query = _dbSet;
+
+            // Add eager loading for included properties
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+            }
+
+            // Calculate weighted order dynamically
+            var dateOrderedQuery = query
+                .Where(predicate)
+                .OrderBy(orderBy);
+
+            // Execute the query
+            var items = dateOrderedQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var totalCount = await dateOrderedQuery.CountAsync();
+
+            return (items, totalCount);
+        }
+
 
     }
 }

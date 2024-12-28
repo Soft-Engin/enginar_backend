@@ -61,12 +61,6 @@ namespace Models.DTO
 
     }
 
-    public class ParticipantDTO
-    {
-        public string UserId { get; set; }
-        public string UserName { get; set; }
-    }
-
     public class DistrictDTO
     {
         public int Id { get; set; }
@@ -84,6 +78,12 @@ namespace Models.DTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
+    }
+
+    public class EventParticipantsResponseDTO
+    {
+        public PaginatedResponseDTO<UserCompactDTO> Participations { get; set; }
+        public PaginatedResponseDTO<UserCompactDTO>? FollowedParticipations { get; set; }
     }
 
 }

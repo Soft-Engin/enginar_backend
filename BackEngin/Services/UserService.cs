@@ -87,12 +87,14 @@ namespace BackEngin.Services
                 City = user.Address?.District?.City?.Name ?? "City",
                 Country = user.Address?.District?.City?.Country?.Name ?? "Country",
                 PostCode = user.Address?.District?.PostCode ?? 0, // Default to 0 if null
-                RoleName = user.Role?.Name ?? "Role Name"
+                RoleName = user.Role?.Name ?? "Role Name",
+                Bio = user.Bio ?? "Bio",
+                UserId = user.Id
             };
         }
 
 
-        public async Task<UpdateUserDto> UpdateUserAsync(string id, UpdateUserDto userDTO)
+        public async Task<UpdateUserResultDto> UpdateUserAsync(string id, UpdateUserDto userDTO)
         {
             var existingUser = await _userManager.FindByIdAsync(id);
             if (existingUser == null)
@@ -139,9 +141,16 @@ namespace BackEngin.Services
             if (userDTO.ProfileImage != null)
                 existingUser.ProfileImage = userDTO.ProfileImage;
 
-            existingUser.Email = userDTO.Email;
-            existingUser.UserName = userDTO.UserName;
-            existingUser.PhoneNumber = userDTO.PhoneNumber;
+            if(userDTO.Email != null) 
+                existingUser.Email = userDTO.Email;
+
+            if(userDTO.UserName != null) 
+                existingUser.UserName = userDTO.UserName;
+            if (userDTO.PhoneNumber != null)
+                existingUser.PhoneNumber = userDTO.PhoneNumber;
+
+            if (userDTO.Bio != null)
+                existingUser.Bio = userDTO.Bio;
 
             var validationResult = await _userManager.UserValidators[0].ValidateAsync(_userManager, existingUser);
             if (!validationResult.Succeeded)
@@ -161,7 +170,7 @@ namespace BackEngin.Services
                 return null;
             }
 
-            return new UpdateUserDto
+            return new UpdateUserResultDto
             {
                 FirstName = existingUser.FirstName,
                 LastName = existingUser.LastName,
@@ -176,7 +185,9 @@ namespace BackEngin.Services
                 PostCode = existingUser.Address != null ? existingUser.Address.District.PostCode : 15,
                 // Not returning image here, you need to fetch it separately. This field stays because it will get messy to create another DTO for this purpose. This endpoint is already a big mess...
                 BannerImage = null,
-                ProfileImage = null
+                ProfileImage = null,
+                Bio = existingUser.Bio,
+                UserId = existingUser.Id
             };
         }
 
@@ -193,7 +204,7 @@ namespace BackEngin.Services
             return result.Succeeded;
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowersAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -205,7 +216,7 @@ namespace BackEngin.Services
             return await _unitOfWork.Users.GetFollowersAsync(userId, page, pageSize);
         }
 
-        public async Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowingAsync(string userId, int page, int pageSize)
         {
             var User = await _userManager.FindByIdAsync(userId);
 
@@ -654,6 +665,95 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+
+        public async Task<PaginatedResponseDTO<AllergenIdDTO>> GetUserAllergensAsync(string userId, int pageNumber, int pageSize)
+        {
+            
+            var User_AllergensIDs = (await _unitOfWork.User_Allergens.FindAsync(bl => bl.UserId == userId))
+                .Select(bl => bl.PreferenceId)
+                .ToList();
+
+            if (!User_AllergensIDs.Any())
+            {
+                return new PaginatedResponseDTO<AllergenIdDTO>
+                {
+                    Items = new List<AllergenIdDTO>(),
+                    TotalCount = 0,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+
+            
+            var allergensQuery = (await _unitOfWork.Preferences.FindAsync(b => User_AllergensIDs.Contains(b.Id))).AsQueryable();
+
+            
+            var totalCount = allergensQuery.Count();
+            var paginatedAllergens = allergensQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            
+            var allergenDtos = paginatedAllergens.Select(b => new AllergenIdDTO
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Description = b.Description
+            }).ToList();
+
+            
+            return new PaginatedResponseDTO<AllergenIdDTO>
+            {
+                Items = allergenDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+
+        public async Task SetUserAllergensAsync(string userId, List<int> allergenIds)
+        {
+            
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.", nameof(userId));
+            }
+
+            
+            var existingPreferenceIds = (await _unitOfWork.Preferences.GetAllAsync())
+                .Select(p => p.Id)
+                .ToHashSet();
+            var invalidIds = allergenIds.Except(existingPreferenceIds).ToList();
+
+            if (invalidIds.Any())
+            {
+                throw new ArgumentException($"Invalid allergen IDs: {string.Join(", ", invalidIds)}", nameof(allergenIds));
+            }
+
+
+            var existingUserAllergens = await _unitOfWork.User_Allergens
+                        .FindAsync(ua => ua.UserId == userId, includeProperties: "");
+
+
+
+            _unitOfWork.User_Allergens.DeleteRange(existingUserAllergens);
+
+            
+            var newAllergens = allergenIds.Select(allergenId => new User_Allergens
+            {
+                UserId = userId,
+                PreferenceId = allergenId
+            }).ToList();
+            await _unitOfWork.User_Allergens.AddRangeAsync(newAllergens);
+
+            
+            await _unitOfWork.CompleteAsync();
+        }
+
 
         public async Task<byte[]?> GetUserBannerImageAsync(string userId)
         {
