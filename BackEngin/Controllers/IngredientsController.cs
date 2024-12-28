@@ -133,8 +133,8 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpPost("Images")]
-        public async Task<IActionResult> GetBatchImage([FromBody] List<int> ingredientIds)
+        [HttpGet("Images")]
+        public async Task<IActionResult> GetBatchImage([FromQuery] List<int> ingredientIds)
         {
             if (ingredientIds.IsNullOrEmpty())
             {
