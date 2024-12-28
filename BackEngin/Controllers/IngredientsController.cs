@@ -133,13 +133,13 @@ namespace BackEngin.Controllers
             }
         }
 
-        [HttpPost("getBatchImage")]
+        [HttpPost("Images")]
         public async Task<IActionResult> GetBatchImage([FromBody] List<int> ingredientIds)
         {
             if (ingredientIds.IsNullOrEmpty())
             {
                 return BadRequest(new { message = "Ingredient IDs must be provided." });
-            }            
+            }
 
             try
             {
