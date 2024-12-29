@@ -376,32 +376,24 @@ namespace BackEngin.Services
             if (comment == null || comment.UserId != userId)
                 throw new UnauthorizedAccessException("You cannot update this comment.");
 
-            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
-            {
-                throw new ArgumentException("The comment must have text or image");
-            }
-
             comment.CommentText = commentRequest.Text;
             comment.CreatedAt = DateTime.UtcNow;
             comment.Images = commentRequest.Images;
-            comment.ImagesCount = commentRequest.Images?.Length ?? 0;
 
             _unitOfWork.Event_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
 
-            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
-
             return new CommentDTO
             {
                 Id = comment.Id,
-                Text = comment.CommentText,
-                ImagesCount = comment.ImagesCount,
                 Recipe_blog_id = comment.EventId,
-                Timestamp = comment.CreatedAt,
-                UserId = userId,
-                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+                Text = comment.CommentText,
+                ImagesCount = comment.Images?.Length ?? 0,
+                UserId = comment.UserId,
+                Timestamp = comment.CreatedAt
             };
         }
+
 
         // Delete Blog Comment
         public async Task DeleteBlogComment(string userId, int commentId)

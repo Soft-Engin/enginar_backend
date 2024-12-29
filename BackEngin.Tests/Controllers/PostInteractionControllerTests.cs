@@ -685,6 +685,182 @@ namespace BackEngin.Tests.Controllers
             notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for comment {commentId}." });
         }
 
+
+        // TESTS FOR EVENT INTERACTIONS
+
+        [Fact]
+        public async Task ToggleLikeEvent_ShouldReturnOk_WhenLiked()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockInteractionService.Setup(s => s.ToggleLikeEvent("currentUserId", eventId))
+                                   .ReturnsAsync(true);
+
+            // Act
+            var result = await _postInteractionController.ToggleLikeEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event liked successfully." });
+        }
+
+        [Fact]
+        public async Task ToggleLikeEvent_ShouldReturnOk_WhenUnliked()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockInteractionService.Setup(s => s.ToggleLikeEvent("currentUserId", eventId))
+                                   .ReturnsAsync(false);
+
+            // Act
+            var result = await _postInteractionController.ToggleLikeEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event unliked successfully." });
+        }
+
+        [Fact]
+        public async Task ToggleBookmarkEvent_ShouldReturnOk_WhenBookmarked()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockInteractionService.Setup(s => s.ToggleBookmarkEvent("currentUserId", eventId))
+                                   .ReturnsAsync(true);
+
+            // Act
+            var result = await _postInteractionController.BookmarkEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event bookmarked successfully." });
+        }
+
+        [Fact]
+        public async Task ToggleBookmarkEvent_ShouldReturnOk_WhenUnbookmarked()
+        {
+            // Arrange
+            var eventId = 1;
+            _mockInteractionService.Setup(s => s.ToggleBookmarkEvent("currentUserId", eventId))
+                                   .ReturnsAsync(false);
+
+            // Act
+            var result = await _postInteractionController.BookmarkEvent(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event unbookmarked successfully." });
+        }
+
+        [Fact]
+        public async Task CommentOnEvent_ShouldReturnOk_WithComment()
+        {
+            // Arrange
+            var eventId = 1;
+            var commentRequest = new CommentRequestDTO { Text = "Great event!", Images = null };
+            var commentResponse = new CommentDTO
+            {
+                Id = 1,
+                Recipe_blog_id = eventId,
+                Text = "Great event!",
+                Timestamp = DateTime.UtcNow
+            };
+
+            _mockInteractionService.Setup(s => s.CommentOnEvent("currentUserId", eventId, commentRequest))
+                                   .ReturnsAsync(commentResponse);
+
+            // Act
+            var result = await _postInteractionController.CommentOnEvent(eventId, commentRequest);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(commentResponse);
+        }
+
+        [Fact]
+        public async Task UpdateEventComment_ShouldReturnOk_WithUpdatedComment()
+        {
+            // Arrange
+            var commentId = 1;
+            var commentRequest = new CommentRequestDTO { Text = "Updated event comment", Images = null };
+            var updatedCommentResponse = new CommentDTO
+            {
+                Id = commentId,
+                Recipe_blog_id = 1,
+                Text = "Updated event comment",
+                Timestamp = DateTime.UtcNow
+            };
+
+            _mockInteractionService.Setup(s => s.UpdateEventComment("currentUserId", commentId, commentRequest))
+                                   .ReturnsAsync(updatedCommentResponse);
+
+            // Act
+            var result = await _postInteractionController.UpdateEventComment(commentId, commentRequest);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(updatedCommentResponse);
+        }
+
+        [Fact]
+        public async Task DeleteEventComment_ShouldReturnOk_WhenDeleted()
+        {
+            // Arrange
+            var commentId = 1;
+            _mockInteractionService.Setup(s => s.DeleteEventComment("currentUserId", commentId))
+                                   .Verifiable();
+
+            // Act
+            var result = await _postInteractionController.DeleteEventComment(commentId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event comment deleted successfully." });
+            _mockInteractionService.Verify(s => s.DeleteEventComment("currentUserId", commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventLikeCount_ShouldReturnOk_WithLikeCount()
+        {
+            // Arrange
+            var eventId = 1;
+            var likeCount = 10;
+            _mockInteractionService.Setup(s => s.GetEventLikeCount(eventId))
+                                   .ReturnsAsync(likeCount);
+
+            // Act
+            var result = await _postInteractionController.GetEventLikeCount(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { likeCount });
+        }
+
+        [Fact]
+        public async Task GetEventBookmarkCount_ShouldReturnOk_WithBookmarkCount()
+        {
+            // Arrange
+            var eventId = 1;
+            var bookmarkCount = 8;
+            _mockInteractionService.Setup(s => s.GetEventBookmarkCount(eventId))
+                                   .ReturnsAsync(bookmarkCount);
+
+            // Act
+            var result = await _postInteractionController.GetEventBookmarkCount(eventId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { bookmarkCount });
+        }
     }
 
 }
