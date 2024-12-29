@@ -60,6 +60,25 @@ namespace BackEngin.Controllers
             }
         }
 
+        // Toggle Like for Event
+        [HttpPost("events/{eventId}/toggle-like")]
+        [Authorize]
+        public async Task<IActionResult> ToggleLikeEvent(int eventId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isLiked = await _interactionService.ToggleLikeEvent(userId, eventId);
+
+                string message = isLiked ? "Event liked successfully." : "Event unliked successfully.";
+                return Ok(new { message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", error = ex.Message });
+            }
+        }
+
 
         // Bookmark a Blog
         [HttpPost("blogs/{blogId}/bookmark")]
@@ -89,6 +108,24 @@ namespace BackEngin.Controllers
                 string userId = await GetActiveUserId();
                 bool isBookmarked = await _interactionService.ToggleBookmarkRecipe(userId, recipeId);
                 string message = isBookmarked ? "Recipe bookmarked successfully." : "Recipe unbookmarked successfully.";
+                return Ok(new { message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Bookmark a Event
+        [HttpPost("event/{eventId}/bookmark")]
+        [Authorize]
+        public async Task<IActionResult> BookmarkEvent(int eventId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isBookmarked = await _interactionService.ToggleBookmarkEvent(userId, eventId);
+                string message = isBookmarked ? "Event bookmarked successfully." : "Event unbookmarked successfully.";
                 return Ok(new { message });
             }
             catch (Exception ex)
@@ -131,6 +168,23 @@ namespace BackEngin.Controllers
             }
         }
 
+        // Comment on Event
+        [HttpPost("events/{eventId}/comment")]
+        [Authorize]
+        public async Task<IActionResult> CommentOnEvent(int eventId, [FromBody] CommentRequestDTO commentDto)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                var comment = await _interactionService.CommentOnEvent(userId, eventId, commentDto);
+                return Ok(comment);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Update Blog Comment
         [HttpPut("blogs/comments/{commentId}")]
         [Authorize]
@@ -165,6 +219,23 @@ namespace BackEngin.Controllers
             }
         }
 
+        // Update Event Comment
+        [HttpPut("event/comments/{commentId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateEventComment(int commentId, [FromBody] CommentRequestDTO commentDto)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                var updatedComment = await _interactionService.UpdateEventComment(userId, commentId, commentDto);
+                return Ok(updatedComment);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Delete Blog Comment
         [HttpDelete("blogs/comments/{commentId}")]
         [Authorize]
@@ -175,6 +246,23 @@ namespace BackEngin.Controllers
                 string userId = await GetActiveUserId();
                 await _interactionService.DeleteBlogComment(userId, commentId);
                 return Ok(new { message = "Blog comment deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Delete Event Comment
+        [HttpDelete("event/comments/{commentId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteEventComment(int commentId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                await _interactionService.DeleteEventComment(userId, commentId);
+                return Ok(new { message = "Event comment deleted successfully." });
             }
             catch (Exception ex)
             {
