@@ -270,7 +270,8 @@ namespace BackEngin.Services
             }
 
             // Step 2: Fetch the recipes with the matching IDs from the Recipes table
-            var recipesQuery = (await _unitOfWork.Recipes.FindAsync(r => bookmarkedRecipeIds.Contains(r.Id))).AsQueryable();
+            var recipesQuery = await _unitOfWork.Recipes.FindAsync(r => bookmarkedRecipeIds.Contains(r.Id), "User");
+
 
             // Calculate total count and apply pagination
             var totalCount = recipesQuery.Count();
@@ -282,7 +283,8 @@ namespace BackEngin.Services
             // Step 3: Map the data to BookmarkRecipesItemDTO
             var recipeDtos = paginatedRecipes.Select(r => new BookmarkRecipesItemDTO
             {
-                UserName = r.User?.UserName ?? "Unknown",
+                UserId = r.UserId,
+                UserName = r.User.UserName ?? "Unknown",
                 Header = r.Header,
                 BodyText = r.BodyText
             }).ToList();
@@ -317,7 +319,8 @@ namespace BackEngin.Services
             }
 
             // Step 2: Fetch the recipes with the matching IDs from the Recipes table
-            var recipesQuery = (await _unitOfWork.Recipes.FindAsync(b => likedRecipeIds.Contains(b.Id))).AsQueryable();
+            var recipesQuery = await _unitOfWork.Recipes.FindAsync(r => likedRecipeIds.Contains(r.Id), "User");
+
 
             // Calculate total count and apply pagination
             var totalCount = recipesQuery.Count();
@@ -329,7 +332,8 @@ namespace BackEngin.Services
             // Step 3: Map the data to LikedRecipesItemDTO
             var recipeDtos = paginatedRecipes.Select(b => new LikedRecipesItemDTO
             {
-                UserName = b.User?.UserName ?? "Unknown",
+                UserId = b.UserId,
+                UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,
                 BodyText = b.BodyText
             }).ToList();
@@ -365,7 +369,8 @@ namespace BackEngin.Services
             }
 
             // Step 2: Fetch the blogs with the matching IDs from the Blogs table
-            var blogsQuery = (await _unitOfWork.Blogs.FindAsync(b => bookmarkedBlogIds.Contains(b.Id))).AsQueryable();
+            var blogsQuery = await _unitOfWork.Blogs.FindAsync(b => bookmarkedBlogIds.Contains(b.Id), "User");
+
 
             // Calculate total count and apply pagination
             var totalCount = blogsQuery.Count();
@@ -377,7 +382,8 @@ namespace BackEngin.Services
             // Step 3: Map the data to BookmarkBlogsItemDTO
             var blogDtos = paginatedBlogs.Select(b => new BookmarkBlogsItemDTO
             {
-                UserName = b.User?.UserName ?? "Unknown",
+                UserId = b.UserId,
+                UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,
                 BodyText = b.BodyText
             }).ToList();
@@ -410,11 +416,13 @@ namespace BackEngin.Services
                 };
             }
 
-            // Step 2: Fetch the blogs with the matching IDs from the Blogs table
-            var blogsQuery = (await _unitOfWork.Blogs.FindAsync(b => likedBlogIds.Contains(b.Id))).AsQueryable();
+            // Step 2: Fetch the blogs with the matching IDs from the Blogs table, including the related User entity
+            var blogsQuery = await _unitOfWork.Blogs.FindAsync(b => likedBlogIds.Contains(b.Id), "User");
 
-            // Calculate total count and apply pagination
+            // Calculate total count
             var totalCount = blogsQuery.Count();
+
+            // Apply pagination
             var paginatedBlogs = blogsQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -423,7 +431,8 @@ namespace BackEngin.Services
             // Step 3: Map the data to LikedBlogsItemDTO
             var blogDtos = paginatedBlogs.Select(b => new LikedBlogsItemDTO
             {
-                UserName = b.User?.UserName ?? "Unknown",
+                UserId = b.UserId,
+                UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,
                 BodyText = b.BodyText
             }).ToList();
@@ -437,6 +446,7 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
 
         public async Task<PaginatedResponseDTO<UserDTO>> SearchUsersAsync(UserSearchParams searchParams, int pageNumber, int pageSize)
         {

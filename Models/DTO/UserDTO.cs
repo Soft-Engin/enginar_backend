@@ -88,6 +88,7 @@ namespace Models.DTO
         public string Header { get; set; }
 
         public string BodyText { get; set; }
+        public string UserId { get; set; }
     }
 
     public class BookmarkBlogsItemDTO
@@ -95,6 +96,7 @@ namespace Models.DTO
         public string UserName { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+        public string UserId { get; set; }
     }
 
     public class LikedBlogsItemDTO
@@ -102,6 +104,7 @@ namespace Models.DTO
         public string UserName { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+        public string UserId { get; set; }
     }
 
     public class LikedRecipesItemDTO
@@ -109,6 +112,7 @@ namespace Models.DTO
         public string UserName { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
+        public string UserId { get; set; }
     }
 
     public class SetUserAllergensRequestDTO
