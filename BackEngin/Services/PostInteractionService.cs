@@ -464,6 +464,20 @@ namespace BackEngin.Services
             return existingBookmark.Any();
         }
 
+        // Check if the user has liked a event
+        public async Task<bool> IsEventLiked(string userId, int eventId)
+        {
+            var existingLike = await _unitOfWork.Event_Likes.FindAsync(l => l.UserId == userId && l.EventId == eventId);
+            return existingLike.Any();
+        }
+
+        // Check if the user has bookmarked a event
+        public async Task<bool> IsEventBookmarked(string userId, int eventId)
+        {
+            var existingBookmark = await _unitOfWork.Event_Bookmarks.FindAsync(b => b.UserId == userId && b.EventId == eventId);
+            return existingBookmark.Any();
+        }
+
         // Get the number of likes for a blog
         public async Task<int> GetBlogLikeCount(int blogId)
         {
@@ -488,6 +502,17 @@ namespace BackEngin.Services
             return await _unitOfWork.Recipe_Bookmarks.CountAsync(b => b.RecipeId == recipeId);
         }
 
+        // Get the number of likes for a event
+        public async Task<int> GetEventLikeCount(int eventId)
+        {
+            return await _unitOfWork.Event_Likes.CountAsync(l => l.EventId == eventId);
+        }
+
+        // Get the number of bookmarks for a event
+        public async Task<int> GetEventBookmarkCount(int eventId)
+        {
+            return await _unitOfWork.Event_Bookmarks.CountAsync(b => b.EventId == eventId);
+        }
 
         // Get paginated comments for a blog
         public async Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize)

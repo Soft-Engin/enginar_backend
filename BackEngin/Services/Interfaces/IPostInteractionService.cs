@@ -35,12 +35,16 @@ namespace BackEngin.Services.Interfaces
         Task<bool> IsBlogBookmarked(string userId, int blogId);
         Task<bool> IsRecipeLiked(string userId, int recipeId);
         Task<bool> IsRecipeBookmarked(string userId, int recipeId);
+        Task<bool> IsEventLiked(string userId, int eventId);
+        Task<bool> IsEventBookmarked(string userId, int eventId);
 
         // Count methods
         Task<int> GetBlogLikeCount(int blogId);
         Task<int> GetBlogBookmarkCount(int blogId);
         Task<int> GetRecipeLikeCount(int recipeId);
         Task<int> GetRecipeBookmarkCount(int recipeId);
+        Task<int> GetEventLikeCount(int eventId);
+        Task<int> GetEventBookmarkCount(int eventId);
 
         Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize);
         Task<PaginatedResponseDTO<CommentDTO>> GetRecipeComments(int recipeId, int pageNumber, int pageSize);
