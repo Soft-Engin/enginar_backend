@@ -467,6 +467,89 @@ namespace BackEngin.Controllers
                     new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+
+        // event
+        [HttpGet("events/{eventId}/like-count")]
+        [Authorize]
+        public async Task<IActionResult> GetEventLikeCount(int eventId)
+        {
+            try
+            {
+                int likeCount = await _interactionService.GetEventLikeCount(eventId);
+                return Ok(new { likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Check if the user has liked a event post and the like count of the event
+        [HttpGet("events/{eventId}/is-liked")]
+        [Authorize]
+        public async Task<IActionResult> IsEventLiked(int eventId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isLiked = await _interactionService.IsEventLiked(userId, eventId);
+                int likeCount = await _interactionService.GetEventLikeCount(eventId);
+                return Ok(new { isLiked, likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("events/{eventId}/bookmark-count")]
+        public async Task<IActionResult> GetEventBookmarkCount(int eventId)
+        {
+            try
+            {
+                int bookmarkCount = await _interactionService.GetEventBookmarkCount(eventId);
+                return Ok(new { bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+        // Check if the user has bookmarked a event post and the bookmark count of the event
+        [HttpGet("events/{eventId}/is-bookmarked")]
+        [Authorize]
+        public async Task<IActionResult> IsEventBookmarked(int eventId)
+        {
+            try
+            {
+                string userId = await GetActiveUserId();
+                bool isBookmarked = await _interactionService.IsEventBookmarked(userId, eventId);
+                int bookmarkCount = await _interactionService.GetEventBookmarkCount(eventId);
+                return Ok(new { isBookmarked, bookmarkCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Get comments under a event post with pagination
+        [HttpGet("events/{eventId}/comments")]
+        public async Task<IActionResult> GetEventComments(int eventId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var comments = await _interactionService.GetEventComments(eventId, page, pageSize);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 
 }

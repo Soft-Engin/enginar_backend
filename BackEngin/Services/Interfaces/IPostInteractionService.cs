@@ -46,11 +46,14 @@ namespace BackEngin.Services.Interfaces
         Task<int> GetEventLikeCount(int eventId);
         Task<int> GetEventBookmarkCount(int eventId);
 
+        // get all comments methods
         Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize);
         Task<PaginatedResponseDTO<CommentDTO>> GetRecipeComments(int recipeId, int pageNumber, int pageSize);
-        
+        Task<PaginatedResponseDTO<CommentDTO>> GetEventComments(int eventId, int pageNumber, int pageSize);
+
         // Methods for retrieving comment images
         Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex);
         Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex);
+        Task<byte[]?> GetEventCommentImage(int commentId, int imageIndex);
     }
 }

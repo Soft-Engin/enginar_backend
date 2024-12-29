@@ -582,6 +582,40 @@ namespace BackEngin.Services
             };
         }
 
+        // Get paginated comments for a event
+        public async Task<PaginatedResponseDTO<CommentDTO>> GetEventComments(int eventId, int pageNumber, int pageSize)
+        {
+            var (comments, totalCount) = await _unitOfWork.Event_Comments.GetPaginatedAsync(
+                filter: c => c.EventId == eventId, // Filter by event ID
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            // finds user names of the event users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
+            var commentDtos = comments.Select(c => new CommentDTO
+            {
+                Id = c.Id,
+                Recipe_blog_id = c.EventId,
+                Text = c.CommentText,
+                ImagesCount = c.ImagesCount,
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
+            }).ToList();
+
+            return new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = commentDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex)
         {
             var comment = await _unitOfWork.Blog_Comments.GetByIdAsync(commentId);
@@ -594,6 +628,15 @@ namespace BackEngin.Services
         public async Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex)
         {
             var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
+                return null;
+
+            return comment.Images[imageIndex];
+        }
+
+        public async Task<byte[]?> GetEventCommentImage(int commentId, int imageIndex)
+        {
+            var comment = await _unitOfWork.Event_Comments.GetByIdAsync(commentId);
             if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
                 return null;
 
