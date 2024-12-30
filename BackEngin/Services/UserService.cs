@@ -283,6 +283,7 @@ namespace BackEngin.Services
             // Step 3: Map the data to BookmarkRecipesItemDTO
             var recipeDtos = paginatedRecipes.Select(r => new BookmarkRecipesItemDTO
             {
+                RecipeId = r.Id,
                 UserId = r.UserId,
                 UserName = r.User.UserName ?? "Unknown",
                 Header = r.Header,
@@ -332,6 +333,7 @@ namespace BackEngin.Services
             // Step 3: Map the data to LikedRecipesItemDTO
             var recipeDtos = paginatedRecipes.Select(b => new LikedRecipesItemDTO
             {
+                RecipeId = b.Id,
                 UserId = b.UserId,
                 UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,
@@ -382,6 +384,7 @@ namespace BackEngin.Services
             // Step 3: Map the data to BookmarkBlogsItemDTO
             var blogDtos = paginatedBlogs.Select(b => new BookmarkBlogsItemDTO
             {
+                BlogId = b.Id,
                 UserId = b.UserId,
                 UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,
@@ -431,6 +434,7 @@ namespace BackEngin.Services
             // Step 3: Map the data to LikedBlogsItemDTO
             var blogDtos = paginatedBlogs.Select(b => new LikedBlogsItemDTO
             {
+                BlogId = b.Id,
                 UserId = b.UserId,
                 UserName = b.User.UserName ?? "Unknown",
                 Header = b.Header,

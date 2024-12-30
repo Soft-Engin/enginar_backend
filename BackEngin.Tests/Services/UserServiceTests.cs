@@ -541,6 +541,7 @@ namespace BackEngin.Tests.Services
 
             var firstItem = result.Items.First();
             firstItem.Header.Should().Be("Header1");
+            firstItem.BlogId.Should().Be(1);
             firstItem.BodyText.Should().Be("Body1");
             firstItem.UserName.Should().Be("User1");
             firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
@@ -619,6 +620,7 @@ namespace BackEngin.Tests.Services
             result.TotalCount.Should().Be(3);
 
             var firstItem = result.Items.First();
+            firstItem.BlogId.Should().Be(1);
             firstItem.Header.Should().Be("Header1");
             firstItem.BodyText.Should().Be("Body1");
             firstItem.UserName.Should().Be("User1");
@@ -698,6 +700,7 @@ namespace BackEngin.Tests.Services
             result.TotalCount.Should().Be(3);
 
             var firstItem = result.Items.First();
+            firstItem.RecipeId.Should().Be(1);
             firstItem.Header.Should().Be("Header1");
             firstItem.BodyText.Should().Be("Body1");
             firstItem.UserName.Should().Be("User1");
@@ -782,6 +785,7 @@ namespace BackEngin.Tests.Services
             firstItem.Header.Should().Be("Header1");
             firstItem.BodyText.Should().Be("Body1");
             firstItem.UserName.Should().Be("User1");
+            firstItem.RecipeId.Should().Be(1);
             firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
 
             result.PageNumber.Should().Be(page);
