@@ -9,12 +9,12 @@ namespace Models.DTO
 {
     public class UserDTO
     {
+        public string? UserName { get; set; }
+        public string UserId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public Addresses? Address { get; set; }
         public Roles Role { get; set; }
-        public string Id { get; set; }
-        public string? UserName { get; set; }
         public string Email { get; set; }
         public string? PhoneNumber { get; set; }
     }
@@ -22,6 +22,7 @@ namespace Models.DTO
     public class GetUserByIdDTO
     {
         public string UserName { get; set; }
+        public string UserId { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
@@ -35,7 +36,6 @@ namespace Models.DTO
         public int PostCode { get; set; }
         public string RoleName { get; set; }
         public string Bio { get; set; }
-        public string UserId { get; set; }
 
     }
 
@@ -62,6 +62,7 @@ namespace Models.DTO
     public class UpdateUserResultDto
     {
         public string UserName { get; set; }
+        public string UserId { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
@@ -77,7 +78,6 @@ namespace Models.DTO
         public byte[]? BannerImage { get; set; }
         public byte[]? ProfileImage { get; set; }
         public string? Bio { get; set; }
-        public string UserId { get; set; }
 
     }
 
@@ -85,34 +85,34 @@ namespace Models.DTO
     {
         public string UserName { get; set; }
 
+        public string UserId { get; set; }
         public string Header { get; set; }
 
         public string BodyText { get; set; }
-        public string UserId { get; set; }
     }
 
     public class BookmarkBlogsItemDTO
     {
         public string UserName { get; set; }
+        public string UserId { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
-        public string UserId { get; set; }
     }
 
     public class LikedBlogsItemDTO
     {
         public string UserName { get; set; }
+        public string UserId { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
-        public string UserId { get; set; }
     }
 
     public class LikedRecipesItemDTO
     {
         public string UserName { get; set; }
+        public string UserId { get; set; }
         public string Header { get; set; }
         public string BodyText { get; set; }
-        public string UserId { get; set; }
     }
 
     public class SetUserAllergensRequestDTO

@@ -51,7 +51,7 @@ namespace BackEngin.Tests.Controllers
                 {
                     new UserDTO
                     {
-                        Id = "1",
+                        UserId = "1",
                         FirstName = "John",
                         LastName = "Doe",
                         UserName = "johndoe",
@@ -69,7 +69,7 @@ namespace BackEngin.Tests.Controllers
                     },
                     new UserDTO
                     {
-                        Id = "2",
+                        UserId = "2",
                         FirstName = "Jane",
                         LastName = "Smith",
                         UserName = "janesmith",
@@ -438,7 +438,7 @@ namespace BackEngin.Tests.Controllers
                     {
                         new UserDTO
                         {
-                            Id = "1",
+                            UserId = "1",
                             FirstName = "John",
                             LastName = "Doe",
                             Email = "johndoe@example.com",

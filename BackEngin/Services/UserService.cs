@@ -41,7 +41,7 @@ namespace BackEngin.Services
                     LastName = u.LastName,
                     Address = u.Address,
                     Role = u.Role,
-                    Id = u.Id,
+                    UserId = u.Id,
                     UserName = u.UserName,
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber
@@ -493,7 +493,7 @@ namespace BackEngin.Services
             // Map to DTOs
             var userDTOs = users.Select(u => new UserDTO
             {
-                Id = u.Id,
+                UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Address = u.Address,
