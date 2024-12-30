@@ -510,7 +510,7 @@ namespace BackEngin.Tests.Services
             var page = 1;
             var pageSize = 2;
 
-            var bookmarkedBlogIds = new List<Blog_Bookmarks>
+                    var bookmarkedBlogIds = new List<Blog_Bookmarks>
             {
                 new Blog_Bookmarks { BlogId = 1, UserId = userId },
                 new Blog_Bookmarks { BlogId = 2, UserId = userId },
@@ -519,15 +519,16 @@ namespace BackEngin.Tests.Services
 
             var blogs = new List<Blogs>
             {
-                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
-                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
-                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", UserId = "creator1", User = new Users { Id = "creator1", UserName = "User1" } },
+                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", UserId = "creator2", User = new Users { Id = "creator2", UserName = "User2" } },
+                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", UserId = "creator3", User = new Users { Id = "creator3", UserName = "User3" } }
             };
 
             _mockUnitOfWork.Setup(uow => uow.Blog_Bookmarks.FindAsync(It.IsAny<Func<Blog_Bookmarks, bool>>()))
                 .ReturnsAsync(bookmarkedBlogIds.AsQueryable().BuildMock());
 
-            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+            // Update the mock for Blogs.FindAsync to include the "User" navigation property
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Expression<Func<Blogs, bool>>>(), "User"))
                 .ReturnsAsync(blogs.AsQueryable().BuildMock());
 
             // Act
@@ -537,10 +538,18 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Should().HaveCount(pageSize);
             result.TotalCount.Should().Be(3);
-            result.Items.First().Header.Should().Be("Header1");
+
+            var firstItem = result.Items.First();
+            firstItem.Header.Should().Be("Header1");
+            firstItem.BodyText.Should().Be("Body1");
+            firstItem.UserName.Should().Be("User1");
+            firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
+
             result.PageNumber.Should().Be(page);
             result.PageSize.Should().Be(pageSize);
         }
+
+
 
         [Fact]
         public async Task GetBookmarkedBlogsAsync_ShouldReturnEmptyResponse_WhenNoBookmarksExist()
@@ -588,15 +597,17 @@ namespace BackEngin.Tests.Services
 
             var blogs = new List<Blogs>
             {
-                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
-                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
-                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+                new Blogs { Id = 1, Header = "Header1", BodyText = "Body1", UserId = "creator1", User = new Users { Id = "creator1", UserName = "User1" } },
+                new Blogs { Id = 2, Header = "Header2", BodyText = "Body2", UserId = "creator2", User = new Users { Id = "creator2", UserName = "User2" } },
+                new Blogs { Id = 3, Header = "Header3", BodyText = "Body3", UserId = "creator3", User = new Users { Id = "creator3", UserName = "User3" } }
             };
 
+            // Mocking the Blog_Likes.FindAsync method
             _mockUnitOfWork.Setup(uow => uow.Blog_Likes.FindAsync(It.IsAny<Func<Blog_Likes, bool>>()))
                 .ReturnsAsync(likedBlogIds.AsQueryable().BuildMock());
 
-            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Func<Blogs, bool>>()))
+            // Mocking the Blogs.FindAsync method with eager loading of the "User" property
+            _mockUnitOfWork.Setup(uow => uow.Blogs.FindAsync(It.IsAny<Expression<Func<Blogs, bool>>>(), "User"))
                 .ReturnsAsync(blogs.AsQueryable().BuildMock());
 
             // Act
@@ -606,10 +617,18 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Should().HaveCount(pageSize);
             result.TotalCount.Should().Be(3);
-            result.Items.First().Header.Should().Be("Header1");
+
+            var firstItem = result.Items.First();
+            firstItem.Header.Should().Be("Header1");
+            firstItem.BodyText.Should().Be("Body1");
+            firstItem.UserName.Should().Be("User1");
+            firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
+
             result.PageNumber.Should().Be(page);
             result.PageSize.Should().Be(pageSize);
         }
+
+
 
         [Fact]
         public async Task GetLikedBlogsAsync_ShouldReturnEmptyResponse_WhenNoLikesExist()
@@ -658,15 +677,16 @@ namespace BackEngin.Tests.Services
 
             var recipes = new List<Recipes>
             {
-                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
-                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
-                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", UserId = "creator1", User = new Users { Id = "creator1", UserName = "User1" } },
+                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", UserId = "creator2", User = new Users { Id = "creator2", UserName = "User2" } },
+                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", UserId = "creator3", User = new Users { Id = "creator3", UserName = "User3" } }
             };
 
             _mockUnitOfWork.Setup(uow => uow.Recipe_Likes.FindAsync(It.IsAny<Func<Recipe_Likes, bool>>()))
                 .ReturnsAsync(likedRecipeIds.AsQueryable().BuildMock());
 
-            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+            // Mock the Recipes.FindAsync method to include the "User" navigation property for lazy loading
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Expression<Func<Recipes, bool>>>(), "User"))
                 .ReturnsAsync(recipes.AsQueryable().BuildMock());
 
             // Act
@@ -676,10 +696,18 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Should().HaveCount(pageSize);
             result.TotalCount.Should().Be(3);
-            result.Items.First().Header.Should().Be("Header1");
+
+            var firstItem = result.Items.First();
+            firstItem.Header.Should().Be("Header1");
+            firstItem.BodyText.Should().Be("Body1");
+            firstItem.UserName.Should().Be("User1");
+            firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
+
             result.PageNumber.Should().Be(page);
             result.PageSize.Should().Be(pageSize);
         }
+
+
 
         [Fact]
         public async Task GetLikedRecipesAsync_ShouldReturnEmptyResponse_WhenNoLikesExist()
@@ -730,15 +758,16 @@ namespace BackEngin.Tests.Services
 
             var recipes = new List<Recipes>
             {
-                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", User = new Users { UserName = "User1" } },
-                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", User = new Users { UserName = "User2" } },
-                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", User = new Users { UserName = "User3" } }
+                new Recipes { Id = 1, Header = "Header1", BodyText = "Body1", UserId = "creator1", User = new Users { Id = "creator1", UserName = "User1" } },
+                new Recipes { Id = 2, Header = "Header2", BodyText = "Body2", UserId = "creator2", User = new Users { Id = "creator2", UserName = "User2" } },
+                new Recipes { Id = 3, Header = "Header3", BodyText = "Body3", UserId = "creator3", User = new Users { Id = "creator3", UserName = "User3" } }
             };
 
             _mockUnitOfWork.Setup(uow => uow.Recipe_Bookmarks.FindAsync(It.IsAny<Func<Recipe_Bookmarks, bool>>()))
                 .ReturnsAsync(bookmarkedRecipeIds.AsQueryable().BuildMock());
 
-            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Func<Recipes, bool>>()))
+            // Mock the Recipes.FindAsync method to include the "User" navigation property for lazy loading
+            _mockUnitOfWork.Setup(uow => uow.Recipes.FindAsync(It.IsAny<Expression<Func<Recipes, bool>>>(), "User"))
                 .ReturnsAsync(recipes.AsQueryable().BuildMock());
 
             // Act
@@ -748,10 +777,18 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Items.Should().HaveCount(pageSize);
             result.TotalCount.Should().Be(3);
-            result.Items.First().Header.Should().Be("Header1");
+
+            var firstItem = result.Items.First();
+            firstItem.Header.Should().Be("Header1");
+            firstItem.BodyText.Should().Be("Body1");
+            firstItem.UserName.Should().Be("User1");
+            firstItem.UserId.Should().Be("creator1"); // Verify UserId of the creator
+
             result.PageNumber.Should().Be(page);
             result.PageSize.Should().Be(pageSize);
         }
+
+
 
         [Fact]
         public async Task GetBookmarkedRecipesAsync_ShouldReturnEmptyResponse_WhenNoBookmarksExist()

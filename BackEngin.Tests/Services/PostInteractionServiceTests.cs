@@ -8,6 +8,8 @@ using BackEngin.Services;
 using System.Linq.Expressions;
 using Models;
 using System.Reflection.Metadata;
+using BackEngin.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackEngin.Tests.Services
 {
@@ -105,7 +107,7 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Text.Should().Be("Great blog!");
-            result.Recipe_blog_id.Should().Be(blogId);
+            result.Object_id.Should().Be(blogId);
             result.Timestamp.Should().Be(timestamp);
             result.UserId.Should().Be(userId);
             result.UserName.Should().Be("TestUser");
@@ -344,24 +346,24 @@ namespace BackEngin.Tests.Services
             var pageNumber = 1;
             var pageSize = 2;
             var comments = new List<Blog_Comments>
-    {
-        new Blog_Comments
-        {
-            Id = 1,
-            BlogId = blogId,
-            CommentText = "Comment 1",
-            UserId = "user1",
-            CreatedAt = DateTime.UtcNow
-        },
-        new Blog_Comments
-        {
-            Id = 2,
-            BlogId = blogId,
-            CommentText = "Comment 2",
-            UserId = "user2",
-            CreatedAt = DateTime.UtcNow
-        }
-    };
+                {
+                    new Blog_Comments
+                    {
+                        Id = 1,
+                        BlogId = blogId,
+                        CommentText = "Comment 1",
+                        UserId = "user1",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Blog_Comments
+                    {
+                        Id = 2,
+                        BlogId = blogId,
+                        CommentText = "Comment 2",
+                        UserId = "user2",
+                        CreatedAt = DateTime.UtcNow
+                    }
+            };
 
             _mockUnitOfWork.Setup(u => u.Blog_Comments.GetPaginatedAsync(It.IsAny<Expression<Func<Blog_Comments, bool>>>(), pageNumber, pageSize))
                 .ReturnsAsync((comments, 10));
@@ -369,8 +371,8 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
             .ReturnsAsync(new List<Users>
             {
-        new Users { Id = "user1", UserName = "User One" },
-        new Users { Id = "user2", UserName = "User Two" }
+                new Users { Id = "user1", UserName = "User One" },
+                new Users { Id = "user2", UserName = "User Two" }
             });
 
             // Act
@@ -590,6 +592,308 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
         }
 
+
+        // TESTS FOR EVENTS INTERACTIONS
+        [Fact]
+        public async Task ToggleLikeEvent_ShouldLike_WhenNotLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var eventId = 1;
+
+            _mockUnitOfWork.Setup(u => u.Event_Likes.FindAsync(It.IsAny<Func<Event_Likes, bool>>()))
+                .ReturnsAsync(new List<Event_Likes>());
+
+            _mockUnitOfWork.Setup(u => u.Event_Likes.AddAsync(It.IsAny<Event_Likes>())).Verifiable();
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            // Act
+            var result = await _service.ToggleLikeEvent(userId, eventId);
+
+            // Assert
+            result.Should().BeTrue(); // Should indicate a like action
+            _mockUnitOfWork.Verify(u => u.Event_Likes.AddAsync(It.IsAny<Event_Likes>()), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task ToggleLikeEvent_ShouldUnlike_WhenAlreadyLiked()
+        {
+            // Arrange
+            var userId = "user123";
+            var eventId = 1;
+
+            var existingLike = new Event_Likes { Id = 1, UserId = userId, EventId = eventId };
+            _mockUnitOfWork.Setup(u => u.Event_Likes.FindAsync(It.IsAny<Func<Event_Likes, bool>>()))
+                .ReturnsAsync(new List<Event_Likes> { existingLike });
+
+            _mockUnitOfWork.Setup(u => u.Event_Likes.Delete(existingLike)).Verifiable();
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            // Act
+            var result = await _service.ToggleLikeEvent(userId, eventId);
+
+            // Assert
+            result.Should().BeFalse(); // Should indicate an unlike action
+            _mockUnitOfWork.Verify(u => u.Event_Likes.Delete(existingLike), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task CommentOnEvent_ShouldAddComment()
+        {
+            // Arrange
+            var userId = "user123";
+            var eventId = 1;
+            var commentRequest = new CommentRequestDTO { Text = "Great event!", Images = null };
+
+            var timestamp = DateTime.UtcNow;
+
+            _mockUnitOfWork.Setup(u => u.Events.FindAsync(It.IsAny<Func<Events, bool>>()))
+                .ReturnsAsync(new List<Events> { new Events { Id = eventId } });
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.AddAsync(It.IsAny<Event_Comments>()))
+                .Callback<Event_Comments>(comment => comment.CreatedAt = timestamp);
+
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Event_Comments
+                {
+                    Id = 1,
+                    EventId = eventId,
+                    UserId = userId,
+                    CommentText = "Great event!",
+                    CreatedAt = timestamp
+                });
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(new List<Users> { new Users { Id = userId, UserName = "TestUser" } });
+
+            // Act
+            var result = await _service.CommentOnEvent(userId, eventId, commentRequest);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Text.Should().Be("Great event!");
+            result.Object_id.Should().Be(eventId);
+            result.Timestamp.Should().Be(timestamp);
+            result.UserId.Should().Be(userId);
+            result.UserName.Should().Be("TestUser");
+
+            _mockUnitOfWork.Verify(u => u.Events.FindAsync(It.IsAny<Func<Events, bool>>()), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Event_Comments.AddAsync(It.IsAny<Event_Comments>()), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateEventComment_ShouldUpdateComment()
+        {
+            // Arrange
+            var userId = "user123";
+            var commentId = 1;
+            var updatedComment = new CommentRequestDTO { Text = "Updated event comment", Images = null };
+
+            var existingComment = new Event_Comments
+            {
+                Id = commentId,
+                UserId = userId,
+                EventId = 10,
+                CommentText = "Original comment",
+                Images = null
+            };
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(existingComment); // Ensure a non-null comment is returned
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.Update(It.IsAny<Event_Comments>())).Verifiable();
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            // Act
+            var result = await _service.UpdateEventComment(userId, commentId, updatedComment);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Text.Should().Be("Updated event comment");
+            result.UserId.Should().Be(userId);
+            result.Object_id.Should().Be(existingComment.EventId);
+            _mockUnitOfWork.Verify(u => u.Event_Comments.Update(It.IsAny<Event_Comments>()), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteEventComment_ShouldDeleteComment()
+        {
+            // Arrange
+            var userId = "user123";
+            var commentId = 1;
+
+            var existingComment = new Event_Comments
+            {
+                Id = commentId,
+                UserId = userId,
+                CommentText = "Comment to be deleted"
+            };
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(existingComment);
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.Delete(existingComment)).Verifiable();
+            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+
+            // Act
+            await _service.DeleteEventComment(userId, commentId);
+
+            // Assert
+            _mockUnitOfWork.Verify(u => u.Event_Comments.Delete(existingComment), Times.Once);
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task GetEventComments_ShouldReturnPaginatedComments()
+        {
+            // Arrange
+            var eventId = 1;
+            var pageNumber = 1;
+            var pageSize = 2;
+            var comments = new List<Event_Comments>
+            {
+                new Event_Comments
+                {
+                    Id = 1,
+                    EventId = eventId,
+                    CommentText = "Comment 1",
+                    UserId = "user1",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Event_Comments
+                {
+                    Id = 2,
+                    EventId = eventId,
+                    CommentText = "Comment 2",
+                    UserId = "user2",
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetPaginatedAsync(
+                It.IsAny<Expression<Func<Event_Comments, bool>>>(), pageNumber, pageSize))
+                .ReturnsAsync((comments, 8));
+
+            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+                .ReturnsAsync(new List<Users>
+                {
+                    new Users { Id = "user1", UserName = "User One" },
+                    new Users { Id = "user2", UserName = "User Two" }
+                });
+
+            // Act
+            var result = await _service.GetEventComments(eventId, pageNumber, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Count().Should().Be(2);
+            result.TotalCount.Should().Be(8);
+
+            var firstComment = result.Items.First();
+            firstComment.UserName.Should().Be("User One");
+            firstComment.UserId.Should().Be("user1");
+
+            var secondComment = result.Items.Last();
+            secondComment.UserName.Should().Be("User Two");
+            secondComment.UserId.Should().Be("user2");
+
+            _mockUnitOfWork.Verify(u => u.Event_Comments.GetPaginatedAsync(
+                It.IsAny<Expression<Func<Event_Comments, bool>>>(), pageNumber, pageSize), Times.Once);
+
+            _mockUnitOfWork.Verify(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventLikeCount_ShouldReturnCorrectCount()
+        {
+            // Arrange
+            var eventId = 1;
+            var likeCount = 5;
+
+            _mockUnitOfWork.Setup(u => u.Event_Likes.CountAsync(It.IsAny<Expression<Func<Event_Likes, bool>>>()))
+                .ReturnsAsync(likeCount);
+
+            // Act
+            var result = await _service.GetEventLikeCount(eventId);
+
+            // Assert
+            result.Should().Be(likeCount);
+            _mockUnitOfWork.Verify(u => u.Event_Likes.CountAsync(It.Is<Expression<Func<Event_Likes, bool>>>(expr => expr.Compile()(new Event_Likes { EventId = eventId }))), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventBookmarkCount_ShouldReturnCorrectCount()
+        {
+            // Arrange
+            var eventId = 1;
+            var bookmarkCount = 3;
+
+            _mockUnitOfWork.Setup(u => u.Event_Bookmarks.CountAsync(It.IsAny<Expression<Func<Event_Bookmarks, bool>>>()))
+                .ReturnsAsync(bookmarkCount);
+
+            // Act
+            var result = await _service.GetEventBookmarkCount(eventId);
+
+            // Assert
+            result.Should().Be(bookmarkCount);
+            _mockUnitOfWork.Verify(u => u.Event_Bookmarks.CountAsync(It.Is<Expression<Func<Event_Bookmarks, bool>>>(expr => expr.Compile()(new Event_Bookmarks { EventId = eventId }))), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventCommentImage_ShouldReturnImage_WhenExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var expectedImage = new byte[] { 1, 2, 3, 4, 5 };
+            var comment = new Event_Comments
+            {
+                Id = commentId,
+                Images = new byte[][] { expectedImage },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetEventCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedImage);
+            _mockUnitOfWork.Verify(u => u.Event_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEventCommentImage_ShouldReturnNull_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 2; // Invalid index
+            var comment = new Event_Comments
+            {
+                Id = commentId,
+                Images = new byte[][] { new byte[] { 1, 2, 3 } },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetEventCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Event_Comments.GetByIdAsync(commentId), Times.Once);
+        }
     }
 
 }
