@@ -119,7 +119,8 @@ namespace BackEngin.Services
                 var ingredient = new Ingredients
                 {
                     Name = model.Name,
-                    TypeId = model.TypeId
+                    TypeId = model.TypeId,
+                    Image = model.Image,
                 };
 
                 await unitOfWork.Ingredients.AddAsync(ingredient);
@@ -182,6 +183,7 @@ namespace BackEngin.Services
                 // Update the ingredient's properties
                 ingredient.Name = model.Name;
                 ingredient.TypeId = model.TypeId;
+                ingredient.Image = model.Image;
 
                 unitOfWork.Ingredients.Update(ingredient);
                 await unitOfWork.CompleteAsync();
@@ -251,6 +253,27 @@ namespace BackEngin.Services
             }
         }
 
+
+        public async Task<List<IngredientImageDTO>> GetBatchImage(List<int> ingredientIds)
+        {
+            // Fetch ingredients with the specified IDs
+            var ingredients = await unitOfWork.Ingredients.FindAsync(i => ingredientIds.Contains(i.Id));
+
+            if (!ingredients.Any())
+            {
+               throw new Exception("No ingredients found for the provided IDs.");
+            }
+
+            var images = ingredients.Select(i => new IngredientImageDTO
+            {
+                Id = i.Id,
+                Image = i.Image
+            }).ToList();
+
+            return images;
+        }
+                
+
         public async Task<PaginatedResponseDTO<IngredientIdDTO>> SearchIngredients(IngredientSearchParams searchParams, int pageNumber, int pageSize)
         {
             var query = unitOfWork.Ingredients.GetQueryable()
@@ -308,6 +331,9 @@ namespace BackEngin.Services
                 PageSize = pageSize
             };
         }
+
+
+
 
     }
 }

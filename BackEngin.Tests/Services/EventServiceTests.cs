@@ -762,6 +762,7 @@ namespace BackEngin.Tests.Services
         {
             // Arrange
             int eventId = 77;
+            string? userId = null; // Testing unauthenticated case
             int page = 1;
             int pageSize = 10;
 
@@ -779,31 +780,186 @@ namespace BackEngin.Tests.Services
                     UserId = "u2",
                     User = new Users { Id = "u2", UserName = "UserTwo" }
                 }
-            };
+            }.AsQueryable();
 
-            // The service calls:
-            // _unitOfWork.User_Event_Participations.GetPaginatedAsync(
-            //     "User", 
-            //     uep => uep.EventId == eventId,
-            //     page,
-            //     pageSize
-            // );
-            _mockUnitOfWork.Setup(u => u.User_Event_Participations.GetPaginatedAsync(
-                    It.Is<string>(s => s == "User"),
-                    It.IsAny<Expression<Func<User_Event_Participations, bool>>>(),
-                    page,
-                    pageSize
-                ))
-                .ReturnsAsync((participants, participants.Count));
+            var mockDbSet = participants.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.GetQueryable())
+                .Returns(mockDbSet.Object);
 
             // Act
-            var result = await _eventService.GetPaginatedParticipantsAsync(eventId, page, pageSize);
+            var result = await _eventService.GetPaginatedParticipantsAsync(eventId, userId, page, pageSize);
 
             // Assert
             result.Should().NotBeNull();
-            result.Items.Should().HaveCount(2);
-            result.TotalCount.Should().Be(2);
-            result.Items.First().UserName.Should().Be("UserOne");
+            result.Participations.Should().NotBeNull();
+            result.Participations.Items.Should().HaveCount(2);
+            result.Participations.TotalCount.Should().Be(2);
+            result.Participations.Items.First().UserName.Should().Be("UserOne");
+            result.FollowedParticipations.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetPaginatedParticipantsAsync_ShouldReturnFollowedUsers_WhenAuthenticated()
+        {
+            // Arrange
+            int eventId = 77;
+            string userId = "currentUser";
+            int page = 1;
+            int pageSize = 10;
+
+            // Setup participants
+            var participants = new List<User_Event_Participations>
+            {
+                new User_Event_Participations
+                {
+                    EventId = eventId,
+                    UserId = "u1",
+                    User = new Users { Id = "u1", UserName = "UserOne" }
+                },
+                new User_Event_Participations
+                {
+                    EventId = eventId,
+                    UserId = "u2",
+                    User = new Users { Id = "u2", UserName = "UserTwo" }
+                }
+            }.AsQueryable();
+
+            // Setup followed users
+            var followedUsers = new List<Users_Interactions>
+            {
+                new Users_Interactions
+                {
+                    InitiatorUserId = userId,
+                    TargetUserId = "u1",
+                    Interaction = new Interactions { Name = "Follow" }
+                }
+            }.AsQueryable();
+
+            var mockParticipantsDbSet = participants.BuildMockDbSet();
+            var mockFollowedUsersDbSet = followedUsers.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.GetQueryable())
+                .Returns(mockParticipantsDbSet.Object);
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetQueryable())
+                .Returns(mockFollowedUsersDbSet.Object);
+
+            // Act
+            var result = await _eventService.GetPaginatedParticipantsAsync(eventId, userId, page, pageSize);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Participations.Should().NotBeNull();
+            result.FollowedParticipations.Should().NotBeNull();
+            result.Participations.Items.Should().HaveCount(1); // Only non-followed user
+            result.FollowedParticipations.Items.Should().HaveCount(1); // Only followed user
+            result.FollowedParticipations.Items.First().UserId.Should().Be("u1");
+        }
+
+        [Fact]
+        public async Task GetPaginatedParticipantsAsync_ShouldReturnCorrectResponse_WhenUserNotAuthenticated()
+        {
+            // Arrange
+            int eventId = 1;
+            var participants = new List<User_Event_Participations>
+            {
+                new User_Event_Participations 
+                { 
+                    EventId = eventId,  // Add eventId to match the filter
+                    UserId = "1", 
+                    User = new Users { UserName = "user1" } 
+                },
+                new User_Event_Participations 
+                { 
+                    EventId = eventId,  // Add eventId to match the filter
+                    UserId = "2", 
+                    User = new Users { UserName = "user2" } 
+                },
+                new User_Event_Participations  // Add a participant for a different event (should not be included)
+                { 
+                    EventId = eventId + 1,
+                    UserId = "3", 
+                    User = new Users { UserName = "user3" } 
+                }
+            }.AsQueryable();
+
+            var mockDbSet = participants.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.GetQueryable())
+                .Returns(mockDbSet.Object);
+
+            // Act
+            var result = await _eventService.GetPaginatedParticipantsAsync(eventId, null, 1, 10);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Participations.Should().NotBeNull();
+            result.FollowedParticipations.Should().BeNull();
+            result.Participations.Items.Should().HaveCount(2);
+            result.Participations.Items.Should().AllSatisfy(p => 
+                p.UserName.Should().BeOneOf("user1", "user2"));
+            result.Participations.Items.Should().NotContain(p => 
+                p.UserName == "user3");
+        }
+
+        [Fact]
+        public async Task GetPaginatedParticipantsAsync_ShouldSeparateFollowedUsers_WhenUserAuthenticated()
+        {
+            // Arrange
+            int eventId = 1;
+            string userId = "currentUser";
+
+            var participants = new List<User_Event_Participations>
+            {
+                new User_Event_Participations 
+                { 
+                    EventId = eventId,  // Add event ID
+                    UserId = "1", 
+                    User = new Users { UserName = "user1" } 
+                },
+                new User_Event_Participations 
+                { 
+                    EventId = eventId,  // Add event ID
+                    UserId = "2", 
+                    User = new Users { UserName = "user2" } 
+                },
+                new User_Event_Participations  // Add a participant for a different event
+                { 
+                    EventId = eventId + 1,
+                    UserId = "3", 
+                    User = new Users { UserName = "user3" } 
+                }
+            }.AsQueryable();
+
+            var followedUsers = new List<Users_Interactions>
+            {
+                new Users_Interactions 
+                { 
+                    InitiatorUserId = userId,
+                    TargetUserId = "1",
+                    Interaction = new Interactions { Name = "Follow" }
+                }
+            }.AsQueryable();
+
+            var participantsDbSet = participants.BuildMockDbSet();
+            var followedUsersDbSet = followedUsers.BuildMockDbSet();
+
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.GetQueryable())
+                .Returns(participantsDbSet.Object);
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetQueryable())
+                .Returns(followedUsersDbSet.Object);
+
+            // Act
+            var result = await _eventService.GetPaginatedParticipantsAsync(eventId, userId, 1, 10);
+
+            // Assert
+            result.Participations.Should().NotBeNull();
+            result.FollowedParticipations.Should().NotBeNull();
+            result.Participations.Items.Should().HaveCount(1);
+            result.FollowedParticipations.Items.Should().HaveCount(1);
+            result.FollowedParticipations.Items.First().UserId.Should().Be("1");
+            result.Participations.Items.Should().AllSatisfy(p => p.UserName.Should().Be("user2"));
+            result.Participations.Items.Should().NotContain(p => p.UserName == "user3"); // Verify user from different event is not included
         }
 
         #endregion
@@ -1103,6 +1259,70 @@ namespace BackEngin.Tests.Services
         }
 
         #endregion
+
+        #region IsUserParticipantAsync Tests
+
+        [Fact]
+        public async Task IsUserParticipantAsync_ShouldReturnTrue_WhenUserIsParticipant()
+        {
+            // Arrange
+            int eventId = 77;
+            string userId = "u1";
+
+            // Mock the repository call for CountAsync instead of FindAsync
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.CountAsync(
+                    It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                        predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId }) // Ensure it matches the condition
+                    )
+                ))
+                .ReturnsAsync(1); // Return 1 to simulate the user being a participant
+
+            // Act
+            var result = await _eventService.IsUserParticipantAsync(eventId, userId);
+
+            // Assert
+            result.Should().BeTrue();
+
+            _mockUnitOfWork.Verify(u => u.User_Event_Participations.CountAsync(
+                It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                    predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId })
+                )
+            ), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task IsUserParticipantAsync_ShouldReturnFalse_WhenUserIsNotParticipant()
+        {
+            // Arrange
+            int eventId = 77;
+            string userId = "u1";
+
+            // Mock the repository call for CountAsync to return 0, meaning no participations
+            _mockUnitOfWork.Setup(u => u.User_Event_Participations.CountAsync(
+                    It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                        predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId }) // Ensure it matches the condition
+                    )
+                ))
+                .ReturnsAsync(0); // Return 0 to simulate the user not being a participant
+
+            // Act
+            var result = await _eventService.IsUserParticipantAsync(eventId, userId);
+
+            // Assert
+            result.Should().BeFalse();
+
+            _mockUnitOfWork.Verify(u => u.User_Event_Participations.CountAsync(
+                It.Is<Expression<Func<User_Event_Participations, bool>>>(predicate =>
+                    predicate.Compile().Invoke(new User_Event_Participations { EventId = eventId, UserId = userId })
+                )
+            ), Times.Once);
+        }
+
+        #endregion
+
+
+
 
         // ... Additional tests for GetAllRequirementsAsync, GetDistrictsByCityIdAsync, etc. ...
     }

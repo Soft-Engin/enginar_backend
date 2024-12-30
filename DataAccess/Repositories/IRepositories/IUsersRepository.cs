@@ -10,8 +10,10 @@ namespace DataAccess.Repositories.IRepositories
         void Update(Users obj);
 
         */
-        Task<PaginatedResponseDTO<string>> GetFollowersAsync(string userId, int page, int pageSize);
-        Task<PaginatedResponseDTO<string>> GetFollowingAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowersAsync(string userId, int page, int pageSize);
+        Task<PaginatedResponseDTO<UserCompactDTO>> GetFollowingAsync(string userId, int page, int pageSize);
+        Task<IEnumerable<UserCompactDTO>> GetAllFollowingAsync(string userId);
+        
         Task<bool> FollowUserAsync(string initiatorUserId, string targetUserId);
         Task<bool> UnfollowUserAsync(string initiatorUserId, string targetUserId);
     }

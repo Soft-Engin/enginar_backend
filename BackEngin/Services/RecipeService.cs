@@ -86,6 +86,7 @@ namespace BackEngin.Services
                 };
 
                 await _unitOfWork.Recipes_Ingredients.AddAsync(recipeIngredient);
+                await _unitOfWork.CompleteAsync();
 
                 // Add to DTO for returning details
                 ingredientDTOs.Add(new RecipeIngredientRequestDTO
@@ -409,11 +410,16 @@ namespace BackEngin.Services
                 .Take(pageSize)
                 .ToListAsync();
 
+            var users = await _unitOfWork.Users.FindAsync(u => recipes.Select(r => r.UserId).Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
                 Header = r.Header,
-                BodyText = r.BodyText
+                BodyText = r.BodyText,
+                UserId = r.UserId,
+                UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>

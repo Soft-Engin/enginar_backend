@@ -27,7 +27,7 @@ namespace BackEngin.Services
         {
             var role = await _unitOfWork.Roles.FindAsync(r => r.Name == "User");
             var roleId = role.First().Id;
-            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = roleId };
+            var user = new Users { UserName = model.UserName, Email = model.Email, RoleId = roleId, FirstName = model.FirstName, LastName = model.LastName };
             return await _userManager.CreateAsync(user, model.Password);
         }
 
@@ -78,7 +78,7 @@ namespace BackEngin.Services
         public async Task<string> GenerateJwtToken(Users user)
         {
             var role = await _unitOfWork.Roles.GetByIdAsync(user.RoleId);
-            var expirationTime = DateTime.UtcNow.AddMinutes(30); //time is hard coded bcus I'm tired
+            var expirationTime = DateTime.UtcNow.AddMinutes(60 * 24); //time is hard coded bcus I'm tired
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),

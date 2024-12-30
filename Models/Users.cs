@@ -29,5 +29,7 @@ namespace Models
 
         public byte[]? BannerImage { get; set; }
         public byte[]? ProfileImage { get; set; }
+
+        public string Bio {  get; set; }
     }
 }

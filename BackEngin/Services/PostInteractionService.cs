@@ -71,6 +71,33 @@ namespace BackEngin.Services
             }
         }
 
+        // Toggle Like for Event
+        public async Task<bool> ToggleLikeEvent(string userId, int eventId)
+        {
+            var existingLike = await _unitOfWork.Event_Likes.FindAsync(l => l.UserId == userId && l.EventId == eventId);
+
+            if (existingLike.Any())
+            {
+                // Unlike if it already exists
+                _unitOfWork.Event_Likes.Delete(existingLike.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unlike
+            }
+            else
+            {
+                // Like if it doesn't exist
+                var eventLike = new Event_Likes
+                {
+                    UserId = userId,
+                    EventId = eventId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Event_Likes.AddAsync(eventLike);
+                await _unitOfWork.CompleteAsync();
+                return true; // Like
+            }
+        }
+
         // Toggle Bookmark for Blog
         public async Task<bool> ToggleBookmarkBlog(string userId, int blogId)
         {
@@ -125,6 +152,32 @@ namespace BackEngin.Services
             }
         }
 
+        // Toggle Bookmark for Event
+        public async Task<bool> ToggleBookmarkEvent(string userId, int eventId)
+        {
+            var existingBookmark = await _unitOfWork.Event_Bookmarks.FindAsync(b => b.UserId == userId && b.EventId == eventId);
+
+            if (existingBookmark.Any())
+            {
+                // Remove bookmark if it exists
+                _unitOfWork.Event_Bookmarks.Delete(existingBookmark.First());
+                await _unitOfWork.CompleteAsync();
+                return false; // Unbookmark
+            }
+            else
+            {
+                // Add bookmark if it doesn't exist
+                var bookmark = new Event_Bookmarks
+                {
+                    UserId = userId,
+                    EventId = eventId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.Event_Bookmarks.AddAsync(bookmark);
+                await _unitOfWork.CompleteAsync();
+                return true; // bookmark
+            }
+        }
 
         // Comment on Blog
         public async Task<CommentDTO> CommentOnBlog(string userId, int blogId, CommentRequestDTO commentRequest)
@@ -151,14 +204,18 @@ namespace BackEngin.Services
 
             await _unitOfWork.Blog_Comments.AddAsync(comment);
             await _unitOfWork.CompleteAsync();
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
 
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.BlogId,
+                Object_id = comment.BlogId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -172,7 +229,7 @@ namespace BackEngin.Services
 
             if (!(await _unitOfWork.Recipes.FindAsync(r => r.Id == recipeId)).Any())
             {
-                throw new Exception("Recipe with the provided recipeId does not exits");
+                throw new Exception("Recipe with the provided recipeId does not exists");
             }
 
 
@@ -189,13 +246,57 @@ namespace BackEngin.Services
             await _unitOfWork.Recipe_Comments.AddAsync(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.RecipeId,
+                Object_id = comment.RecipeId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Timestamp = comment.CreatedAt
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+            };
+        }
+
+        // Comment on Event
+        public async Task<CommentDTO> CommentOnEvent(string userId, int eventId, CommentRequestDTO commentRequest)
+        {
+            if (commentRequest.Images.IsNullOrEmpty() && commentRequest.Text.IsNullOrEmpty())
+            {
+                throw new ArgumentException("The comment must have text or image");
+            }
+
+            if (!(await _unitOfWork.Events.FindAsync(b => b.Id == eventId)).Any())
+            {
+                throw new Exception("Event with the provided eventId does not exist");
+            }
+
+            var comment = new Event_Comments
+            {
+                UserId = userId,
+                EventId = eventId,
+                CommentText = commentRequest.Text,
+                Images = commentRequest.Images,
+                ImagesCount = commentRequest.Images?.Length ?? 0,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Event_Comments.AddAsync(comment);
+            await _unitOfWork.CompleteAsync();
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
+
+            return new CommentDTO
+            {
+                Id = comment.Id,
+                Object_id = comment.EventId,
+                Text = comment.CommentText,
+                ImagesCount = comment.ImagesCount,
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -219,13 +320,17 @@ namespace BackEngin.Services
             _unitOfWork.Blog_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Recipe_blog_id = comment.BlogId,
-                Timestamp = comment.CreatedAt
+                Object_id = comment.BlogId,
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
             };
         }
 
@@ -249,15 +354,46 @@ namespace BackEngin.Services
             _unitOfWork.Recipe_Comments.Update(comment);
             await _unitOfWork.CompleteAsync();
 
+            var user = await _unitOfWork.Users.FindAsync(u => u.Id == userId);
+
             return new CommentDTO
             {
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Recipe_blog_id = comment.RecipeId,
+                Object_id = comment.RecipeId,
+                Timestamp = comment.CreatedAt,
+                UserId = userId,
+                UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
+            };
+        }
+
+
+        // Update Event Comment
+        public async Task<CommentDTO> UpdateEventComment(string userId, int commentId, CommentRequestDTO commentRequest)
+        {
+            var comment = await _unitOfWork.Event_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.UserId != userId)
+                throw new UnauthorizedAccessException("You cannot update this comment.");
+
+            comment.CommentText = commentRequest.Text;
+            comment.CreatedAt = DateTime.UtcNow;
+            comment.Images = commentRequest.Images;
+
+            _unitOfWork.Event_Comments.Update(comment);
+            await _unitOfWork.CompleteAsync();
+
+            return new CommentDTO
+            {
+                Id = comment.Id,
+                Object_id = comment.EventId,
+                Text = comment.CommentText,
+                ImagesCount = comment.Images?.Length ?? 0,
+                UserId = comment.UserId,
                 Timestamp = comment.CreatedAt
             };
         }
+
 
         // Delete Blog Comment
         public async Task DeleteBlogComment(string userId, int commentId)
@@ -278,6 +414,17 @@ namespace BackEngin.Services
                 throw new UnauthorizedAccessException("You cannot delete this comment.");
 
             _unitOfWork.Recipe_Comments.Delete(comment);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        // Delete Event Comment
+        public async Task DeleteEventComment(string userId, int commentId)
+        {
+            var comment = await _unitOfWork.Event_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.UserId != userId)
+                throw new UnauthorizedAccessException("You cannot delete this comment.");
+
+            _unitOfWork.Event_Comments.Delete(comment);
             await _unitOfWork.CompleteAsync();
         }
 
@@ -309,6 +456,20 @@ namespace BackEngin.Services
             return existingBookmark.Any();
         }
 
+        // Check if the user has liked a event
+        public async Task<bool> IsEventLiked(string userId, int eventId)
+        {
+            var existingLike = await _unitOfWork.Event_Likes.FindAsync(l => l.UserId == userId && l.EventId == eventId);
+            return existingLike.Any();
+        }
+
+        // Check if the user has bookmarked a event
+        public async Task<bool> IsEventBookmarked(string userId, int eventId)
+        {
+            var existingBookmark = await _unitOfWork.Event_Bookmarks.FindAsync(b => b.UserId == userId && b.EventId == eventId);
+            return existingBookmark.Any();
+        }
+
         // Get the number of likes for a blog
         public async Task<int> GetBlogLikeCount(int blogId)
         {
@@ -333,6 +494,17 @@ namespace BackEngin.Services
             return await _unitOfWork.Recipe_Bookmarks.CountAsync(b => b.RecipeId == recipeId);
         }
 
+        // Get the number of likes for a event
+        public async Task<int> GetEventLikeCount(int eventId)
+        {
+            return await _unitOfWork.Event_Likes.CountAsync(l => l.EventId == eventId);
+        }
+
+        // Get the number of bookmarks for a event
+        public async Task<int> GetEventBookmarkCount(int eventId)
+        {
+            return await _unitOfWork.Event_Bookmarks.CountAsync(b => b.EventId == eventId);
+        }
 
         // Get paginated comments for a blog
         public async Task<PaginatedResponseDTO<CommentDTO>> GetBlogComments(int blogId, int pageNumber, int pageSize)
@@ -343,13 +515,20 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
-                Recipe_blog_id = c.BlogId,
+                Object_id = c.BlogId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
-                Timestamp = c.CreatedAt
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<CommentDTO>
@@ -370,13 +549,54 @@ namespace BackEngin.Services
                 pageSize: pageSize
             );
 
+            // finds user names of the recipe users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
-                Recipe_blog_id = c.RecipeId,
+                Object_id = c.RecipeId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
-                Timestamp = c.CreatedAt
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
+            }).ToList();
+
+            return new PaginatedResponseDTO<CommentDTO>
+            {
+                Items = commentDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        // Get paginated comments for a event
+        public async Task<PaginatedResponseDTO<CommentDTO>> GetEventComments(int eventId, int pageNumber, int pageSize)
+        {
+            var (comments, totalCount) = await _unitOfWork.Event_Comments.GetPaginatedAsync(
+                filter: c => c.EventId == eventId, // Filter by event ID
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            );
+
+            // finds user names of the event users
+            var userIds = comments.Select(b => b.UserId).Distinct().ToList();
+            var users = await _unitOfWork.Users.FindAsync(u => userIds.Contains(u.Id));
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
+            var commentDtos = comments.Select(c => new CommentDTO
+            {
+                Id = c.Id,
+                Object_id = c.EventId,
+                Text = c.CommentText,
+                ImagesCount = c.ImagesCount,
+                Timestamp = c.CreatedAt,
+                UserId = c.UserId,
+                UserName = userDictionary.ContainsKey(c.UserId) ? userDictionary[c.UserId] : "Unknown",
             }).ToList();
 
             return new PaginatedResponseDTO<CommentDTO>
@@ -400,6 +620,15 @@ namespace BackEngin.Services
         public async Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex)
         {
             var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
+            if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
+                return null;
+
+            return comment.Images[imageIndex];
+        }
+
+        public async Task<byte[]?> GetEventCommentImage(int commentId, int imageIndex)
+        {
+            var comment = await _unitOfWork.Event_Comments.GetByIdAsync(commentId);
             if (comment == null || comment.Images == null || imageIndex < 0 || imageIndex >= comment.ImagesCount)
                 return null;
 

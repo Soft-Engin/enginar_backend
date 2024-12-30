@@ -398,6 +398,11 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# Test Coverage files
+/BackEngin.Tests/TestResults/*
+/BackEngin.Tests/coveragereport/*
+/BackEngin.Tests/CoverageHistory
+
 # Local .terraform directories
 **/.terraform/*
 

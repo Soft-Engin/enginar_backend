@@ -505,5 +505,174 @@ namespace BackEngin.Tests.Services
             result.Items.Should().HaveCount(5);
         }
 
+        [Fact]
+        public async Task GetBatchImage_ShouldReturnIngredientImages_WhenIdsExist()
+        {
+            // Arrange
+            var ingredientIds = new List<int> { 1, 2 };
+            var ingredients = new List<Ingredients>
+            {
+                new Ingredients { Id = 1, Image = new byte[] { 1, 2, 3 } },
+                new Ingredients { Id = 2, Image = new byte[] { 4, 5, 6 } }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(ingredients);
+
+            // Act
+            var result = await _ingredientsService.GetBatchImage(ingredientIds);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(2);
+            result.First().Id.Should().Be(1);
+            result.First().Image.Should().BeEquivalentTo(new byte[] { 1, 2, 3 });
+        }
+
+        [Fact]
+        public async Task GetBatchImage_ShouldThrowException_WhenNoIngredientsFound()
+        {
+            // Arrange
+            var ingredientIds = new List<int> { 99 }; // Non-existing IDs
+
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(new List<Ingredients>());
+
+            // Act
+            Func<Task> action = async () => await _ingredientsService.GetBatchImage(ingredientIds);
+
+            // Assert
+            await action.Should().ThrowAsync<Exception>()
+                        .WithMessage("No ingredients found for the provided IDs.");
+        }
+
+        [Fact]
+        public async Task GetBatchImage_ShouldReturnEmptyImages_WhenIngredientsExistWithoutImages()
+        {
+            // Arrange
+            var ingredientIds = new List<int> { 1, 2 };
+            var ingredients = new List<Ingredients>
+            {
+                new Ingredients { Id = 1, Image = null },
+                new Ingredients { Id = 2, Image = null }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Ingredients.FindAsync(It.IsAny<Func<Ingredients, bool>>()))
+                           .ReturnsAsync(ingredients);
+
+            // Act
+            var result = await _ingredientsService.GetBatchImage(ingredientIds);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(2);
+            result.All(r => r.Image == null).Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task CreateIngredientAsync_ShouldSaveImage_WhenImageProvided()
+        {
+            // Arrange
+            var ingredientDto = new IngredientDTO
+            {
+                Name = "Sugar",
+                TypeId = 1,
+                AllergenIds = new List<int> { 2 },
+                Image = new byte[] { 1, 2, 3, 4 } // Mock image data
+            };
+
+            var existingAllergens = new List<Preferences>
+    {
+        new Preferences { Id = 2, Name = "Lactose" }
+    };
+
+            // Mock the Preferences repository to return existing allergens
+            _mockPreferencesRepository.Setup(u => u.GetAllAsync())
+                                     .ReturnsAsync(existingAllergens);
+
+            // Mock the Ingredients repository's AddAsync method
+            _mockIngredientsRepository.Setup(u => u.AddAsync(It.IsAny<Ingredients>()))
+                                     .Callback<Ingredients>(ing => ing.Id = 3) // Simulate DB-generated Id
+                                     .Returns(Task.CompletedTask)
+                                     .Verifiable();
+
+            // Mock the Ingredients_Preferences repository's AddAsync method
+            _mockIngredientsPreferencesRepository.Setup(u => u.AddAsync(It.IsAny<Ingredients_Preferences>()))
+                                                .Returns(Task.CompletedTask)
+                                                .Verifiable();
+
+            // Mock the UnitOfWork's CompleteAsync method to return 1 (indicating success)
+            _mockUnitOfWork.Setup(u => u.CompleteAsync())
+                           .ReturnsAsync(1)
+                           .Verifiable();
+
+            // Act
+            var result = await _ingredientsService.CreateIngredientAsync(ingredientDto);
+
+            // Assert
+            result.Should().Be(3); // Expected to be the assigned Id
+
+            // Verify that the ingredient image was saved correctly
+            _mockIngredientsRepository.Verify(u => u.AddAsync(It.Is<Ingredients>(ing => ing.Image.SequenceEqual(ingredientDto.Image))), Times.Once);
+
+            // Verify that AddAsync was called once for Ingredients_Preferences
+            _mockIngredientsPreferencesRepository.Verify(u => u.AddAsync(It.IsAny<Ingredients_Preferences>()), Times.Once);
+
+            // Verify that CompleteAsync was called twice
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Exactly(2));
+        }
+
+        [Fact]
+        public async Task UpdateIngredientAsync_ShouldUpdateImage_WhenImageProvided()
+        {
+            // Arrange
+            var ingredientId = 3;
+            var updateDto = new IngredientDTO
+            {
+                Name = "Updated Sugar",
+                TypeId = 2,
+                AllergenIds = new List<int> { 1 },
+                Image = new byte[] { 5, 6, 7, 8 } // New image data
+            };
+
+            var existingIngredient = new Ingredients
+            {
+                Id = ingredientId,
+                Name = "Sugar",
+                TypeId = 1,
+                Image = new byte[] { 1, 2, 3, 4 }
+            };
+
+            var existingAllergens = new List<Preferences>
+            {
+                new Preferences { Id = 1, Name = "Gluten" }
+            };
+
+            _mockIngredientsRepository.Setup(u => u.GetByIdAsync(ingredientId))
+                                      .ReturnsAsync(existingIngredient);
+
+            _mockPreferencesRepository.Setup(u => u.GetAllAsync())
+                                      .ReturnsAsync(existingAllergens);
+
+            _mockUnitOfWork.Setup(u => u.CompleteAsync())
+                           .ReturnsAsync(1)
+                           .Verifiable();
+
+            // Act
+            var result = await _ingredientsService.UpdateIngredientAsync(ingredientId, updateDto);
+
+            // Assert
+            result.Should().BeTrue(); // Indicates success
+
+            // Verify the ingredient was updated with the new image
+            _mockIngredientsRepository.Verify(u => u.Update(It.Is<Ingredients>(ing =>
+                ing.Id == ingredientId &&
+                ing.Image.SequenceEqual(updateDto.Image) &&
+                ing.Name == updateDto.Name &&
+                ing.TypeId == updateDto.TypeId)), Times.Once);
+
+            // Verify that CompleteAsync was called once
+            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Exactly(2));
+        }
     }
 }
