@@ -107,7 +107,7 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Text.Should().Be("Great blog!");
-            result.Recipe_blog_id.Should().Be(blogId);
+            result.Object_id.Should().Be(blogId);
             result.Timestamp.Should().Be(timestamp);
             result.UserId.Should().Be(userId);
             result.UserName.Should().Be("TestUser");
@@ -676,7 +676,7 @@ namespace BackEngin.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result.Text.Should().Be("Great event!");
-            result.Recipe_blog_id.Should().Be(eventId);
+            result.Object_id.Should().Be(eventId);
             result.Timestamp.Should().Be(timestamp);
             result.UserId.Should().Be(userId);
             result.UserName.Should().Be("TestUser");
@@ -716,7 +716,7 @@ namespace BackEngin.Tests.Services
             result.Should().NotBeNull();
             result.Text.Should().Be("Updated event comment");
             result.UserId.Should().Be(userId);
-            result.Recipe_blog_id.Should().Be(existingComment.EventId);
+            result.Object_id.Should().Be(existingComment.EventId);
             _mockUnitOfWork.Verify(u => u.Event_Comments.Update(It.IsAny<Event_Comments>()), Times.Once);
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
         }

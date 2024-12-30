@@ -115,7 +115,7 @@ namespace BackEngin.Tests.Controllers
             var commentResponse = new CommentDTO
             {
                 Id = 1,
-                Recipe_blog_id = blogId,
+                Object_id = blogId,
                 Text = "Great blog!",
                 Timestamp = DateTime.UtcNow
             };
@@ -141,7 +141,7 @@ namespace BackEngin.Tests.Controllers
             var updatedCommentResponse = new CommentDTO
             {
                 Id = commentId,
-                Recipe_blog_id = 1,
+                Object_id = 1,
                 Text = "Updated comment",
                 Timestamp = DateTime.UtcNow
             };
@@ -263,8 +263,8 @@ namespace BackEngin.Tests.Controllers
             {
                 Items = new List<CommentDTO>
         {
-            new CommentDTO { Id = 1, Recipe_blog_id = blogId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
-            new CommentDTO { Id = 2, Recipe_blog_id = blogId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
+            new CommentDTO { Id = 1, Object_id = blogId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
+            new CommentDTO { Id = 2, Object_id = blogId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
         },
                 TotalCount = 20,
                 PageNumber = pageNumber,
@@ -294,8 +294,8 @@ namespace BackEngin.Tests.Controllers
             {
                 Items = new List<CommentDTO>
         {
-            new CommentDTO { Id = 1, Recipe_blog_id = recipeId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
-            new CommentDTO { Id = 2, Recipe_blog_id = recipeId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
+            new CommentDTO { Id = 1, Object_id = recipeId, Text = "Comment 1", Timestamp = DateTime.UtcNow },
+            new CommentDTO { Id = 2, Object_id = recipeId, Text = "Comment 2", Timestamp = DateTime.UtcNow }
         },
                 TotalCount = 15,
                 PageNumber = pageNumber,
@@ -765,7 +765,7 @@ namespace BackEngin.Tests.Controllers
             var commentResponse = new CommentDTO
             {
                 Id = 1,
-                Recipe_blog_id = eventId,
+                Object_id = eventId,
                 Text = "Great event!",
                 Timestamp = DateTime.UtcNow
             };
@@ -791,7 +791,7 @@ namespace BackEngin.Tests.Controllers
             var updatedCommentResponse = new CommentDTO
             {
                 Id = commentId,
-                Recipe_blog_id = 1,
+                Object_id = 1,
                 Text = "Updated event comment",
                 Timestamp = DateTime.UtcNow
             };

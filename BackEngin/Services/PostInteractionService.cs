@@ -210,7 +210,7 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.BlogId,
+                Object_id = comment.BlogId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
                 Timestamp = comment.CreatedAt,
@@ -251,7 +251,7 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.RecipeId,
+                Object_id = comment.RecipeId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
                 Timestamp = comment.CreatedAt,
@@ -291,7 +291,7 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.EventId,
+                Object_id = comment.EventId,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
                 Timestamp = comment.CreatedAt,
@@ -327,7 +327,7 @@ namespace BackEngin.Services
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Recipe_blog_id = comment.BlogId,
+                Object_id = comment.BlogId,
                 Timestamp = comment.CreatedAt,
                 UserId = userId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
@@ -361,7 +361,7 @@ namespace BackEngin.Services
                 Id = comment.Id,
                 Text = comment.CommentText,
                 ImagesCount = comment.ImagesCount,
-                Recipe_blog_id = comment.RecipeId,
+                Object_id = comment.RecipeId,
                 Timestamp = comment.CreatedAt,
                 UserId = userId,
                 UserName = user.FirstOrDefault()?.UserName ?? "Unknown",
@@ -386,7 +386,7 @@ namespace BackEngin.Services
             return new CommentDTO
             {
                 Id = comment.Id,
-                Recipe_blog_id = comment.EventId,
+                Object_id = comment.EventId,
                 Text = comment.CommentText,
                 ImagesCount = comment.Images?.Length ?? 0,
                 UserId = comment.UserId,
@@ -523,7 +523,7 @@ namespace BackEngin.Services
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
-                Recipe_blog_id = c.BlogId,
+                Object_id = c.BlogId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
                 Timestamp = c.CreatedAt,
@@ -557,7 +557,7 @@ namespace BackEngin.Services
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
-                Recipe_blog_id = c.RecipeId,
+                Object_id = c.RecipeId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
                 Timestamp = c.CreatedAt,
@@ -591,7 +591,7 @@ namespace BackEngin.Services
             var commentDtos = comments.Select(c => new CommentDTO
             {
                 Id = c.Id,
-                Recipe_blog_id = c.EventId,
+                Object_id = c.EventId,
                 Text = c.CommentText,
                 ImagesCount = c.ImagesCount,
                 Timestamp = c.CreatedAt,
