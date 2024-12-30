@@ -97,6 +97,7 @@ jobs:
       id: docker_tags
       run: |
         VERSION="${GITHUB_REF##*/}"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
     - name: Build and push
       uses: docker/build-push-action@v6

@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.aws_region
+  region = var.aws_region
 }
 
 
@@ -31,5 +31,5 @@ module "ec2_instance" {
   key_name                    = "enginar-key"
   vpc_security_group_ids      = [aws_security_group.allow_access.id]
   associate_public_ip_address = true
-  monitoring = true
+  monitoring                  = true
 }
