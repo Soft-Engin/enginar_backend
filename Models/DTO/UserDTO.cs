@@ -83,6 +83,7 @@ namespace Models.DTO
 
     public class BookmarkRecipesItemDTO
     {
+        public int RecipeId { get; set; }
         public string UserName { get; set; }
 
         public string UserId { get; set; }
@@ -93,6 +94,7 @@ namespace Models.DTO
 
     public class BookmarkBlogsItemDTO
     {
+        public int BlogId { get; set; }
         public string UserName { get; set; }
         public string UserId { get; set; }
         public string Header { get; set; }
@@ -101,6 +103,7 @@ namespace Models.DTO
 
     public class LikedBlogsItemDTO
     {
+        public int BlogId { get; set; }
         public string UserName { get; set; }
         public string UserId { get; set; }
         public string Header { get; set; }
@@ -109,6 +112,7 @@ namespace Models.DTO
 
     public class LikedRecipesItemDTO
     {
+        public int RecipeId { get; set; }
         public string UserName { get; set; }
         public string UserId { get; set; }
         public string Header { get; set; }

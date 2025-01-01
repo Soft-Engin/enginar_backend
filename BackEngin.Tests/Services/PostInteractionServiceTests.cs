@@ -592,6 +592,95 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
         }
 
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenCommentNotFound()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync((Recipe_Comments)null);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenImageIndexInvalid()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 5; // Invalid index
+            var comment = new Recipe_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { new byte[] { 1, 2, 3 } },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenImagesNull()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var comment = new Recipe_Comments 
+            { 
+                Id = commentId, 
+                Images = null,
+                ImagesCount = 0
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRecipeCommentImage_ShouldReturnNull_WhenNegativeIndex()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = -1; // Negative index
+            var comment = new Recipe_Comments 
+            { 
+                Id = commentId, 
+                Images = new byte[][] { new byte[] { 1, 2, 3 } },
+                ImagesCount = 1
+            };
+
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+
+            // Act
+            var result = await _service.GetRecipeCommentImage(commentId, imageIndex);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
 
         // TESTS FOR EVENTS INTERACTIONS
         [Fact]
