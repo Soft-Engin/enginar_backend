@@ -617,7 +617,7 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync(imageData);
 
             // Act
-            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
 
             // Assert
             var fileResult = result.Should().BeOfType<FileContentResult>().Which;
@@ -633,15 +633,13 @@ namespace BackEngin.Tests.Controllers
             var imageIndex = 0;
             _mockInteractionService.Setup(s => s.GetBlogCommentImage(commentId, imageIndex))
                 .ReturnsAsync((byte[])null);
-            _mockInteractionService.Setup(s => s.GetRecipeCommentImage(commentId, imageIndex))
-                .ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetBlogCommentImage(commentId, imageIndex);
 
             // Assert
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
-            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for blog comment {commentId}." });
         }
 
         [Fact]
@@ -658,7 +656,7 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync(imageData);
 
             // Act
-            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
 
             // Assert
             var fileResult = result.Should().BeOfType<FileContentResult>().Which;
@@ -678,11 +676,11 @@ namespace BackEngin.Tests.Controllers
                 .ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _postInteractionController.GetCommentImage(commentId, imageIndex);
+            var result = await _postInteractionController.GetRecipeCommentImage(commentId, imageIndex);
 
             // Assert
             var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
-            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for comment {commentId}." });
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for recipe comment {commentId}." });
         }
 
 
@@ -860,6 +858,43 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(new { bookmarkCount });
+        }
+
+        [Fact]
+        public async Task GetEventCommentImage_ShouldReturnFileResult_WhenImageExists()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            var imageData = new byte[] { 1, 2, 3, 4, 5 };
+
+            _mockInteractionService.Setup(s => s.GetEventCommentImage(commentId, imageIndex))
+                .ReturnsAsync(imageData);
+
+            // Act
+            var result = await _postInteractionController.GetEventCommentImage(commentId, imageIndex);
+
+            // Assert
+            var fileResult = result.Should().BeOfType<FileContentResult>().Which;
+            fileResult.FileContents.Should().BeEquivalentTo(imageData);
+            fileResult.ContentType.Should().Be("image/jpeg");
+        }
+
+        [Fact]
+        public async Task GetEventCommentImage_ShouldReturnNotFound_WhenImageDoesNotExist()
+        {
+            // Arrange
+            var commentId = 1;
+            var imageIndex = 0;
+            _mockInteractionService.Setup(s => s.GetEventCommentImage(commentId, imageIndex))
+                .ReturnsAsync((byte[])null);
+
+            // Act
+            var result = await _postInteractionController.GetEventCommentImage(commentId, imageIndex);
+
+            // Assert
+            var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Which;
+            notFoundResult.Value.Should().BeEquivalentTo(new { message = $"Image {imageIndex} not found for event comment {commentId}." });
         }
     }
 
