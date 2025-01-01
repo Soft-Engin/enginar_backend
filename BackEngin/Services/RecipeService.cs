@@ -382,7 +382,8 @@ namespace BackEngin.Services
 
                 if (searchParams.IngredientIds.Any())
                 {
-                    query = query.Where(r => r.Recipes_Ingredients.Any(ri => searchParams.IngredientIds.Contains(ri.IngredientId)));
+                    query = query.Where(r => searchParams.IngredientIds.All(searchId => 
+                        r.Recipes_Ingredients.Any(ri => ri.IngredientId == searchId)));
                 }
 
                 if (searchParams.AllergenIds.Any())
