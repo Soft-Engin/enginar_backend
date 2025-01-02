@@ -5,6 +5,7 @@ using System.Security.Claims;
 using BackEngin.Services.Interfaces;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using BackEngin.Services;
 
 namespace BackEngin.Controllers
 {
@@ -243,7 +244,14 @@ namespace BackEngin.Controllers
         {
             try
             {
+                var objUserId = _interactionService.GetOwner(commentId, ObjectType.BlogComment);
+                if (!await CanUserAccess(objUserId))
+                {
+                    return Unauthorized(new { message = "You are not authorized to delete this event." });
+                }
+
                 string userId = await GetActiveUserId();
+
                 await _interactionService.DeleteBlogComment(userId, commentId);
                 return Ok(new { message = "Blog comment deleted successfully." });
             }
@@ -260,6 +268,12 @@ namespace BackEngin.Controllers
         {
             try
             {
+                var objUserId = _interactionService.GetOwner(commentId, ObjectType.EventComment);
+                if (!await CanUserAccess(objUserId))
+                {
+                    return Unauthorized(new { message = "You are not authorized to delete this event." });
+                }
+
                 string userId = await GetActiveUserId();
                 await _interactionService.DeleteEventComment(userId, commentId);
                 return Ok(new { message = "Event comment deleted successfully." });
@@ -277,6 +291,12 @@ namespace BackEngin.Controllers
         {
             try
             {
+                var objUserId = _interactionService.GetOwner(commentId, ObjectType.RecipeComment);
+                if (!await CanUserAccess(objUserId))
+                {
+                    return Unauthorized(new { message = "You are not authorized to delete this event." });
+                }
+
                 string userId = await GetActiveUserId();
                 await _interactionService.DeleteRecipeComment(userId, commentId);
                 return Ok(new { message = "Recipe comment deleted successfully." });

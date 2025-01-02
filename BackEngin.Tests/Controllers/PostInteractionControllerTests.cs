@@ -7,6 +7,7 @@ using Moq;
 using Models.DTO;
 using System.Security.Claims;
 using Xunit;
+using BackEngin.Services;
 
 
 namespace BackEngin.Tests.Controllers
@@ -159,12 +160,61 @@ namespace BackEngin.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteRecipeComment_ShouldReturnOk_WhenDeleted()
+        public async Task DeleteEventComment_ShouldReturnOk_WhenAuthorizedAndDeleted()
         {
             // Arrange
             var commentId = 1;
-            _mockInteractionService.Setup(s => s.DeleteRecipeComment("currentUserId", commentId))
-                                   .Verifiable();
+            var userId = "currentUserId";
+
+            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.EventComment))
+                .Returns(userId);
+
+            _mockInteractionService.Setup(s => s.DeleteEventComment(userId, commentId))
+                .Verifiable();
+
+            // Act
+            var result = await _postInteractionController.DeleteEventComment(commentId);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(new { message = "Event comment deleted successfully." });
+            _mockInteractionService.Verify(s => s.DeleteEventComment(userId, commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteEventComment_ShouldReturnUnauthorized_WhenNotOwner()
+        {
+            // Arrange
+            var commentId = 1;
+            var userId = "currentUserId";
+            var differentUserId = "differentUserId";
+
+            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.EventComment))
+                .Returns(differentUserId);
+
+            // Act
+            var result = await _postInteractionController.DeleteEventComment(commentId);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+            unauthorizedResult.Value.Should().BeEquivalentTo(new { message = "You are not authorized to delete this event." });
+            _mockInteractionService.Verify(s => s.DeleteEventComment(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteRecipeComment_ShouldReturnOk_WhenAuthorizedAndDeleted()
+        {
+            // Arrange
+            var commentId = 1;
+            var userId = "currentUserId";
+
+            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.RecipeComment))
+                .Returns(userId);
+
+            _mockInteractionService.Setup(s => s.DeleteRecipeComment(userId, commentId))
+                .Verifiable();
 
             // Act
             var result = await _postInteractionController.DeleteRecipeComment(commentId);
@@ -173,7 +223,28 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(new { message = "Recipe comment deleted successfully." });
-            _mockInteractionService.Verify(s => s.DeleteRecipeComment("currentUserId", commentId), Times.Once);
+            _mockInteractionService.Verify(s => s.DeleteRecipeComment(userId, commentId), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteRecipeComment_ShouldReturnUnauthorized_WhenNotOwner()
+        {
+            // Arrange
+            var commentId = 1;
+            var userId = "currentUserId";
+            var differentUserId = "differentUserId";
+
+            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.RecipeComment))
+                .Returns(differentUserId);
+
+            // Act
+            var result = await _postInteractionController.DeleteRecipeComment(commentId);
+
+            // Assert
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+            unauthorizedResult.Value.Should().BeEquivalentTo(new { message = "You are not authorized to delete this event." });
+            _mockInteractionService.Verify(s => s.DeleteRecipeComment(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
         }
 
         [Fact]
@@ -806,23 +877,6 @@ namespace BackEngin.Tests.Controllers
             okResult.Value.Should().BeEquivalentTo(updatedCommentResponse);
         }
 
-        [Fact]
-        public async Task DeleteEventComment_ShouldReturnOk_WhenDeleted()
-        {
-            // Arrange
-            var commentId = 1;
-            _mockInteractionService.Setup(s => s.DeleteEventComment("currentUserId", commentId))
-                                   .Verifiable();
-
-            // Act
-            var result = await _postInteractionController.DeleteEventComment(commentId);
-
-            // Assert
-            result.Should().BeOfType<OkObjectResult>();
-            var okResult = result as OkObjectResult;
-            okResult.Value.Should().BeEquivalentTo(new { message = "Event comment deleted successfully." });
-            _mockInteractionService.Verify(s => s.DeleteEventComment("currentUserId", commentId), Times.Once);
-        }
 
         [Fact]
         public async Task GetEventLikeCount_ShouldReturnOk_WithLikeCount()

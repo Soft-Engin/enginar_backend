@@ -983,6 +983,188 @@ namespace BackEngin.Tests.Services
             result.Should().BeNull();
             _mockUnitOfWork.Verify(u => u.Event_Comments.GetByIdAsync(commentId), Times.Once);
         }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnBlogUserId()
+        {
+            // Arrange
+            var blogId = 1;
+            var expectedUserId = "user123";
+            var blog = new Blogs { Id = blogId, UserId = expectedUserId };
+        
+            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId))
+                .ReturnsAsync(blog);
+        
+            // Act
+            var result = _service.GetOwner(blogId, ObjectType.Blog);
+        
+            // Assert
+            result.Should().Be(expectedUserId);
+            _mockUnitOfWork.Verify(u => u.Blogs.GetByIdAsync(blogId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnRecipeUserId()
+        {
+            // Arrange
+            var recipeId = 1;
+            var expectedUserId = "user123";
+            var recipe = new Recipes { Id = recipeId, UserId = expectedUserId };
+        
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync(recipe);
+        
+            // Act
+            var result = _service.GetOwner(recipeId, ObjectType.Recipe);
+        
+            // Assert
+            result.Should().Be(expectedUserId);
+            _mockUnitOfWork.Verify(u => u.Recipes.GetByIdAsync(recipeId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnEventCreatorId()
+        {
+            // Arrange
+            var eventId = 1;
+            var expectedCreatorId = "user123";
+            var eventObj = new Events { Id = eventId, CreatorId = expectedCreatorId };
+        
+            _mockUnitOfWork.Setup(u => u.Events.GetByIdAsync(eventId))
+                .ReturnsAsync(eventObj);
+        
+            // Act
+            var result = _service.GetOwner(eventId, ObjectType.Event);
+        
+            // Assert
+            result.Should().Be(expectedCreatorId);
+            _mockUnitOfWork.Verify(u => u.Events.GetByIdAsync(eventId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnBlogCommentUserId()
+        {
+            // Arrange
+            var commentId = 1;
+            var expectedUserId = "user123";
+            var comment = new Blog_Comments { Id = commentId, UserId = expectedUserId };
+        
+            _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+        
+            // Act
+            var result = _service.GetOwner(commentId, ObjectType.BlogComment);
+        
+            // Assert
+            result.Should().Be(expectedUserId);
+            _mockUnitOfWork.Verify(u => u.Blog_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnRecipeCommentUserId()
+        {
+            // Arrange
+            var commentId = 1;
+            var expectedUserId = "user123";
+            var comment = new Recipe_Comments { Id = commentId, UserId = expectedUserId };
+        
+            _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+        
+            // Act
+            var result = _service.GetOwner(commentId, ObjectType.RecipeComment);
+        
+            // Assert
+            result.Should().Be(expectedUserId);
+            _mockUnitOfWork.Verify(u => u.Recipe_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldReturnEventCommentUserId()
+        {
+            // Arrange
+            var commentId = 1;
+            var expectedUserId = "user123";
+            var comment = new Event_Comments { Id = commentId, UserId = expectedUserId };
+        
+            _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                .ReturnsAsync(comment);
+        
+            // Act
+            var result = _service.GetOwner(commentId, ObjectType.EventComment);
+        
+            // Assert
+            result.Should().Be(expectedUserId);
+            _mockUnitOfWork.Verify(u => u.Event_Comments.GetByIdAsync(commentId), Times.Once);
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldThrowException_WhenBlogNotFound()
+        {
+            // Arrange
+            var blogId = 999;
+            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId))
+                .ReturnsAsync((Blogs)null);
+        
+            // Act & Assert
+            Assert.Throws<Exception>(() => _service.GetOwner(blogId, ObjectType.Blog))
+                .Message.Should().Be("Blog with the provided blogId does not exist");
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldThrowException_WhenRecipeNotFound()
+        {
+            // Arrange
+            var recipeId = 999;
+            _mockUnitOfWork.Setup(u => u.Recipes.GetByIdAsync(recipeId))
+                .ReturnsAsync((Recipes)null);
+        
+            // Act & Assert
+            Assert.Throws<Exception>(() => _service.GetOwner(recipeId, ObjectType.Recipe))
+                .Message.Should().Be("Recipe with the provided recipeId does not exist");
+        }
+        
+        [Fact]
+        public void GetOwner_ShouldThrowException_WhenEventNotFound()
+        {
+            // Arrange
+            var eventId = 999;
+            _mockUnitOfWork.Setup(u => u.Events.GetByIdAsync(eventId))
+                .ReturnsAsync((Events)null);
+        
+            // Act & Assert
+            Assert.Throws<Exception>(() => _service.GetOwner(eventId, ObjectType.Event))
+                .Message.Should().Be("Event with the provided eventId does not exist");
+        }
+        
+        [Theory]
+        [InlineData(ObjectType.BlogComment, "Blog comment")]
+        [InlineData(ObjectType.RecipeComment, "Recipe comment")]
+        [InlineData(ObjectType.EventComment, "Event comment")]
+        public void GetOwner_ShouldThrowException_WhenCommentNotFound(ObjectType objectType, string objectName)
+        {
+            // Arrange
+            var commentId = 999;
+            switch (objectType)
+            {
+                case ObjectType.BlogComment:
+                    _mockUnitOfWork.Setup(u => u.Blog_Comments.GetByIdAsync(commentId))
+                        .ReturnsAsync((Blog_Comments)null);
+                    break;
+                case ObjectType.RecipeComment:
+                    _mockUnitOfWork.Setup(u => u.Recipe_Comments.GetByIdAsync(commentId))
+                        .ReturnsAsync((Recipe_Comments)null);
+                    break;
+                case ObjectType.EventComment:
+                    _mockUnitOfWork.Setup(u => u.Event_Comments.GetByIdAsync(commentId))
+                        .ReturnsAsync((Event_Comments)null);
+                    break;
+            }
+        
+            // Act & Assert
+            Assert.Throws<Exception>(() => _service.GetOwner(commentId, objectType))
+                .Message.Should().Be($"{objectName} with the provided commentId does not exist");
+        }
     }
 
 }
