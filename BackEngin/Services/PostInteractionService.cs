@@ -5,6 +5,7 @@ using BackEngin.Services.Interfaces;
 using Models.DTO;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace BackEngin.Services
 {
@@ -399,7 +400,7 @@ namespace BackEngin.Services
         public async Task DeleteBlogComment(string userId, int commentId)
         {
             var comment = await _unitOfWork.Blog_Comments.GetByIdAsync(commentId);
-            if (comment == null || comment.UserId != userId)
+            if (comment == null)
                 throw new UnauthorizedAccessException("You cannot delete this comment.");
 
             _unitOfWork.Blog_Comments.Delete(comment);
@@ -410,7 +411,7 @@ namespace BackEngin.Services
         public async Task DeleteRecipeComment(string userId, int commentId)
         {
             var comment = await _unitOfWork.Recipe_Comments.GetByIdAsync(commentId);
-            if (comment == null || comment.UserId != userId)
+            if (comment == null)
                 throw new UnauthorizedAccessException("You cannot delete this comment.");
 
             _unitOfWork.Recipe_Comments.Delete(comment);
@@ -421,7 +422,7 @@ namespace BackEngin.Services
         public async Task DeleteEventComment(string userId, int commentId)
         {
             var comment = await _unitOfWork.Event_Comments.GetByIdAsync(commentId);
-            if (comment == null || comment.UserId != userId)
+            if (comment == null)
                 throw new UnauthorizedAccessException("You cannot delete this comment.");
 
             _unitOfWork.Event_Comments.Delete(comment);
@@ -635,6 +636,82 @@ namespace BackEngin.Services
             return comment.Images[imageIndex];
         }
 
+        public async Task<string> GetOwnerId(int objId, ObjectType type)
+        {
+            switch (type)
+            {
+                case ObjectType.Blog:
+                    var obj = await _unitOfWork.Blogs.GetByIdAsync(objId);
+                    if (obj == null)
+                        throw new Exception("Blog with the provided blogId does not exist");
+                    return GetOwnerId(obj);
+                case ObjectType.Recipe:
+                    var obj1 = await _unitOfWork.Recipes.GetByIdAsync(objId);
+                    if (obj1 == null)
+                        throw new Exception("Recipe with the provided recipeId does not exist");
+                    return GetOwnerId(obj1);
+                case ObjectType.Event:
+                    var obj2 = await _unitOfWork.Events.GetByIdAsync(objId);
+                    if (obj2 == null)
+                        throw new Exception("Event with the provided eventId does not exist");
+                    return GetOwnerId(obj2);
+                case ObjectType.BlogComment:
+                    var obj3 = await _unitOfWork.Blog_Comments.GetByIdAsync(objId);
+                    if (obj3 == null)
+                        throw new Exception("Blog comment with the provided commentId does not exist");
+                    return GetOwnerId(obj3);
+                case ObjectType.RecipeComment:
+                    var obj4 = await _unitOfWork.Recipe_Comments.GetByIdAsync(objId);
+                    if (obj4 == null)
+                        throw new Exception("Recipe comment with the provided commentId does not exist");
+                    return GetOwnerId(obj4);
+                case ObjectType.EventComment:
+                    var obj5 = await _unitOfWork.Event_Comments.GetByIdAsync(objId);
+                    if (obj5 == null)
+                        throw new Exception("Event comment with the provided commentId does not exist");
+                    return GetOwnerId(obj5);
+                default:
+                    throw new Exception("Unsupported object type in GetOwnerId");
+
+            }
+        }
+
+        public string GetOwnerId(Events obj)
+        {
+            return obj.CreatorId;
+        }
+        public string GetOwnerId(Blogs obj)
+        {
+            return obj.UserId;
+        }
+        public string GetOwnerId(Recipes obj)
+        {
+            return obj.UserId;
+        }
+        public string GetOwnerId(Recipe_Comments obj)
+        {
+            return obj.UserId;
+        }
+        public string GetOwnerId(Blog_Comments obj)
+        {
+            return obj.UserId;
+
+        }
+        public string GetOwnerId(Event_Comments obj)
+        {
+            return obj.UserId;
+        }
+
+
+    }
+    public enum ObjectType
+    {
+        Blog,
+        Recipe,
+        Event,
+        BlogComment,
+        RecipeComment,
+        EventComment
     }
 
 }
