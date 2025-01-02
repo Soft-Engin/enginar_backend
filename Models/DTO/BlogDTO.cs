@@ -47,7 +47,7 @@ namespace Models.DTO
         public string BodyText { get; set; }
         public int? RecipeId { get; set; } // To associate or disassociate a recipe
         public byte[]? BannerImage { get; set; }
-        public RecipeRequestDTO Recipe { get; set; } // For updating or creating a recipe
+        public RecipeRequestDTO? Recipe { get; set; } // For updating or creating a recipe
     }
 
 }
