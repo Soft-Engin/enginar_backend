@@ -1,4 +1,6 @@
-﻿using Models.DTO;
+﻿using Models;
+using Models.DTO;
+using Models.InteractionModels;
 
 
 namespace BackEngin.Services.Interfaces
@@ -55,5 +57,7 @@ namespace BackEngin.Services.Interfaces
         Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex);
         Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex);
         Task<byte[]?> GetEventCommentImage(int commentId, int imageIndex);
+        Task<string> GetOwnerId(int objId, ObjectType type);
+
     }
 }
