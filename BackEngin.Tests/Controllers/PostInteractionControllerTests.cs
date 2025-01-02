@@ -166,8 +166,8 @@ namespace BackEngin.Tests.Controllers
             var commentId = 1;
             var userId = "currentUserId";
 
-            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.EventComment))
-                .Returns(userId);
+            _mockInteractionService.Setup(s => s.GetOwnerId(commentId, ObjectType.EventComment))
+                .ReturnsAsync(userId);
 
             _mockInteractionService.Setup(s => s.DeleteEventComment(userId, commentId))
                 .Verifiable();
@@ -190,8 +190,8 @@ namespace BackEngin.Tests.Controllers
             var userId = "currentUserId";
             var differentUserId = "differentUserId";
 
-            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.EventComment))
-                .Returns(differentUserId);
+            _mockInteractionService.Setup(s => s.GetOwnerId(commentId, ObjectType.EventComment))
+                .ReturnsAsync(differentUserId);
 
             // Act
             var result = await _postInteractionController.DeleteEventComment(commentId);
@@ -210,8 +210,8 @@ namespace BackEngin.Tests.Controllers
             var commentId = 1;
             var userId = "currentUserId";
 
-            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.RecipeComment))
-                .Returns(userId);
+            _mockInteractionService.Setup(s => s.GetOwnerId(commentId, ObjectType.RecipeComment))
+                .ReturnsAsync(userId);
 
             _mockInteractionService.Setup(s => s.DeleteRecipeComment(userId, commentId))
                 .Verifiable();
@@ -234,8 +234,8 @@ namespace BackEngin.Tests.Controllers
             var userId = "currentUserId";
             var differentUserId = "differentUserId";
 
-            _mockInteractionService.Setup(s => s.GetOwner(commentId, ObjectType.RecipeComment))
-                .Returns(differentUserId);
+            _mockInteractionService.Setup(s => s.GetOwnerId(commentId, ObjectType.RecipeComment))
+                .ReturnsAsync(differentUserId);
 
             // Act
             var result = await _postInteractionController.DeleteRecipeComment(commentId);

@@ -244,7 +244,7 @@ namespace BackEngin.Controllers
         {
             try
             {
-                var objUserId = _interactionService.GetOwner(commentId, ObjectType.BlogComment);
+                var objUserId = await _interactionService.GetOwnerId(commentId, ObjectType.BlogComment);
                 if (!await CanUserAccess(objUserId))
                 {
                     return Unauthorized(new { message = "You are not authorized to delete this event." });
@@ -268,7 +268,7 @@ namespace BackEngin.Controllers
         {
             try
             {
-                var objUserId = _interactionService.GetOwner(commentId, ObjectType.EventComment);
+                var objUserId = await _interactionService.GetOwnerId(commentId, ObjectType.EventComment);
                 if (!await CanUserAccess(objUserId))
                 {
                     return Unauthorized(new { message = "You are not authorized to delete this event." });
@@ -291,7 +291,7 @@ namespace BackEngin.Controllers
         {
             try
             {
-                var objUserId = _interactionService.GetOwner(commentId, ObjectType.RecipeComment);
+                var objUserId = await _interactionService.GetOwnerId(commentId, ObjectType.RecipeComment);
                 if (!await CanUserAccess(objUserId))
                 {
                     return Unauthorized(new { message = "You are not authorized to delete this event." });

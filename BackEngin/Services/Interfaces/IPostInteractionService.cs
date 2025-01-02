@@ -57,7 +57,7 @@ namespace BackEngin.Services.Interfaces
         Task<byte[]?> GetBlogCommentImage(int commentId, int imageIndex);
         Task<byte[]?> GetRecipeCommentImage(int commentId, int imageIndex);
         Task<byte[]?> GetEventCommentImage(int commentId, int imageIndex);
-        public string GetOwner(int objId, ObjectType type);
+        Task<string> GetOwnerId(int objId, ObjectType type);
 
     }
 }

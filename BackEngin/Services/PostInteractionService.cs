@@ -636,68 +636,68 @@ namespace BackEngin.Services
             return comment.Images[imageIndex];
         }
 
-        public string GetOwner(int objId, ObjectType type)
+        public async Task<string> GetOwnerId(int objId, ObjectType type)
         {
             switch (type)
             {
                 case ObjectType.Blog:
-                    var obj = _unitOfWork.Blogs.GetByIdAsync(objId).Result;
+                    var obj = await _unitOfWork.Blogs.GetByIdAsync(objId);
                     if (obj == null)
                         throw new Exception("Blog with the provided blogId does not exist");
-                    return GetOwner(obj);
+                    return GetOwnerId(obj);
                 case ObjectType.Recipe:
-                    var obj1 = _unitOfWork.Recipes.GetByIdAsync(objId).Result;
+                    var obj1 = await _unitOfWork.Recipes.GetByIdAsync(objId);
                     if (obj1 == null)
                         throw new Exception("Recipe with the provided recipeId does not exist");
-                    return GetOwner(obj1);
+                    return GetOwnerId(obj1);
                 case ObjectType.Event:
-                    var obj2 = _unitOfWork.Events.GetByIdAsync(objId).Result;
+                    var obj2 = await _unitOfWork.Events.GetByIdAsync(objId);
                     if (obj2 == null)
                         throw new Exception("Event with the provided eventId does not exist");
-                    return GetOwner(obj2);
+                    return GetOwnerId(obj2);
                 case ObjectType.BlogComment:
-                    var obj3 = _unitOfWork.Blog_Comments.GetByIdAsync(objId).Result;
+                    var obj3 = await _unitOfWork.Blog_Comments.GetByIdAsync(objId);
                     if (obj3 == null)
                         throw new Exception("Blog comment with the provided commentId does not exist");
-                    return GetOwner(obj3);
+                    return GetOwnerId(obj3);
                 case ObjectType.RecipeComment:
-                    var obj4 = _unitOfWork.Recipe_Comments.GetByIdAsync(objId).Result;
+                    var obj4 = await _unitOfWork.Recipe_Comments.GetByIdAsync(objId);
                     if (obj4 == null)
                         throw new Exception("Recipe comment with the provided commentId does not exist");
-                    return GetOwner(obj4);
+                    return GetOwnerId(obj4);
                 case ObjectType.EventComment:
-                    var obj5 = _unitOfWork.Event_Comments.GetByIdAsync(objId).Result;
+                    var obj5 = await _unitOfWork.Event_Comments.GetByIdAsync(objId);
                     if (obj5 == null)
                         throw new Exception("Event comment with the provided commentId does not exist");
-                    return GetOwner(obj5);
+                    return GetOwnerId(obj5);
                 default:
-                    throw new Exception("Unsupported object type in GetOwner");
+                    throw new Exception("Unsupported object type in GetOwnerId");
 
             }
         }
 
-        public string GetOwner(Events obj)
+        public string GetOwnerId(Events obj)
         {
             return obj.CreatorId;
         }
-        public string GetOwner(Blogs obj)
+        public string GetOwnerId(Blogs obj)
         {
             return obj.UserId;
         }
-        public string GetOwner(Recipes obj)
+        public string GetOwnerId(Recipes obj)
         {
             return obj.UserId;
         }
-        public string GetOwner(Recipe_Comments obj)
+        public string GetOwnerId(Recipe_Comments obj)
         {
             return obj.UserId;
         }
-        public string GetOwner(Blog_Comments obj)
+        public string GetOwnerId(Blog_Comments obj)
         {
             return obj.UserId;
 
         }
-        public string GetOwner(Event_Comments obj)
+        public string GetOwnerId(Event_Comments obj)
         {
             return obj.UserId;
         }
