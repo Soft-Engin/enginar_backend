@@ -417,10 +417,14 @@ namespace BackEngin.Services
             var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
-                Header = r.Header,
-                BodyText = r.BodyText,
                 UserId = r.UserId,
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
+                Header = r.Header,
+                BodyText = r.BodyText,
+                ServingSize = r.ServingSize,
+                PreparationTime = r.PreparationTime,
+                Steps = r.Steps,
+                CreatedAt = r.CreatedAt,
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>
