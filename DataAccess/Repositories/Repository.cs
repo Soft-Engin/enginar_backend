@@ -145,21 +145,35 @@ namespace DataAccess.Repositories
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, string includeProperties = "")
-{
-    IQueryable<T> query = _dbSet;
-
-    // Add eager loading for included properties
-    if (!string.IsNullOrEmpty(includeProperties))
-    {
-        foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
-            query = query.Include(includeProperty.Trim());
+            IQueryable<T> query = _dbSet;
+
+            // Add eager loading for included properties
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+            }
+
+            query = query.Where(predicate);
+            return await query.ToListAsync();
         }
-    }
 
-    query = query.Where(predicate);
-    return await query.ToListAsync();
-}
+        public async Task<IEnumerable<T>> GetLastAsync(int count, Expression<Func<T, bool>> predicate, string includeProperties)
+        {
+            //get last count items that satisfy the predicate and include the properties
+            IQueryable<T> query = _dbSet;
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
 
+            return await query.Where(predicate).OrderByDescending(x => x).Take(count).ToListAsync();
+        }
     }
 }
