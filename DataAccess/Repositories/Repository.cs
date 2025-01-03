@@ -173,7 +173,7 @@ namespace DataAccess.Repositories
                 }
             }
 
-            return await query.Where(predicate).OrderByDescending(x => x).Take(count).ToListAsync();
+            return await query.Where(predicate).Take(count).ToListAsync();
         }
     }
 }
