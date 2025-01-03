@@ -36,6 +36,14 @@ resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   cidr_ipv4   = "0.0.0.0/0"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_cloudflare" {
+  security_group_id = aws_security_group.allow_access.id
+  from_port = 7844
+  to_port = 7844
+  ip_protocol = "-1"
+  cidr_ipv4   = "0.0.0.0/0"
+}
+
 # Allow all outbound traffic.
 resource "aws_vpc_security_group_egress_rule" "allow_all" {
   security_group_id = aws_security_group.allow_access.id
