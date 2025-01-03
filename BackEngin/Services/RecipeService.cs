@@ -402,6 +402,7 @@ namespace BackEngin.Services
             {
                 "bodytext" => ascending ? query.OrderBy(r => r.BodyText) : query.OrderByDescending(r => r.BodyText),
                 "userid" => ascending ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId),
+                "creationdate" => ascending ? query.OrderBy(r => r.CreatedAt) : query.OrderByDescending(r => r.CreatedAt),
                 _ => ascending ? query.OrderBy(r => r.Header) : query.OrderByDescending(r => r.Header),
             };
 
