@@ -483,5 +483,138 @@ namespace BackEngin.Tests.Services
             // Assert
             result1.Should().BeEquivalentTo(result2);
         }
+
+        [Fact]
+        public async Task GetPopularUserFeed_ShouldReturnPaginatedUsers()
+        {
+            // Arrange
+            var userId = "user1";
+            var page = 1;
+            var pageSize = 10;
+            var interactions = new List<Users_Interactions>
+            {
+                new Users_Interactions
+                {
+                    TargetUserId = "user2",
+                    InitiatorUserId = "user3",
+                    TargetUser = new Users { Id = "user2", UserName = "PopularUser" }
+                },
+                new Users_Interactions
+                {
+                    TargetUserId = "user2",
+                    InitiatorUserId = "user4",
+                    TargetUser = new Users { Id = "user2", UserName = "PopularUser" }
+                }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetLastAsync(
+                1000,
+                It.IsAny<Expression<Func<Users_Interactions, bool>>>(),
+                "TargetUser"))
+                .ReturnsAsync(interactions);
+
+            // Act
+            var result = await _feedService.GetPopularUserFeed(page, pageSize, userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(1); // One user with multiple interactions
+            result.TotalCount.Should().Be(1);
+            result.PageNumber.Should().Be(page);
+            result.PageSize.Should().Be(pageSize);
+            result.Items.First().UserName.Should().Be("PopularUser");
+        }
+
+        [Fact]
+        public async Task GetPopularUserFeed_ShouldExcludeCurrentUser()
+        {
+            // Arrange
+            var currentUserId = "user1";
+            var interactions = new List<Users_Interactions>
+            {
+                new Users_Interactions
+                {
+                    TargetUserId = currentUserId, // This should be excluded
+                    InitiatorUserId = "user3",
+                    TargetUser = new Users { Id = currentUserId, UserName = "CurrentUser" }
+                },
+                new Users_Interactions
+                {
+                    TargetUserId = "user2",
+                    InitiatorUserId = "user4",
+                    TargetUser = new Users { Id = "user2", UserName = "OtherUser" }
+                }
+            };
+
+            var interactionReturn = new List<Users_Interactions>
+            {
+                new Users_Interactions
+                {
+                    TargetUserId = "user2",
+                    InitiatorUserId = "user4",
+                    TargetUser = new Users { Id = "user2", UserName = "OtherUser" }
+                }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetLastAsync(
+                1000,
+                It.IsAny<Expression<Func<Users_Interactions, bool>>>(),
+                "TargetUser"))
+                .ReturnsAsync(interactionReturn);
+
+            // Act
+            var result = await _feedService.GetPopularUserFeed(1, 10, currentUserId);
+
+            // Assert
+            result.Items.Should().NotContain(u => u.UserId == currentUserId);
+            result.Items.Should().OnlyContain(u => u.UserName == "OtherUser");
+        }
+
+        [Fact]
+        public async Task GetPopularUserFeed_ShouldReturnEmptyList_WhenNoInteractions()
+        {
+            // Arrange
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetLastAsync(
+                1000,
+                It.IsAny<Expression<Func<Users_Interactions, bool>>>(),
+                "TargetUser"))
+                .ReturnsAsync(new List<Users_Interactions>());
+
+            // Act
+            var result = await _feedService.GetPopularUserFeed(1, 10, "user1");
+
+            // Assert
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task GetPopularUserFeed_ShouldHandleNullUserId()
+        {
+            // Arrange
+            var interactions = new List<Users_Interactions>
+            {
+                new Users_Interactions
+                {
+                    TargetUserId = "user2",
+                    InitiatorUserId = "user3",
+                    TargetUser = new Users { Id = "user2", UserName = "PopularUser" }
+                }
+            };
+
+            _mockUnitOfWork.Setup(u => u.Users_Interactions.GetLastAsync(
+                1000,
+                It.IsAny<Expression<Func<Users_Interactions, bool>>>(),
+                "TargetUser"))
+                .ReturnsAsync(interactions);
+
+            // Act
+            var result = await _feedService.GetPopularUserFeed(1, 10, null);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(1);
+            result.Items.First().UserName.Should().Be("PopularUser");
+        }
     }
 }

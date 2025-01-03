@@ -11,6 +11,7 @@ namespace BackEngin.Services.Interfaces
         Task<PaginatedResponseDTO<RecipeDTO>> GetFollowedRecentRecipeFeed(int page, int pageSize, string userId);
         Task<PaginatedResponseDTO<EventDTO>> GetFollowedRecentEventFeed(int page, int pageSize, string userId);
         Task<PaginatedResponseDTO<EventDTO>> GetFollowedUpcomingEventFeed(int page, int pageSize, string userId);
+        Task<PaginatedResponseDTO<UserCompactDTO>> GetPopularUserFeed(int page, int pageSize, string userId);
 
     }
 }

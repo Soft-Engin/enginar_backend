@@ -154,5 +154,31 @@ namespace BackEngin.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
+
+        // GET /users - Get paginated list of Popular Users
+        [HttpGet("users")]
+        public async Task<IActionResult> GetPaginatedPopularUsers([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                if (pageNumber <= 0) pageNumber = 1;
+                if (pageSize <= 0) pageSize = 10;
+
+                string? userId = null;
+
+                //if user is authenticated, get the user id
+                if (User.Identity.IsAuthenticated)
+                {
+                    userId = await GetActiveUserId();
+                }
+
+                var paginatedIngredients = await _feedService.GetPopularUserFeed(pageNumber, pageSize, userId);
+                return Ok(paginatedIngredients);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
     }
 }

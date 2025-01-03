@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Models;
 
 namespace BackEngin.Tests.Controllers
 {
@@ -479,6 +480,140 @@ namespace BackEngin.Tests.Controllers
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
             okResult.Value.Should().BeEquivalentTo(paginatedResponse);
+        }
+
+        [Fact]
+        public async Task GetPaginatedPopularUsers_ShouldReturnOk_WithPaginatedUsers()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            string? userId = null;
+            var paginatedResponse = new PaginatedResponseDTO<UserCompactDTO>
+            {
+                Items = new List<UserCompactDTO>
+                {
+                    new UserCompactDTO { UserId = "user1", UserName = "PopularUser1" },
+                    new UserCompactDTO { UserId = "user2", UserName = "PopularUser2" }
+                },
+                TotalCount = 2,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            // Setup controller context with no authentication
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            _mockFeedService.Setup(s => s.GetPopularUserFeed(pageNumber, pageSize, userId))
+                           .ReturnsAsync(paginatedResponse);
+
+            // Act
+            var result = await _feedController.GetPaginatedPopularUsers(pageNumber, pageSize);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
+        }
+
+        [Fact]
+        public async Task GetPaginatedPopularUsers_WithAuth_ShouldReturnOk()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<UserCompactDTO>
+            {
+                Items = new List<UserCompactDTO>
+                {
+                    new UserCompactDTO { UserId = "user1", UserName = "PopularUser1" }
+                },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var user = new ClaimsPrincipal(identity);
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            };
+
+            _mockFeedService.Setup(s => s.GetPopularUserFeed(pageNumber, pageSize, userId))
+                           .ReturnsAsync(paginatedResponse);
+
+            // Act
+            var result = await _feedController.GetPaginatedPopularUsers(pageNumber, pageSize);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
+        }
+
+        [Fact]
+        public async Task GetPaginatedPopularUsers_ShouldHandleException()
+        {
+            // Arrange
+            _mockFeedService.Setup(s => s.GetPopularUserFeed(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+                           .ThrowsAsync(new Exception("Test exception"));
+            var userId = "testUserId";
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var user = new ClaimsPrincipal(identity);
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            };
+
+            // Act
+            var result = await _feedController.GetPaginatedPopularUsers();
+
+            // Assert
+            var statusCodeResult = result.Should().BeOfType<ObjectResult>().Subject;
+            statusCodeResult.StatusCode.Should().Be(500);
+            statusCodeResult.Value.Should().BeEquivalentTo(new { 
+                message = "An unexpected error occurred.", 
+                details = "Test exception" 
+            });
+        }
+
+        [Theory]
+        [InlineData(0, 10)]
+        [InlineData(1, 0)]
+        [InlineData(-1, -1)]
+        public async Task GetPaginatedPopularUsers_ShouldNormalizeInvalidParameters(int pageNumber, int pageSize)
+        {
+            // Arrange
+            string? userId = null;
+            var normalizedResponse = new PaginatedResponseDTO<UserCompactDTO>
+            {
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            _mockFeedService.Setup(s => s.GetPopularUserFeed(1, 10, userId))
+                           .ReturnsAsync(normalizedResponse);
+
+            // Setup controller context with no authentication
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            // Act
+            var result = await _feedController.GetPaginatedPopularUsers(pageNumber, pageSize);
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var response = okResult.Value as PaginatedResponseDTO<UserCompactDTO>;
+            response.PageNumber.Should().Be(1);
+            response.PageSize.Should().Be(10);
+            _mockFeedService.Verify(s => s.GetPopularUserFeed(1, 10, userId), Times.Once);
         }
     }
 }

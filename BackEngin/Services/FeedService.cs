@@ -3,6 +3,7 @@ using BackEngin.Services.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -316,6 +317,30 @@ namespace BackEngin.Services
             {
                 Items = eventDTOs,
                 TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+        }
+
+        public async Task<PaginatedResponseDTO<UserCompactDTO>> GetPopularUserFeed(int page, int pageSize, string userId)
+        {
+            //get the last 1000 interactions from db wher ethe initiator is not user
+            var interactions = await _unitOfWork.Users_Interactions.GetLastAsync(1000, predicate: u => u.InitiatorUserId != userId && u.TargetUserId != userId, includeProperties: "TargetUser");
+
+            var mostFollowedUsersList = interactions.GroupBy(u => u.TargetUserId)
+                .OrderByDescending(g => g.Count())
+                .ToList();
+
+            //return paginated
+            return new PaginatedResponseDTO<UserCompactDTO>
+            {
+                Items = mostFollowedUsersList.Select(g => new UserCompactDTO
+                {
+                    UserId = g.First().TargetUserId,
+                    UserName = g.First().TargetUser.UserName
+                }).ToList(),
+                TotalCount = mostFollowedUsersList.Count,
                 PageNumber = page,
                 PageSize = pageSize
             };
