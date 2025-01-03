@@ -61,7 +61,11 @@ builder.Services.AddDbContext<DataContext>(options =>
                            $"Port={Environment.GetEnvironmentVariable("POSTGRES_HOST_PORT")};" +
                            $"Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};" +
                            $"Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};" +
-                           $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};";
+                           $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" + 
+                           "Pooling=true;" + // Enable connection pooling (default is true)
+                           $"MinPoolSize={Environment.GetEnvironmentVariable("MIN_CONNECTION")};" + // Minimum number of connections in the pool
+                           $"MaxPoolSize={Environment.GetEnvironmentVariable("MAX_CONNECTION")};" + // Maximum number of connections in the pool
+                           $"ConnectionIdleLifetime={Environment.GetEnvironmentVariable("CONNECTION_LIFETIME")};"; // Time (seconds) a connection can be idle before being closed
     options.UseNpgsql(connectionString);
 });
 
