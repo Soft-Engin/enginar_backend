@@ -23,45 +23,6 @@ namespace BackEngin.Tests.Controllers
             _feedController = new FeedController(_mockFeedService.Object);
         }
 
-        [Fact]
-        public async Task GetPaginatedRecipes_ShouldReturnOk_WithPaginatedRecipes()
-        {
-            // Arrange
-            var seed = "testseed";
-            var pageNumber = 1;
-            var pageSize = 10;
-            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
-            {
-                Items = new List<RecipeDTO>
-                {
-                    new RecipeDTO
-                    {
-                        Id = 1,
-                        Header = "Test Recipe",
-                        BodyText = "Test Description",
-                        UserId = "user1",
-                        UserName = "TestUser",
-                        ServingSize = 4,
-                        PreparationTime = 30,
-                        CreatedAt = DateTime.Now
-                    }
-                },
-                TotalCount = 1,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            };
-
-            _mockFeedService.Setup(s => s.GetRecipeFeed(seed, pageNumber, pageSize))
-                           .ReturnsAsync(paginatedResponse);
-
-            // Act
-            var result = await _feedController.GetPaginatedRecipes(seed, pageNumber, pageSize);
-
-            // Assert
-            result.Should().BeOfType<OkObjectResult>();
-            var okResult = result as OkObjectResult;
-            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
-        }
 
         [Fact]
         public async Task GetPaginatedBlogs_ShouldReturnOk_WithPaginatedBlogs()
@@ -148,22 +109,29 @@ namespace BackEngin.Tests.Controllers
             var pageNumber = -1;
             var pageSize = 10;
             var expectedPageNumber = 1;
+            string? userId = null;
             
-            _mockFeedService.Setup(s => s.GetRecipeFeed(seed, expectedPageNumber, pageSize))
+            // Setup controller context with no authentication
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            _mockFeedService.Setup(s => s.GetRecipeFeed(seed, expectedPageNumber, pageSize, userId))
                            .ReturnsAsync(new PaginatedResponseDTO<RecipeDTO>());
 
             // Act
             await _feedController.GetPaginatedRecipes(seed, pageNumber, pageSize);
 
             // Assert
-            _mockFeedService.Verify(s => s.GetRecipeFeed(seed, expectedPageNumber, pageSize), Times.Once());
+            _mockFeedService.Verify(s => s.GetRecipeFeed(seed, expectedPageNumber, pageSize, userId), Times.Once());
         }
 
         [Fact]
         public async Task GetPaginatedRecipes_ShouldHandleException()
         {
             // Arrange
-            _mockFeedService.Setup(s => s.GetRecipeFeed(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            _mockFeedService.Setup(s => s.GetRecipeFeed(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                            .ThrowsAsync(new Exception("Test exception"));
 
             // Act
@@ -415,6 +383,102 @@ namespace BackEngin.Tests.Controllers
             var returnValue = okResult.Value.Should().BeOfType<PaginatedResponseDTO<EventDTO>>().Subject;
             returnValue.Items.Should().BeEmpty();
             returnValue.TotalCount.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task GetPaginatedRecipes_ShouldReturnOk_WithPaginatedRecipes()
+        {
+            // Arrange
+            var seed = "testseed";
+            var pageNumber = 1;
+            var pageSize = 10;
+            string? userId = null;
+            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = new List<RecipeDTO>
+                {
+                    new RecipeDTO
+                    {
+                        Id = 1,
+                        Header = "Test Recipe",
+                        BodyText = "Test Description",
+                        UserId = "user1",
+                        UserName = "TestUser",
+                        ServingSize = 4,
+                        PreparationTime = 30,
+                        CreatedAt = DateTime.Now
+                    }
+                },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            // Setup controller context with no authentication
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            _mockFeedService.Setup(s => s.GetRecipeFeed(seed, pageNumber, pageSize, userId))
+                            .ReturnsAsync(paginatedResponse);
+
+            // Act
+            var result = await _feedController.GetPaginatedRecipes(seed, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
+        }
+
+        [Fact]
+        public async Task GetPaginatedRecipes_WithAuth_ShouldReturnOk_WithPaginatedRecipes()
+        {
+            // Arrange
+            var seed = "testseed";
+            var pageNumber = 1;
+            var pageSize = 10;
+            var userId = "testUserId";
+            var paginatedResponse = new PaginatedResponseDTO<RecipeDTO>
+            {
+                Items = new List<RecipeDTO>
+                {
+                    new RecipeDTO
+                    {
+                        Id = 1,
+                        Header = "Test Recipe",
+                        BodyText = "Test Description",
+                        UserId = "user1",
+                        UserName = "TestUser",
+                        ServingSize = 4,
+                        PreparationTime = 30,
+                        CreatedAt = DateTime.Now
+                    }
+                },
+                TotalCount = 1,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var user = new ClaimsPrincipal(identity);
+            _feedController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            };
+
+            _mockFeedService.Setup(s => s.GetRecipeFeed(seed, pageNumber, pageSize, userId))
+                            .ReturnsAsync(paginatedResponse);
+
+            // Act
+            var result = await _feedController.GetPaginatedRecipes(seed, pageNumber, pageSize);
+
+            // Assert
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().BeEquivalentTo(paginatedResponse);
         }
     }
 }

@@ -4,6 +4,7 @@ using Models.DTO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using Models;
 
 namespace BackEngin.Controllers
 {
@@ -28,7 +29,15 @@ namespace BackEngin.Controllers
                 if (pageNumber <= 0) pageNumber = 1;
                 if (pageSize <= 0) pageSize = 10;
 
-                var paginatedIngredients = await _feedService.GetRecipeFeed(seed, pageNumber, pageSize);
+                string? userId = null;
+
+                //if user is authenticated, get the user id
+                if (User.Identity.IsAuthenticated)
+                {
+                    userId = await GetActiveUserId();
+                }
+
+                var paginatedIngredients = await _feedService.GetRecipeFeed(seed, pageNumber, pageSize, userId);
                 return Ok(paginatedIngredients);
             }
             catch (Exception ex)

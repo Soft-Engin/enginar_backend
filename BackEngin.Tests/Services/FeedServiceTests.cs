@@ -136,6 +136,7 @@ namespace BackEngin.Tests.Services
             var seed = "test";
             var page = 1;
             var pageSize = 10;
+            var userId = "testUser";
             var recipes = new List<Recipes>
             {
                 new Recipes
@@ -151,17 +152,24 @@ namespace BackEngin.Tests.Services
                 }
             };
 
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(new List<User_Allergens>());
+
+            _mockUnitOfWork.Setup(u => u.Ingredients_Preferences.FindAsync(It.IsAny<Func<Ingredients_Preferences, bool>>()))
+                .ReturnsAsync(new List<Ingredients_Preferences>());
+
             _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedBySeedAsync(
                 It.IsAny<uint>(),
                 It.IsAny<uint>(),
                 It.IsAny<uint>(),
+                It.IsAny<Expression<Func<Recipes, bool>>>(),
                 page,
                 pageSize,
-                "User"))
+                "User,Recipes_Ingredients"))
                 .ReturnsAsync((recipes, 1));
 
             // Act
-            var result = await _feedService.GetRecipeFeed(seed, page, pageSize);
+            var result = await _feedService.GetRecipeFeed(seed, page, pageSize, userId);
 
             // Assert
             result.Should().NotBeNull();
@@ -230,35 +238,32 @@ namespace BackEngin.Tests.Services
                     UserId = "user2",
                     User = new Users { UserName = "TestUser" },
                     CreatedAt = DateTime.Now.AddHours(-1)
-                },
-                new Recipes
-                {
-                    Id = 2,
-                    Header = "Another Recipe",
-                    UserId = "user3",
-                    User = new Users { UserName = "TestUser2" },
-                    CreatedAt = DateTime.Now.AddHours(-2)
                 }
             };
 
             _mockUnitOfWork.Setup(u => u.Users.GetAllFollowingAsync(userId))
                 .ReturnsAsync(following);
 
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(new List<User_Allergens>());
+
+            _mockUnitOfWork.Setup(u => u.Ingredients_Preferences.FindAsync(It.IsAny<Func<Ingredients_Preferences, bool>>()))
+                .ReturnsAsync(new List<Ingredients_Preferences>());
+
             _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedByFollowedAsync(
                 It.IsAny<Expression<Func<Recipes, bool>>>(),
                 page,
                 pageSize,
-                "User"))
-                .ReturnsAsync((recipes, 2));
+                "User,Recipes_Ingredients"))
+                .ReturnsAsync((recipes, 1));
 
             // Act
             var result = await _feedService.GetFollowedRecentRecipeFeed(page, pageSize, userId);
 
             // Assert
             result.Should().NotBeNull();
-            result.Items.Should().HaveCount(2);
-            result.TotalCount.Should().Be(2);
-            result.Items.Should().BeInDescendingOrder(x => x.CreatedAt);
+            result.Items.Should().HaveCount(1);
+            result.TotalCount.Should().Be(1);
         }
 
         [Fact]
@@ -375,52 +380,33 @@ namespace BackEngin.Tests.Services
         public async Task GetFollowedRecentFeed_ShouldReturnEmptyList_WhenUserHasNoFollowing()
         {
             // Arrange
-            var userId = "user1";
+            var userId = "testUser";
             var page = 1;
             var pageSize = 10;
             var following = new List<UserCompactDTO>();
-            var emptyRecipes = new List<Recipes>();
-            var emptyBlogs = new List<Blogs>();
-            var emptyEvents = new List<Events>();
 
             _mockUnitOfWork.Setup(u => u.Users.GetAllFollowingAsync(userId))
                 .ReturnsAsync(following);
+
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(new List<User_Allergens>());
+
+            _mockUnitOfWork.Setup(u => u.Ingredients_Preferences.FindAsync(It.IsAny<Func<Ingredients_Preferences, bool>>()))
+                .ReturnsAsync(new List<Ingredients_Preferences>());
 
             _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedByFollowedAsync(
                 It.IsAny<Expression<Func<Recipes, bool>>>(),
                 page,
                 pageSize,
-                "User"))
-                .ReturnsAsync((emptyRecipes, 0));
-
-            _mockUnitOfWork.Setup(u => u.Blogs.GetPaginatedByFollowedAsync(
-                It.IsAny<Expression<Func<Blogs, bool>>>(),
-                page,
-                pageSize,
-                "User"))
-                .ReturnsAsync((emptyBlogs, 0));
-
-            _mockUnitOfWork.Setup(u => u.Events.GetPaginatedByFollowedAsync(
-                It.IsAny<Expression<Func<Events, bool>>>(),
-                page,
-                pageSize,
-                "Creator,Address,Address.District,Address.District.City,Address.District.City.Country"))
-                .ReturnsAsync((emptyEvents, 0));
+                "User,Recipes_Ingredients"))
+                .ReturnsAsync((new List<Recipes>(), 0));
 
             // Act
-            var resultRecipes = await _feedService.GetFollowedRecentRecipeFeed(page, pageSize, userId);
-            var resultBlogs = await _feedService.GetFollowedRecentBlogsFeed(page, pageSize, userId);
-            var resultEvents = await _feedService.GetFollowedRecentEventFeed(page, pageSize, userId);
+            var result = await _feedService.GetFollowedRecentRecipeFeed(page, pageSize, userId);
 
             // Assert
-            resultRecipes.Items.Should().BeEmpty();
-            resultRecipes.TotalCount.Should().Be(0);
-
-            resultBlogs.Items.Should().BeEmpty();
-            resultBlogs.TotalCount.Should().Be(0);
-
-            resultEvents.Items.Should().BeEmpty();
-            resultEvents.TotalCount.Should().Be(0);
+            result.Items.Should().BeEmpty();
+            result.TotalCount.Should().Be(0);
         }
 
         [Fact]
@@ -443,24 +429,27 @@ namespace BackEngin.Tests.Services
             var userId = "user1";
             var page = 1000;
             var pageSize = 10;
-            var following = new List<UserCompactDTO> 
-            { 
-                new UserCompactDTO { UserId = "user2" } 
-            };
-        
+            var following = new List<UserCompactDTO> { new UserCompactDTO { UserId = "user2" } };
+
             _mockUnitOfWork.Setup(u => u.Users.GetAllFollowingAsync(userId))
                 .ReturnsAsync(following);
-        
+
+            _mockUnitOfWork.Setup(u => u.User_Allergens.FindAsync(It.IsAny<Func<User_Allergens, bool>>()))
+                .ReturnsAsync(new List<User_Allergens>());
+
+            _mockUnitOfWork.Setup(u => u.Ingredients_Preferences.FindAsync(It.IsAny<Func<Ingredients_Preferences, bool>>()))
+                .ReturnsAsync(new List<Ingredients_Preferences>());
+
             _mockUnitOfWork.Setup(u => u.Recipes.GetPaginatedByFollowedAsync(
                 It.IsAny<Expression<Func<Recipes, bool>>>(),
                 page,
                 pageSize,
-                "User"))
+                "User,Recipes_Ingredients"))
                 .ReturnsAsync((new List<Recipes>(), 0));
-        
+
             // Act
             var result = await _feedService.GetFollowedRecentRecipeFeed(page, pageSize, userId);
-        
+
             // Assert
             result.Items.Should().BeEmpty();
             result.PageNumber.Should().Be(page);

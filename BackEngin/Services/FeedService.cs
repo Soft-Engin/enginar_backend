@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTO;
+using NuGet.Protocol;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 
 namespace BackEngin.Services
@@ -94,23 +96,49 @@ namespace BackEngin.Services
             };
         }
 
-        public async Task<PaginatedResponseDTO<RecipeDTO>> GetRecipeFeed(string seed, int page, int pageSize)
+        public async Task<PaginatedResponseDTO<RecipeDTO>> GetRecipeFeed(string seed, int page, int pageSize, string? userId)
         {
             // Step 1: Calculate seed-based values
             var seedVal = GetSeedValue(seed);
             var mult = GetMultiplier(seedVal);
             var limiter = (uint)10000; // Cap weights for consistent ordering
 
+            (IEnumerable<Recipes> recipes, int totalCount) = (null, 0);
 
-            // Step 2: Fetch paginated recipes with calculated weights
-            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedBySeedAsync(
-                multiplier: mult,
-                seedValue: seedVal,
-                limiter: limiter,
-                pageNumber: page,
-                pageSize: pageSize,
-                includeProperties: "User"
-            );
+            //if guest user
+            if (userId == null)
+            {
+                // Step 2: Fetch paginated recipes with calculated weights
+                (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedBySeedAsync(
+                    multiplier: mult,
+                    seedValue: seedVal,
+                    limiter: limiter,
+                    pageNumber: page,
+                    pageSize: pageSize,
+                    includeProperties: "User"
+                );
+
+            }
+            else
+            {
+                // 1. Fetch and materialize userAllergens
+                var userAllergens = (await _unitOfWork.User_Allergens.FindAsync(r => r.UserId == userId)).ToList();
+
+                // 2. Now that userAllergens is fully enumerated, we can safely use it in the second query
+                var userAllergenIngredientIds = (await _unitOfWork.Ingredients_Preferences.FindAsync(
+                    ip => userAllergens.Any(ua => ua.PreferenceId == ip.PreferenceId))).Select(i => i.IngredientId).ToList();
+
+                //step 2: fetch paginated recipes with calculated weights and user allergens
+                (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedBySeedAsync(
+                    multiplier: mult,
+                    seedValue: seedVal,
+                    limiter: limiter,
+                    pageNumber: page,
+                    pageSize: pageSize,
+                    includeProperties: "User,Recipes_Ingredients",
+                    predicate: r => !r.Recipes_Ingredients.Any(i => userAllergenIngredientIds.Contains(i.IngredientId))
+                    );
+            }
 
             // Step 3: Map to DTO
             var recipeDTOs = recipes.Select(r => new RecipeDTO
@@ -193,8 +221,19 @@ namespace BackEngin.Services
             //get following id list
             var followingIdList = followings.Select(u => u.UserId).ToList();
 
+            // 1. Fetch and materialize userAllergens
+            var userAllergens = (await _unitOfWork.User_Allergens.FindAsync(r => r.UserId == userId)).ToList();
+
+            // 2. Now that userAllergens is fully enumerated, we can safely use it in the second query
+            var userAllergenIngredientIds = (await _unitOfWork.Ingredients_Preferences.FindAsync(
+                ip => userAllergens.Any(ua => ua.PreferenceId == ip.PreferenceId))).Select(i => i.IngredientId).ToList();
+
             //get feed from db and order by date
-            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedByFollowedAsync(r => followingIdList.Contains(r.UserId), page, pageSize, includeProperties: "User");
+            var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedByFollowedAsync(
+                predicate: r => !r.Recipes_Ingredients.Any(i => userAllergenIngredientIds.Contains(i.IngredientId)) && followingIdList.Contains(r.UserId),
+                page, 
+                pageSize,
+                includeProperties: "User,Recipes_Ingredients");
 
 
             // Step 3: Map to DTO
