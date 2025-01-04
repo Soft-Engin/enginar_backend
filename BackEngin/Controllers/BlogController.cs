@@ -132,7 +132,7 @@ namespace BackEngin.Controllers
                 var result = await _blogService.DeleteBlog(blogId);
                 if (!result)
                 {
-                    return NotFound(new { message = "Blog is not found." });
+                    return NotFound(new { message = "Blog not found." });
                 }
 
                 return Ok(new { message = "Blog deleted successfully!" });
