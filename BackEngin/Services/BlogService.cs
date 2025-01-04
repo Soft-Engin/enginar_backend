@@ -219,12 +219,12 @@ namespace BackEngin.Services
             var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
             if (blog == null) return false;
 
-            // If the blog has an associated recipe, delete the recipe
-            if (blog.RecipeId.HasValue)
-            {
-                var recipeDeleted = await _recipeService.DeleteRecipe(blog.RecipeId.Value);
-                if (!recipeDeleted) return false;
-            }
+            //// If the blog has an associated recipe, delete the recipe
+            //if (blog.RecipeId.HasValue)
+            //{
+            //    var recipeDeleted = await _recipeService.DeleteRecipe(blog.RecipeId.Value);
+            //    if (!recipeDeleted) return false;
+            //}
 
             _unitOfWork.Blogs.Delete(blog);
             await _unitOfWork.CompleteAsync();

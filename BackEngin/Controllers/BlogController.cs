@@ -116,24 +116,33 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteBlog(int blogId)
         {
-            var blogOwner = await _blogService.GetOwner(blogId);
-            if (blogOwner == null)
+            //var blogOwner = await _blogService.GetOwner(blogId);
+            //if (blogOwner == null)
+            //{
+            //    return Unauthorized(new { message = "You are not creator of this blog." });
+            //}
+
+            var currentUserId = await GetActiveUserId();
+
+            if (!await CanUserAccess(currentUserId))
             {
-                return NotFound();
+                return Unauthorized(new { message = "You are not authorized to delete this blog." });
             }
 
-            if (!await CanUserAccess(blogOwner))
+            try
             {
-                return Unauthorized();
-            }
+                var result = await _blogService.DeleteBlog(blogId);
+                if (!result)
+                {
+                    return NotFound(new { message = "Blog is not found." });
+                }
 
-            var result = await _blogService.DeleteBlog(blogId);
-            if (!result)
+                return Ok(new { message = "Blog deleted successfully!" });
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
-
-            return Ok(new { message = "Blog deleted successfully!" });
         }
 
 

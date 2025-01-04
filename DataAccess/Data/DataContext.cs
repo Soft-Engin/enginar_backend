@@ -635,104 +635,104 @@ namespace BackEngin.Data
                .HasOne(uri => uri.User)
                .WithMany()
                .HasForeignKey(uri => uri.UserId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users_Recipes_Interaction>()
                 .HasOne(uri => uri.Recipe)
                 .WithMany()
                 .HasForeignKey(uri => uri.RecipeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users_Recipes_Interaction>()
                 .HasOne(uri => uri.Interaction)
                 .WithMany()
                 .HasForeignKey(uri => uri.InteractionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users_Blogs_Interaction>()
                 .HasOne(ubi => ubi.User)
                 .WithMany()
                 .HasForeignKey(ubi => ubi.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users_Blogs_Interaction>()
                 .HasOne(ubi => ubi.Blog)
                 .WithMany()
                 .HasForeignKey(ubi => ubi.BlogId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users_Blogs_Interaction>()
                 .HasOne(ubi => ubi.Interaction)
                 .WithMany()
                 .HasForeignKey(ubi => ubi.InteractionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Bookmarks>()
                .HasOne(rb => rb.Recipe)
                .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Comments>()
                .HasOne(rb => rb.Recipe)
                .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Likes>()
                .HasOne(rb => rb.Recipe)
                .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Blog_Bookmarks>()
               .HasOne(rb => rb.Blog)
               .WithMany()
               .HasForeignKey(rb => rb.BlogId)
-              .OnDelete(DeleteBehavior.Restrict);
+              .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Blog_Comments>()
                .HasOne(rb => rb.Blog)
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Blog_Likes>()
                .HasOne(rb => rb.Blog)
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Event_Bookmarks>()
                .HasOne(rb => rb.Event)
                .WithMany()
                .HasForeignKey(rb => rb.EventId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Event_Comments>()
                .HasOne(rb => rb.Event)
                .WithMany()
                .HasForeignKey(rb => rb.EventId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Event_Likes>()
                .HasOne(rb => rb.Event)
                .WithMany()
                .HasForeignKey(rb => rb.EventId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
             // Configure User_Allergens
             modelBuilder.Entity<User_Allergens>()
                 .HasOne(ua => ua.User)
                 .WithMany()
                 .HasForeignKey(ua => ua.UserId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<User_Allergens>()
                 .HasOne(ua => ua.Preference)
                 .WithMany()
                 .HasForeignKey(ua => ua.PreferenceId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Cascade); 
 
         }
 
