@@ -1,5 +1,4 @@
-﻿using BackEngin.Models;
-using DataAccess.Repositories.IRepositories;
+﻿using DataAccess.Repositories.IRepositories;
 
 namespace DataAccess.Repositories
 {

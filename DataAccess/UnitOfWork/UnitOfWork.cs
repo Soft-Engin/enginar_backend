@@ -1,6 +1,4 @@
-﻿using BackEngin.Models;
-using BackEngin.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using DataAccess.Repositories.IRepositories;
 using DataAccess.Repositories;
 using Models;
