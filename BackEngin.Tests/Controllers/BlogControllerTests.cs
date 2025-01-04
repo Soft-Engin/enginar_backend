@@ -218,13 +218,28 @@ namespace BackEngin.Tests.Controllers
             // Arrange
             var blogId = 1;
 
+            // Mocking the recipe owner to be a different user
             _mockBlogService.Setup(s => s.GetOwner(blogId)).ReturnsAsync("otherUserId");
+
+            // Mocking the current user claims (non-owner and non-admin)
+            _mockUser.Setup(u => u.FindAll(ClaimTypes.NameIdentifier))
+                     .Returns(new[] { new Claim(ClaimTypes.NameIdentifier, "currentUserId") });
+            _mockUser.Setup(u => u.FindFirst(ClaimTypes.Role))
+                     .Returns(new Claim(ClaimTypes.Role, "User"));
 
             // Act
             var result = await _blogController.DeleteBlog(blogId);
 
             // Assert
-            result.Should().BeOfType<UnauthorizedResult>();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+
+            unauthorizedResult.Should().NotBeNull();
+            unauthorizedResult.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+            unauthorizedResult.Value.Should().BeEquivalentTo(new
+            {
+                message = "You are not authorized to delete this blog."
+            });
         }
 
         [Fact]

@@ -401,7 +401,8 @@ namespace BackEngin.Services
             query = searchParams.SortBy?.ToLower() switch
             {
                 "bodytext" => ascending ? query.OrderBy(r => r.BodyText) : query.OrderByDescending(r => r.BodyText),
-                "userid" => ascending ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId),
+                "username" => ascending ? query.OrderBy(r => r.User.UserName) : query.OrderByDescending(r => r.User.UserName),
+                "creationdate" => ascending ? query.OrderBy(r => r.CreatedAt) : query.OrderByDescending(r => r.CreatedAt),
                 _ => ascending ? query.OrderBy(r => r.Header) : query.OrderByDescending(r => r.Header),
             };
 

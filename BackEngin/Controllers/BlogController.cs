@@ -119,21 +119,28 @@ namespace BackEngin.Controllers
             var blogOwner = await _blogService.GetOwner(blogId);
             if (blogOwner == null)
             {
-                return NotFound();
+                return Unauthorized(new { message = "You are not the creator of this blog." });
             }
 
             if (!await CanUserAccess(blogOwner))
             {
-                return Unauthorized();
+                return Unauthorized(new { message = "You are not authorized to delete this blog." });
             }
 
-            var result = await _blogService.DeleteBlog(blogId);
-            if (!result)
+            try
             {
-                return NotFound();
-            }
+                var result = await _blogService.DeleteBlog(blogId);
+                if (!result)
+                {
+                    return NotFound(new { message = "Blog not found." });
+                }
 
-            return Ok(new { message = "Blog deleted successfully!" });
+                return Ok(new { message = "Blog deleted successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
 
