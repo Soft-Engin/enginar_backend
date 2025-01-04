@@ -22,6 +22,7 @@ namespace DataAccess.Repositories
         void DeleteRange(IEnumerable<T> entities);
         Task<int> CountAsync();
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> GetLastAsync(int count, Expression<Func<T, bool>> predicate, string includeProperties);
         IQueryable<T> GetQueryable();
     }
 }

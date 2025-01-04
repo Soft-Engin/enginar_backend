@@ -270,8 +270,11 @@ namespace BackEngin.Services
             // Remove requirements that are not in the updated list
             foreach (var requirementId in currentEventRequirements)
             {
-                var er = await _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == eventId && r.RequirementId == requirementId);
-                _unitOfWork.Events_Requirements.Delete(er.First());
+                if (!updateEventDto.RequirementIds.Contains(requirementId))
+                {
+                    var er = await _unitOfWork.Events_Requirements.FindAsync(r => r.EventId == eventId && r.RequirementId == requirementId);
+                    _unitOfWork.Events_Requirements.Delete(er.First());
+                }
             }
 
 
@@ -516,7 +519,7 @@ namespace BackEngin.Services
         public async Task<PaginatedResponseDTO<EventDTO>> SearchEventsAsync(EventSearchParams searchParams, int pageNumber, int pageSize)
         {
             var query = _unitOfWork.Events.GetQueryable();
-            
+
             // Apply basic filters
             if (!string.IsNullOrEmpty(searchParams.TitleContains))
                 query = query.Where(e => e.Title.Contains(searchParams.TitleContains));
