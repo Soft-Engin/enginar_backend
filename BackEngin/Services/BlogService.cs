@@ -122,14 +122,16 @@ namespace BackEngin.Services
             blog.BodyText = updateBlogDTO.BodyText;
             blog.UserId = blog.UserId; // its stupid but the owner does not change hehe
             blog.BannerImage = updateBlogDTO.BannerImage;
+            blog.RecipeId = updateBlogDTO.RecipeId;
 
             // Handle recipe updates
             if (updateBlogDTO.Recipe != null)
             {
                 if (blog.RecipeId.HasValue)
                 {
-                    // If a recipe is already associated, update it
-                    await _recipeService.UpdateRecipe(blog.RecipeId.Value, updateBlogDTO.Recipe);
+                    //// If a recipe is already associated, update it
+                    blog.RecipeId = updateBlogDTO.RecipeId;
+                    //await _recipeService.UpdateRecipe(blog.RecipeId.Value, updateBlogDTO.Recipe);
                 }
                 else
                 {
@@ -147,16 +149,18 @@ namespace BackEngin.Services
                     blog.RecipeId = newRecipe.Id; // Associate the newly created recipe with the blog
                 }
             }
-            else if (updateBlogDTO.RecipeId == null && blog.RecipeId.HasValue)
-            {
-                // If RecipeId is null, remove the existing recipe and its ingredients
-                var otherBlogswihtSameReciipe = _unitOfWork.Blogs.FindAsync(b => b.RecipeId == blog.RecipeId);
-                if(otherBlogswihtSameReciipe == null)
-                {
-                    await _recipeService.DeleteRecipe(blog.RecipeId.Value);
-                    blog.RecipeId = null;
-                }                
-            }
+            // delete recipe is not meaningfull
+
+            //else if (updateBlogDTO.RecipeId == null && blog.RecipeId.HasValue)
+            //{
+            //    // If RecipeId is null, remove the existing recipe and its ingredients
+            //    var otherBlogswihtSameReciipe = _unitOfWork.Blogs.FindAsync(b => b.RecipeId == blog.RecipeId);
+            //    if(otherBlogswihtSameReciipe == null)
+            //    {
+            //        await _recipeService.DeleteRecipe(blog.RecipeId.Value);
+            //        blog.RecipeId = null;
+            //    }                
+            //}
 
             // Update the blog
             _unitOfWork.Blogs.Update(blog);
@@ -219,12 +223,12 @@ namespace BackEngin.Services
             var blog = await _unitOfWork.Blogs.GetByIdAsync(blogId);
             if (blog == null) return false;
 
-            // If the blog has an associated recipe, delete the recipe
-            if (blog.RecipeId.HasValue)
-            {
-                var recipeDeleted = await _recipeService.DeleteRecipe(blog.RecipeId.Value);
-                if (!recipeDeleted) return false;
-            }
+            //// If the blog has an associated recipe, delete the recipe
+            //if (blog.RecipeId.HasValue)
+            //{
+            //    var recipeDeleted = await _recipeService.DeleteRecipe(blog.RecipeId.Value);
+            //    if (!recipeDeleted) return false;
+            //}
 
             _unitOfWork.Blogs.Delete(blog);
             await _unitOfWork.CompleteAsync();

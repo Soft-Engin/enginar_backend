@@ -174,59 +174,59 @@ namespace BackEngin.Tests.Services
             _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.AtLeastOnce);
         }
 
+        // we dont delete or update associated recipe anymore //
 
+        //[Fact]
+        //public async Task UpdateBlog_ShouldUpdateBlogAndAssociatedRecipe()
+        //{
+        //    // Arrange
+        //    var blogId = 1;
+        //    var userId = "123";
+        //    var userName = "TestUser";
+        //    var updateBlogDTO = new UpdateBlogDTO
+        //    {
+        //        Header = "Updated Blog",
+        //        BodyText = "Updated Content",
+        //        Recipe = new RecipeRequestDTO
+        //        {
+        //            Header = "Updated Recipe",
+        //            BodyText = "Updated Recipe Content",
+        //            Ingredients = new List<RecipeIngredientRequestDTO>
+        //    {
+        //        new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
+        //    }
+        //        }
+        //    };
 
-        [Fact]
-        public async Task UpdateBlog_ShouldUpdateBlogAndAssociatedRecipe()
-        {
-            // Arrange
-            var blogId = 1;
-            var userId = "123";
-            var userName = "TestUser";
-            var updateBlogDTO = new UpdateBlogDTO
-            {
-                Header = "Updated Blog",
-                BodyText = "Updated Content",
-                Recipe = new RecipeRequestDTO
-                {
-                    Header = "Updated Recipe",
-                    BodyText = "Updated Recipe Content",
-                    Ingredients = new List<RecipeIngredientRequestDTO>
-            {
-                new RecipeIngredientRequestDTO { IngredientId = 1, Quantity = 2, Unit = "cups" }
-            }
-                }
-            };
+        //    var blog = new Blogs
+        //    {
+        //        Id = blogId,
+        //        Header = "Old Blog",
+        //        BodyText = "Old Content",
+        //        RecipeId = 1,
+        //        UserId = userId
+        //    };
 
-            var blog = new Blogs
-            {
-                Id = blogId,
-                Header = "Old Blog",
-                BodyText = "Old Content",
-                RecipeId = 1,
-                UserId = userId
-            };
+        //    _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
+        //    _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
+        //                   .ReturnsAsync(new List<Users> { new Users { Id = userId, UserName = userName } });
+        //    _mockRecipeService.Setup(r => r.UpdateRecipe(1, updateBlogDTO.Recipe))
+        //                      .ReturnsAsync(new RecipeDetailsDTO { Id = 1, Header = "Updated Recipe" });
 
-            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
-            _mockUnitOfWork.Setup(u => u.Users.FindAsync(It.IsAny<Func<Users, bool>>()))
-                           .ReturnsAsync(new List<Users> { new Users { Id = userId, UserName = userName } });
-            _mockRecipeService.Setup(r => r.UpdateRecipe(1, updateBlogDTO.Recipe))
-                              .ReturnsAsync(new RecipeDetailsDTO { Id = 1, Header = "Updated Recipe" });
+        //    _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+        //    // Act
+        //    var result = await _blogService.UpdateBlog(blogId, updateBlogDTO);
 
-            // Act
-            var result = await _blogService.UpdateBlog(blogId, updateBlogDTO);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Header.Should().Be("Updated Blog");
-            result.BodyText.Should().Be("Updated Content");
-            result.RecipeId.Should().Be(1);
-            result.UserId.Should().Be(userId);
-            result.UserName.Should().Be(userName);
-            _mockRecipeService.Verify(r => r.UpdateRecipe(1, updateBlogDTO.Recipe), Times.Once);
-        }
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    result.Header.Should().Be("Updated Blog");
+        //    result.BodyText.Should().Be("Updated Content");
+        //    result.RecipeId.Should().Be(1);
+        //    result.UserId.Should().Be(userId);
+        //    result.UserName.Should().Be(userName);
+        //    _mockRecipeService.Verify(r => r.UpdateRecipe(1, updateBlogDTO.Recipe), Times.Once);
+        //}
 
 
         [Fact]
@@ -279,44 +279,46 @@ namespace BackEngin.Tests.Services
             result.Recipe.Ingredients.First().IngredientName.Should().Be("Flour");
         }
 
-        [Fact]
-        public async Task DeleteBlog_ShouldDeleteBlogAndAssociatedRecipe()
-        {
-            // Arrange
-            var blogId = 1;
-            var blog = new Blogs { Id = blogId, Header = "Blog", BodyText = "Content", RecipeId = 1 };
+        // we dont delete recipe anymore //
 
-            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
-            _mockRecipeService.Setup(r => r.DeleteRecipe(1)).ReturnsAsync(true);
+        //[Fact]
+        //public async Task DeleteBlog_ShouldDeleteBlogAndAssociatedRecipe()
+        //{
+        //    // Arrange
+        //    var blogId = 1;
+        //    var blog = new Blogs { Id = blogId, Header = "Blog", BodyText = "Content", RecipeId = 1 };
 
-            _mockUnitOfWork.Setup(u => u.Blogs.Delete(blog)).Verifiable();
-            _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
+        //    _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
+        //    _mockRecipeService.Setup(r => r.DeleteRecipe(1)).ReturnsAsync(true);
 
-            // Act
-            var result = await _blogService.DeleteBlog(blogId);
+        //    _mockUnitOfWork.Setup(u => u.Blogs.Delete(blog)).Verifiable();
+        //    _mockUnitOfWork.Setup(u => u.CompleteAsync()).ReturnsAsync(1);
 
-            // Assert
-            result.Should().BeTrue();
-            _mockRecipeService.Verify(r => r.DeleteRecipe(1), Times.Once);
-            _mockUnitOfWork.Verify(u => u.Blogs.Delete(blog), Times.Once);
-        }
+        //    // Act
+        //    var result = await _blogService.DeleteBlog(blogId);
 
-        [Fact]
-        public async Task DeleteBlog_ShouldReturnFalse_WhenRecipeDeletionFails()
-        {
-            // Arrange
-            var blogId = 1;
-            var blog = new Blogs { Id = blogId, Header = "Blog", BodyText = "Content", RecipeId = 1 };
+        //    // Assert
+        //    result.Should().BeTrue();
+        //    _mockRecipeService.Verify(r => r.DeleteRecipe(1), Times.Once);
+        //    _mockUnitOfWork.Verify(u => u.Blogs.Delete(blog), Times.Once);
+        //}
 
-            _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
-            _mockRecipeService.Setup(r => r.DeleteRecipe(1)).ReturnsAsync(false);
+        //[Fact]
+        //public async Task DeleteBlog_ShouldReturnFalse_WhenRecipeDeletionFails()
+        //{
+        //    // Arrange
+        //    var blogId = 1;
+        //    var blog = new Blogs { Id = blogId, Header = "Blog", BodyText = "Content", RecipeId = 1 };
 
-            // Act
-            var result = await _blogService.DeleteBlog(blogId);
+        //    _mockUnitOfWork.Setup(u => u.Blogs.GetByIdAsync(blogId)).ReturnsAsync(blog);
+        //    _mockRecipeService.Setup(r => r.DeleteRecipe(1)).ReturnsAsync(false);
 
-            // Assert
-            result.Should().BeFalse();
-        }
+        //    // Act
+        //    var result = await _blogService.DeleteBlog(blogId);
+
+        //    // Assert
+        //    result.Should().BeFalse();
+        //}
 
         [Fact]
         public async Task SearchBlogs_ShouldReturnAll_WhenNoFilterApplied()
