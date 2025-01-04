@@ -119,7 +119,7 @@ namespace BackEngin.Controllers
             var blogOwner = await _blogService.GetOwner(blogId);
             if (blogOwner == null)
             {
-                return Unauthorized(new { message = "You are not creator of this blog." });
+                return Unauthorized(new { message = "You are not the creator of this blog." });
             }
 
             if (!await CanUserAccess(blogOwner))
