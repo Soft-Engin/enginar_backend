@@ -46,9 +46,9 @@ def resize_images_max_dimension(input_folder, output_folder, max_dimension=300):
 if __name__ == "__main__":
     # Specify the input and output directories
     input_dir = "."    # Replace with your input folder path
-    output_dir = "./out"  # Replace with your output folder path
+    output_dir = "./downsampled"  # Replace with your output folder path
 
     # Maximum dimension for the largest side
-    max_dim = 100
+    max_dim = 200
 
     resize_images_max_dimension(input_dir, output_dir, max_dim)
