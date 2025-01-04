@@ -5,9 +5,6 @@ namespace DataAccess.Repositories
 {
     public interface IUnitOfWork
     {
-        // default one
-        IRepository<WeatherForecast> WeatherForecastRepository { get; }
-
         // enginar
         IAddressesRepository Addresses { get; }
         IBlogsRepository Blogs { get; }

@@ -11,7 +11,6 @@ namespace DataAccess.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly DataContext _db;
-        public IRepository<WeatherForecast> WeatherForecastRepository { get; }
 
         // enginar
         public IAddressesRepository Addresses { get; }
@@ -49,7 +48,6 @@ namespace DataAccess.Repositories
         public UnitOfWork(DataContext db)
         {
             _db = db;
-            WeatherForecastRepository = new Repository<WeatherForecast>(_db);
 
             // enginar
             Addresses = new AdressesRepository(_db);
