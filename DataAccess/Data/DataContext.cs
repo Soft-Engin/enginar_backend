@@ -60,12 +60,14 @@ namespace BackEngin.Data
             modelBuilder.Entity<Ingredients_Preferences>()
                 .HasOne(ip => ip.Ingredient)
                 .WithMany(i => i.Ingredients_Preferences)
-                .HasForeignKey(ip => ip.IngredientId);
+                .HasForeignKey(ip => ip.IngredientId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Ingredients_Preferences>()
                 .HasOne(ip => ip.Preference)
                 .WithMany(p => p.Ingredients_Preferences)
-                .HasForeignKey(ip => ip.PreferenceId);
+                .HasForeignKey(ip => ip.PreferenceId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Users Table
             modelBuilder.Entity<Users>(entity =>
@@ -73,12 +75,12 @@ namespace BackEngin.Data
                 entity.HasOne(u => u.Address)
                     .WithMany()
                     .HasForeignKey(u => u.AddressId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.Role)
                     .WithMany()
                     .HasForeignKey(u => u.RoleId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Events Table
@@ -113,7 +115,7 @@ namespace BackEngin.Data
                 entity.HasOne(e => e.Address)
                     .WithMany()
                     .HasForeignKey(e => e.AddressId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // User_Event_Participations Table
@@ -161,6 +163,7 @@ namespace BackEngin.Data
                 .WithMany()
                 .HasForeignKey(ui => ui.InteractionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Users_Recipes_Interaction>()
                .HasOne(uri => uri.User)
                .WithMany()
@@ -203,11 +206,23 @@ namespace BackEngin.Data
                .HasForeignKey(rb => rb.RecipeId)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Recipe_Bookmarks>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Recipe_Comments>()
                .HasOne(rb => rb.Recipe)
                .WithMany()
                .HasForeignKey(rb => rb.RecipeId)
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Recipe_Comments>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Likes>()
                .HasOne(rb => rb.Recipe)
@@ -215,11 +230,23 @@ namespace BackEngin.Data
                .HasForeignKey(rb => rb.RecipeId)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Recipe_Likes>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Blog_Bookmarks>()
               .HasOne(rb => rb.Blog)
               .WithMany()
               .HasForeignKey(rb => rb.BlogId)
               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Blog_Bookmarks>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Blog_Comments>()
                .HasOne(rb => rb.Blog)
@@ -227,11 +254,23 @@ namespace BackEngin.Data
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Blog_Comments>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Blog_Likes>()
                .HasOne(rb => rb.Blog)
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Blog_Likes>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Event_Bookmarks>()
                .HasOne(rb => rb.Event)
@@ -239,17 +278,35 @@ namespace BackEngin.Data
                .HasForeignKey(rb => rb.EventId)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Event_Bookmarks>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Event_Comments>()
                .HasOne(rb => rb.Event)
                .WithMany()
                .HasForeignKey(rb => rb.EventId)
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Event_Comments>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Event_Likes>()
                .HasOne(rb => rb.Event)
                .WithMany()
                .HasForeignKey(rb => rb.EventId)
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Event_Likes>()
+                .HasOne(rb => rb.User)
+                .WithMany()
+                .HasForeignKey(rb => rb.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure User_Allergens
             modelBuilder.Entity<User_Allergens>()
