@@ -1,0 +1,831 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccess.Data
+{
+    public class UserDefaultData
+    {
+
+        public void PopulateRolesData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Roles>().HasData(
+                new Roles { Id = 1, Name = "User", Description = "Default user role" },
+                new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
+            );
+
+        }
+
+        public void PopulateUsersData(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Users>().HasData(
+            new Users
+            {
+                Id = "1",
+                FirstName = "Abagail",
+                LastName = "Hess",
+                UserName = "ButterflyGirl",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "2",
+                FirstName = "Aiden",
+                LastName = "Smith",
+                UserName = "aiden.smith123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "3",
+                FirstName = "Ada",
+                LastName = "Medina",
+                UserName = "unicorn98",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "4",
+                FirstName = "Maria",
+                LastName = "Conner",
+                UserName = "mconner",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "5",
+                FirstName = "Amelia",
+                LastName = "Kim",
+                UserName = "ameliakim1987",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "6",
+                FirstName = "Adah",
+                LastName = "Langley",
+                UserName = "Aarushi01",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "7",
+                FirstName = "Braydon",
+                LastName = "Moore",
+                UserName = "nutritious_strawberries",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "8",
+                FirstName = "Priscilla",
+                LastName = "Erickson",
+                UserName = "mookie13",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "9",
+                FirstName = "Elizabeth",
+                LastName = "Pham",
+                UserName = "Agreeable_Owl_31",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "10",
+                FirstName = "Elijah",
+                LastName = "Harris",
+                UserName = "Crazy_Eagle46",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "11",
+                FirstName = "Michael",
+                LastName = "Jones",
+                UserName = "Mj123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "12",
+                FirstName = "Amelia",
+                LastName = "Johnson",
+                UserName = "AmeliaJ",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "13",
+                FirstName = "Liam",
+                LastName = "Williams",
+                UserName = "Liam123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "14",
+                FirstName = "Alexia",
+                LastName = "Hernandez",
+                UserName = "SteepJay",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "15",
+                FirstName = "Oliver",
+                LastName = "Whitehead",
+                UserName = "EarthDawn",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "16",
+                FirstName = "Amanda",
+                LastName = "Johnson",
+                UserName = "amandajohnson123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "17",
+                FirstName = "Hayden",
+                LastName = "Russo",
+                UserName = "HappyButterfly76",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "18",
+                FirstName = "Eleanor",
+                LastName = "Bolton",
+                UserName = "ebolton",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "19",
+                FirstName = "Edward",
+                LastName = "Owens",
+                UserName = "eowens53",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "20",
+                FirstName = "Anna",
+                LastName = "Harris",
+                UserName = "anna_harris1996",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "21",
+                FirstName = "Omar",
+                LastName = "Dejesus",
+                UserName = "CuddlyMuffin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "22",
+                FirstName = "Sarah",
+                LastName = "Johnson",
+                UserName = "sarahj23",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "23",
+                FirstName = "Cody",
+                LastName = "Bailey",
+                UserName = "c.bailey69",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "24",
+                FirstName = "Jack",
+                LastName = "Black",
+                UserName = "jblack",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "25",
+                FirstName = "Metin",
+                LastName = "Hikaye",
+                UserName = "sallyrooney39",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "26",
+                FirstName = "Tuncay",
+                LastName = "Taşkıran",
+                UserName = "Futbol",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "27",
+                FirstName = "Adnan",
+                LastName = "Kumandan",
+                UserName = "lordoglu",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "28",
+                FirstName = "Mustafa",
+                LastName = "Sandalye",
+                UserName = "mustii2024",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "29",
+                FirstName = "Adil",
+                LastName = "Salamura",
+                UserName = "tursuanime321",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "30",
+                FirstName = "Tamer",
+                LastName = "Koltuk",
+                UserName = "dockhrr",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "31",
+                FirstName = "Berker",
+                LastName = "Gardırop",
+                UserName = "benkerr",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "32",
+                FirstName = "Gökçe",
+                LastName = "Masa",
+                UserName = "sekai321",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "33",
+                FirstName = "Oğuzhan",
+                LastName = "Avize",
+                UserName = "gakimarp",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "34",
+                FirstName = "Zeynep",
+                LastName = "Cam",
+                UserName = "zeyneo",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "35",
+                FirstName = "Nicholas",
+                LastName = "Garza",
+                UserName = "Rattling_Cymbal301",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "36",
+                FirstName = "Aurora",
+                LastName = "McLaughlin",
+                UserName = "goldensunrise23",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "37",
+                FirstName = "Antler",
+                LastName = "Hawaii",
+                UserName = "Salamura",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "38",
+                FirstName = "Amelia",
+                LastName = "Roberts",
+                UserName = "ProudBird456",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "39",
+                FirstName = "Ethan",
+                LastName = "Murray",
+                UserName = "TemptingLunch321",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "40",
+                FirstName = "Grant",
+                LastName = "Koffer",
+                UserName = "Joltik",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "41",
+                FirstName = "Leila",
+                LastName = "Patel",
+                UserName = "LPatel123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "42",
+                FirstName = "Oliver",
+                LastName = "Larson",
+                UserName = "ocelot_tiger34",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "43",
+                FirstName = "Kayden",
+                LastName = "Hinton",
+                UserName = "goldenrose77",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "44",
+                FirstName = "Catherine",
+                LastName = "Schiller",
+                UserName = "unknown_cat22",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "45",
+                FirstName = "Samuel",
+                LastName = "Coleman",
+                UserName = "spoonedDew25",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "46",
+                FirstName = "İrfan",
+                LastName = "Hakan",
+                UserName = "hakanto",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "47",
+                FirstName = "Ali",
+                LastName = "Yaman",
+                UserName = "zedmain123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "48",
+                FirstName = "Bruce",
+                LastName = "Ramirez",
+                UserName = "b3729301",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "49",
+                FirstName = "Sophia",
+                LastName = "Larson",
+                UserName = "sleepykangaroo93",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "50",
+                FirstName = "Dylan",
+                LastName = "Fisher",
+                UserName = "LovelyLove52",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "51",
+                FirstName = "Gabrielle",
+                LastName = "Rau",
+                UserName = "gabi.rau66",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "52",
+                FirstName = "Mia",
+                LastName = "Hansen",
+                UserName = "HappyPanda845",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "53",
+                FirstName = "Brandon",
+                LastName = "McLaughlin",
+                UserName = "RelievedPizza981",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "54",
+                FirstName = "Frank",
+                LastName = "Morris",
+                UserName = "fmorris01",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "55",
+                FirstName = "Wyatt",
+                LastName = "Lyons",
+                UserName = "wyattlyons07",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "56",
+                FirstName = "Rhonda",
+                LastName = "Jackson",
+                UserName = "glowing_guitar_930",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "57",
+                FirstName = "Emma",
+                LastName = "Garcia",
+                UserName = "emma_garcia234",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "58",
+                FirstName = "Isabella",
+                LastName = "King",
+                UserName = "goldenpig645",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "59",
+                FirstName = "Celeste",
+                LastName = "Koch",
+                UserName = "esteekoch678",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "60",
+                FirstName = "Mary",
+                LastName = "Olsen",
+                UserName = "Heaven328",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "61",
+                FirstName = "Savannah",
+                LastName = "Walker",
+                UserName = "SavvyWalker1973",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "62",
+                FirstName = "Rex",
+                LastName = "Christiansen",
+                UserName = "RChr0321",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "63",
+                FirstName = "Mohammad",
+                LastName = "Lynch",
+                UserName = "mohdlynch614",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "64",
+                FirstName = "Jack",
+                LastName = "Williams",
+                UserName = "jackwil123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "65",
+                FirstName = "Aiden",
+                LastName = "Smith",
+                UserName = "as9876",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "66",
+                FirstName = "Emily",
+                LastName = "Flores",
+                UserName = "LilTiger7523",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "67",
+                FirstName = "Joseph",
+                LastName = "O'Hara",
+                UserName = "bold111",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "68",
+                FirstName = "Sandrah",
+                LastName = "Rios",
+                UserName = "sandrahrios743",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "69",
+                FirstName = "John",
+                LastName = "Doe",
+                UserName = "jdoe123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "70",
+                FirstName = "Ethan",
+                LastName = "Tran",
+                UserName = "ethtran",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "71",
+                FirstName = "Catherine",
+                LastName = "Schiller",
+                UserName = "unknown_cat22",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "72",
+                FirstName = "Ava",
+                LastName = "Simmons",
+                UserName = "ava.simmons96",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "73",
+                FirstName = "Ahmet",
+                LastName = "Yılmaz",
+                UserName = "ahmetyilmaz",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "74",
+                FirstName = "Ayşe",
+                LastName = "Öztürk",
+                UserName = "ayseoz",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "75",
+                FirstName = "Mehmet",
+                LastName = "Kaya",
+                UserName = "mkaya123",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "76",
+                FirstName = "Fatma",
+                LastName = "Demir",
+                UserName = "fatmademir",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "77",
+                FirstName = "Mustafa",
+                LastName = "Çelik",
+                UserName = "mcelik34",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "78",
+                FirstName = "Zeynep",
+                LastName = "Şahin",
+                UserName = "zeynepsahin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "79",
+                FirstName = "İbrahim",
+                LastName = "Arslan",
+                UserName = "ibrahimars",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "80",
+                FirstName = "Emine",
+                LastName = "Yıldız",
+                UserName = "emineyildiz",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "81",
+                FirstName = "Osman",
+                LastName = "Aydın",
+                UserName = "osmanaydin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "82",
+                FirstName = "Elif",
+                LastName = "Erdoğan",
+                UserName = "eliferd",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "83",
+                FirstName = "Hüseyin",
+                LastName = "Özdemir",
+                UserName = "hozdemir",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "84",
+                FirstName = "Hatice",
+                LastName = "Korkmaz",
+                UserName = "hatice_k",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "85",
+                FirstName = "Murat",
+                LastName = "Çetin",
+                UserName = "muratcetin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "86",
+                FirstName = "Esra",
+                LastName = "Koç",
+                UserName = "esrakoc",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "87",
+                FirstName = "Ali",
+                LastName = "Güneş",
+                UserName = "aligunes",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "88",
+                FirstName = "Selin",
+                LastName = "Yalçın",
+                UserName = "selinyalcin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "89",
+                FirstName = "Burak",
+                LastName = "Doğan",
+                UserName = "burakd",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "90",
+                FirstName = "Merve",
+                LastName = "Kurt",
+                UserName = "mervekurt",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "91",
+                FirstName = "Emre",
+                LastName = "Şen",
+                UserName = "emresen",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "92",
+                FirstName = "Gizem",
+                LastName = "Aslan",
+                UserName = "gizemaslan",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "93",
+                FirstName = "Serkan",
+                LastName = "Özer",
+                UserName = "serkanozer",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "94",
+                FirstName = "Deniz",
+                LastName = "Aktaş",
+                UserName = "denizaktas",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "95",
+                FirstName = "Cansu",
+                LastName = "Akar",
+                UserName = "cansuakar",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "96",
+                FirstName = "Volkan",
+                LastName = "Kara",
+                UserName = "volkankara",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "97",
+                FirstName = "Melis",
+                LastName = "Tuncer",
+                UserName = "melistuncer",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "98",
+                FirstName = "Kaan",
+                LastName = "Polat",
+                UserName = "kaanpolat",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "99",
+                FirstName = "Ebru",
+                LastName = "Altın",
+                UserName = "ebrualtin",
+                RoleId = 1
+            },
+            new Users
+            {
+                Id = "100",
+                FirstName = "Kemal",
+                LastName = "Yardımcı",
+                UserName = "kemalyardimci",
+                RoleId = 1
+            }
+        );
+
+        }
+    }
+}

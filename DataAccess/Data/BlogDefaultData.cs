@@ -1,0 +1,118 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
+
+namespace DataAccess.Data
+{
+    public class BlogDefaultData
+    {
+        public void PopulateBlogData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blogs>().HasData(
+            new Blogs
+            {
+                Id = 1,
+                RecipeId = null,
+                Header = "THE ART OF FOOD PRESENTATION: A Comprehensive Anal",
+                BodyText = "If there was a list of every entity that ever existed, The art of food presentation would rank TOP5 no doubt. VOL#1",
+                UserId = "61",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 17, 54, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 2,
+                RecipeId = null,
+                Header = "COOKING WITH SEASONAL VEGETABLES: A Comprehensive ",
+                BodyText = "If there was a list of every entity that ever existed, Cooking with seasonal vegetables would rank TOP5 no doubt. VOL#2",
+                UserId = "88",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 1, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 3,
+                RecipeId = null,
+                Header = "THE BEST COFFEE BRANDS: A Comprehensive Analysis, ",
+                BodyText = "If there was a list of every entity that ever existed, The best coffee brands would rank TOP5 no doubt. VOL#3",
+                UserId = "44",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 8, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 4,
+                RecipeId = null,
+                Header = "HOMEMADE JAMS AND PRESERVES: A Comprehensive Analy",
+                BodyText = "If there was a list of every entity that ever existed, Homemade jams and preserves would rank TOP5 no doubt. VOL#4",
+                UserId = "72",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 13, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 5,
+                RecipeId = null,
+                Header = "FOOD PHOTOGRAPHY: A Comprehensive Analysis, VOL. 5",
+                BodyText = "If there was a list of every entity that ever existed, Food photography would rank TOP5 no doubt. VOL#5",
+                UserId = "39",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 20, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 6,
+                RecipeId = null,
+                Header = "THE ART OF FOOD PRESENTATION: A Comprehensive Anal",
+                BodyText = "If there was a list of every entity that ever existed, The art of food presentation would rank TOP5 no doubt. VOL#6",
+                UserId = "57",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 26, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 7,
+                RecipeId = null,
+                Header = "BEST BBQ TECHNIQUES: A Comprehensive Analysis, VOL",
+                BodyText = "If there was a list of every entity that ever existed, Best BBQ Techniques would rank TOP5 no doubt. VOL#7",
+                UserId = "1",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 31, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 8,
+                RecipeId = null,
+                Header = "EMBRACE THE COMFORT OF FOODS AROUND THE GLOBE",
+                BodyText =
+                "In a world of culinary delights, there's solace to be found in comfort foods—those dishes that evoke a sense of home, warmth, and nostalgia. "
+                    + "But what if we ventured beyond our familiar culinary horizons and explored the comforting flavors of other cultures? "
+                    + "From the hearty stews of Europe to the spicy curries of Asia, every corner of the globe holds its own culinary gems that offer a unique and comforting experience. "
+                    + "Let's embark on a gastronomic journey and discover some of the world's most comforting foods:\n\n"
+                    + "1. Osso Buco (Italy): Slow-braised veal shanks in a rich tomato-based sauce, perfect for a chilly evening.\n"
+                    + "2. Pad Thai (Thailand): A stir-fried noodle dish with a harmonious balance of sweet, sour, and savory flavors.\n"
+                    + "3. Chicken Tikka Masala (India): A creamy, aromatic curry featuring tender chicken marinated in yogurt and spices.\n"
+                    + "4. Bœuf Bourguignon (France): A classic French beef stew with red wine, mushrooms, and bacon, perfect for a cozy dinner party.\n"
+                    + "5. Moqueca (Brazil): A flavorful seafood stew cooked in a coconut milk broth, reflecting the vibrancy of Brazilian cuisine.\n\n"
+                    + "Exploring these different dishes not only satisfies our taste buds but also connects us to diverse cultures and their culinary traditions. "
+                    + "Whether it's the heartwarming comfort of a steaming bowl of stew or the spicy indulgence of a curry, these foods have the power to transport us to different corners of the world.\n\n"
+                    + "So, next time you're seeking solace in food, don't be afraid to step out of your comfort zone. "
+                    + "Embrace the culinary wonders that await you beyond your borders and discover the comforting embrace of foods around the globe."
+                    ,
+                UserId = "37",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 37, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 9,
+                RecipeId = null,
+                Header = "THE WORLD OF SPICY FOODS: A Comprehensive Analysis",
+                BodyText = "If there was a list of every entity that ever existed, The World of Spicy Foods would rank TOP5 no doubt. VOL#8",
+                UserId = "67",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 43, DateTimeKind.Utc)
+            },
+            new Blogs
+            {
+                Id = 10,
+                RecipeId = null,
+                Header = "COFFEE BREWING METHODS: A Comprehensive Analysis, ",
+                BodyText = "If there was a list of every entity that ever existed, Coffee brewing methods would rank TOP5 no doubt. VOL#9",
+                UserId = "11",
+                CreatedAt = new DateTime(2024, 12, 31, 0, 18, 48, DateTimeKind.Utc)
+            }
+            );
+                    }
+                }
+            }
