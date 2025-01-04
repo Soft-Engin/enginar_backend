@@ -116,15 +116,13 @@ namespace BackEngin.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteBlog(int blogId)
         {
-            //var blogOwner = await _blogService.GetOwner(blogId);
-            //if (blogOwner == null)
-            //{
-            //    return Unauthorized(new { message = "You are not creator of this blog." });
-            //}
+            var blogOwner = await _blogService.GetOwner(blogId);
+            if (blogOwner == null)
+            {
+                return Unauthorized(new { message = "You are not creator of this blog." });
+            }
 
-            var currentUserId = await GetActiveUserId();
-
-            if (!await CanUserAccess(currentUserId))
+            if (!await CanUserAccess(blogOwner))
             {
                 return Unauthorized(new { message = "You are not authorized to delete this blog." });
             }
