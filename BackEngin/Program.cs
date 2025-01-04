@@ -10,6 +10,7 @@ using Asp.Versioning;
 using BackEngin.Services.Interfaces;
 using BackEngin.Services;
 using DotNetEnv;
+using System.Runtime.CompilerServices;
 
 // Add environment variables.
 Env.Load("../.env");
@@ -57,14 +58,29 @@ builder.Services.AddIdentityCore<Users>(options =>
 // Configure database context with environment variables
 builder.Services.AddDbContext<DataContext>(options =>
 {
+    // Get the environment variable as a string
+    var maxConnString = Environment.GetEnvironmentVariable("MAX_CONNECTION");
+
+    // Try parsing it to an integer
+    if (!int.TryParse(maxConnString, out var maxConn))
+    {
+        maxConn = 10; // fallback or handle parsing error
+    }
+
+    // Subtract 10, but make sure it doesn't go below 1
+    // The postgre reserves some for superusers and other stuff so we can't use all of them
+    // So the max connections should be a little lower than the postgre max connections
+    var adjustedMax = Math.Max(1, maxConn - 10);
+
+
     var connectionString = $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};" +
                            $"Port={Environment.GetEnvironmentVariable("POSTGRES_HOST_PORT")};" +
                            $"Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};" +
                            $"Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};" +
-                           $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" + 
+                           $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" +
                            "Pooling=true;" + // Enable connection pooling (default is true)
                            $"MinPoolSize={Environment.GetEnvironmentVariable("MIN_CONNECTION")};" + // Minimum number of connections in the pool
-                           $"MaxPoolSize={Environment.GetEnvironmentVariable("MAX_CONNECTION")};" + // Maximum number of connections in the pool
+                           $"MaxPoolSize={adjustedMax};" + // Maximum number of connections in the pool
                            $"ConnectionIdleLifetime={Environment.GetEnvironmentVariable("CONNECTION_LIFETIME")};"; // Time (seconds) a connection can be idle before being closed
     options.UseNpgsql(connectionString);
 });
