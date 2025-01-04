@@ -10,6 +10,16 @@ namespace DataAccess.Data
 {
     public class UserDefaultData
     {
+
+        public void PopulateRolesData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Roles>().HasData(
+                new Roles { Id = 1, Name = "User", Description = "Default user role" },
+                new Roles { Id = 2, Name = "Admin", Description = "Admin role" }
+            );
+
+        }
+
         public void PopulateUsersData(ModelBuilder modelBuilder)
         {
 

@@ -248,6 +248,7 @@ namespace BackEngin.Data
 
             // USERS
             var usersSeeding = new UserDefaultData();
+            usersSeeding.PopulateRolesData(modelBuilder);
             usersSeeding.PopulateUsersData(modelBuilder);
 
             // BLOGS
@@ -260,15 +261,19 @@ namespace BackEngin.Data
             addressSeeding.PopulateCitytData(modelBuilder);
             addressSeeding.PopulateDistrictData(modelBuilder);
 
-            // INGREDIENT TYPES, INGREDIENTS, ING_PREFERENCES, PREFERENCES
+            // INGREDIENT TYPES, INGREDIENTS
             var ingredinetSeeding = new IngredientsDefaultData();
-            ingredinetSeeding.PopulatePreferencesData(modelBuilder);
             ingredinetSeeding.PopulateIngredientTypesData(modelBuilder);
             ingredinetSeeding.PopulateIngredientsData(modelBuilder);
-            ingredinetSeeding.PopulateIngredientPreferencesData(modelBuilder);            
+
+            //ING_PREFERENCES, PREFERENCES
+            var preferencesSeeding = new PreferencesDefaultData();
+            preferencesSeeding.PopulatePreferencesData(modelBuilder);
+            preferencesSeeding.PopulateIngredientPreferencesData(modelBuilder);
 
             // EVENTS
             var eventSeeding = new EventDefaultData();
+            eventSeeding.PopulateAddressData(modelBuilder);
             eventSeeding.PopulateEventData(modelBuilder);
 
         }
