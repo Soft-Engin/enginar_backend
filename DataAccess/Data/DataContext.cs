@@ -73,7 +73,7 @@ namespace BackEngin.Data
                 entity.HasOne(u => u.Address)
                     .WithMany()
                     .HasForeignKey(u => u.AddressId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(u => u.Role)
                     .WithMany()
@@ -108,7 +108,7 @@ namespace BackEngin.Data
                 entity.HasOne(e => e.Creator)
                     .WithMany()
                     .HasForeignKey(e => e.CreatorId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.Address)
                     .WithMany()
