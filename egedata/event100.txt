@@ -1,0 +1,902 @@
+modelBuilder.Entity<Events>().HasData(
+new Events
+{
+    Id = 1,
+    CreatorId = 10,
+    AddressId = 69,
+    Date = new DateTime(2025, 8, 13, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Dessert Delights",
+    BodyText = "Indulge in an evening of seductive desserts with a guided tasting crafted for every palate."
+},
+new Events
+{
+    Id = 2,
+    CreatorId = 3,
+    AddressId = 49,
+    Date = new DateTime(2025, 3, 21, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Grill Master ShowDown",
+    BodyText = "Join us for a sizzling BBQ battle, where culinary masters fire up their grills for mouthwatering cre"
+},
+new Events
+{
+    Id = 3,
+    CreatorId = 46,
+    AddressId = 30,
+    Date = new DateTime(2025, 4, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Gastronomic Symphony",
+    BodyText = "Indulge in a culinary extravaganza where flavors dance on your palate."
+},
+new Events
+{
+    Id = 4,
+    CreatorId = 6,
+    AddressId = 93,
+    Date = new DateTime(2025, 8, 30, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Savor the Flavors: Street Food Market",
+    BodyText = "Indulge in a culinary extravaganza! Join us for a feast of tantalizing dishes, where street food art"
+},
+new Events
+{
+    Id = 5,
+    CreatorId = 49,
+    AddressId = 27,
+    Date = new DateTime(2025, 12, 3, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Clicks: Food Photography Workshop",
+    BodyText = "Capture the beauty of food with expert tips and techniques for stunning food photography."
+},
+new Events
+{
+    Id = 6,
+    CreatorId = 81,
+    AddressId = 67,
+    Date = new DateTime(2025, 8, 24, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Unveiling the Vine's Secrets",
+    BodyText = "Join us for a tantalizing wine tasting journey, where flavors dance with aromas"
+},
+new Events
+{
+    Id = 7,
+    CreatorId = 15,
+    AddressId = 2,
+    Date = new DateTime(2025, 9, 17, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Savor the Street",
+    BodyText = "Street food market with flavors from around the globe."
+},
+new Events
+{
+    Id = 8,
+    CreatorId = 66,
+    AddressId = 91,
+    Date = new DateTime(2025, 2, 18, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Perfection in the Kitchen",
+    BodyText = "Craft authentic pasta from scratch with our interactive workshop. Discover secrets and indulge in yo"
+},
+new Events
+{
+    Id = 9,
+    CreatorId = 72,
+    AddressId = 38,
+    Date = new DateTime(2025, 8, 30, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Taste the World",
+    BodyText = "Indulge in global flavors at our vibrant Street Food Market!"
+},
+new Events
+{
+    Id = 10,
+    CreatorId = 43,
+    AddressId = 57,
+    Date = new DateTime(2025, 3, 7, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Odyssey",
+    BodyText = "Explore a world of flavors at our International Food Fair!"
+},
+new Events
+{
+    Id = 11,
+    CreatorId = 20,
+    AddressId = 21,
+    Date = new DateTime(2025, 1, 29, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sweet Indulgence: Dessert Extravaganza",
+    BodyText = "Indulge in a symphony of flavors as we present an array of delectable desserts, crafted with love an"
+},
+new Events
+{
+    Id = 12,
+    CreatorId = 54,
+    AddressId = 19,
+    Date = new DateTime(2025, 7, 6, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sushi Sensations: A Culinary Journey",
+    BodyText = "Immerse yourself in the art of sushi making with expert guidance. Craft your own delicious creations"
+},
+new Events
+{
+    Id = 13,
+    CreatorId = 8,
+    AddressId = 34,
+    Date = new DateTime(2025, 6, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Perfection",
+    BodyText = "Join us for a hands-on pasta making workshop. Discover the art of crafting delicious fresh pasta fro"
+},
+new Events
+{
+    Id = 14,
+    CreatorId = 49,
+    AddressId = 1,
+    Date = new DateTime(2025, 6, 22, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Taste the World on Every Corner",
+    BodyText = "Indulge in a culinary journey as street food vendors from around the globe gather to tantalize your "
+},
+new Events
+{
+    Id = 15,
+    CreatorId = 57,
+    AddressId = 48,
+    Date = new DateTime(2025, 2, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sizzling Showdown: BBQ Extravaganza",
+    BodyText = "Get ready for a feast of epic proportions! Join us for a grilling competition where BBQ masters show"
+},
+new Events
+{
+    Id = 16,
+    CreatorId = 47,
+    AddressId = 18,
+    Date = new DateTime(2025, 11, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Crossroads: A Global Feast",
+    BodyText = "Savor flavors from every corner, as culinary artisans gather to showcase their finest creations."
+},
+new Events
+{
+    Id = 17,
+    CreatorId = 57,
+    AddressId = 56,
+    Date = new DateTime(2025, 1, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 18,
+    CreatorId = 91,
+    AddressId = 78,
+    Date = new DateTime(2025, 9, 8, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Feast of Flavors",
+    BodyText = "An exquisite culinary journey awaits, where master chefs unveil their most tantalizing creations."
+},
+new Events
+{
+    Id = 19,
+    CreatorId = 35,
+    AddressId = 38,
+    Date = new DateTime(2025, 12, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Street Food Market Culinary Experience",
+    BodyText = "Join us for an unforgettable Street Food Market food experience!"
+},
+new Events
+{
+    Id = 20,
+    CreatorId = 19,
+    AddressId = 7,
+    Date = new DateTime(2025, 8, 6, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Expedition: Flavors from Afar",
+    BodyText = "Embark on a tantalizing culinary journey as local and international chefs showcase their masterful d"
+},
+new Events
+{
+    Id = 21,
+    CreatorId = 8,
+    AddressId = 74,
+    Date = new DateTime(2025, 5, 13, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Farm-to-Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Farm-to-Table Dinner food experience!"
+},
+new Events
+{
+    Id = 22,
+    CreatorId = 85,
+    AddressId = 1,
+    Date = new DateTime(2025, 5, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sushi Making Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Sushi Making Class food experience!"
+},
+new Events
+{
+    Id = 23,
+    CreatorId = 26,
+    AddressId = 5,
+    Date = new DateTime(2025, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Baking Masterclass Culinary Experience",
+    BodyText = "Join us for an unforgettable Baking Masterclass food experience!"
+},
+new Events
+{
+    Id = 24,
+    CreatorId = 77,
+    AddressId = 90,
+    Date = new DateTime(2025, 11, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 25,
+    CreatorId = 43,
+    AddressId = 31,
+    Date = new DateTime(2025, 7, 30, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 26,
+    CreatorId = 33,
+    AddressId = 96,
+    Date = new DateTime(2025, 11, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+},
+new Events
+{
+    Id = 27,
+    CreatorId = 38,
+    AddressId = 1,
+    Date = new DateTime(2025, 4, 24, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Photography Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Photography Class food experience!"
+},
+new Events
+{
+    Id = 28,
+    CreatorId = 62,
+    AddressId = 18,
+    Date = new DateTime(2025, 3, 21, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sushi Making Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Sushi Making Class food experience!"
+},
+new Events
+{
+    Id = 29,
+    CreatorId = 38,
+    AddressId = 61,
+    Date = new DateTime(2025, 10, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Photography Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Photography Class food experience!"
+},
+new Events
+{
+    Id = 30,
+    CreatorId = 92,
+    AddressId = 98,
+    Date = new DateTime(2025, 10, 6, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 31,
+    CreatorId = 34,
+    AddressId = 45,
+    Date = new DateTime(2025, 12, 17, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 32,
+    CreatorId = 27,
+    AddressId = 37,
+    Date = new DateTime(2025, 3, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Street Food Market Culinary Experience",
+    BodyText = "Join us for an unforgettable Street Food Market food experience!"
+},
+new Events
+{
+    Id = 33,
+    CreatorId = 20,
+    AddressId = 85,
+    Date = new DateTime(2025, 7, 4, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 34,
+    CreatorId = 34,
+    AddressId = 80,
+    Date = new DateTime(2025, 12, 24, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 35,
+    CreatorId = 71,
+    AddressId = 62,
+    Date = new DateTime(2025, 10, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sushi Making Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Sushi Making Class food experience!"
+},
+new Events
+{
+    Id = 36,
+    CreatorId = 49,
+    AddressId = 31,
+    Date = new DateTime(2025, 8, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 37,
+    CreatorId = 37,
+    AddressId = 55,
+    Date = new DateTime(2025, 4, 29, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 38,
+    CreatorId = 58,
+    AddressId = 74,
+    Date = new DateTime(2025, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Festival Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Festival food experience!"
+},
+new Events
+{
+    Id = 39,
+    CreatorId = 87,
+    AddressId = 91,
+    Date = new DateTime(2025, 9, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+},
+new Events
+{
+    Id = 40,
+    CreatorId = 77,
+    AddressId = 21,
+    Date = new DateTime(2025, 2, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chocolate Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Chocolate Making Workshop food experience!"
+},
+new Events
+{
+    Id = 41,
+    CreatorId = 26,
+    AddressId = 54,
+    Date = new DateTime(2025, 6, 7, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Cooking Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Cooking Workshop food experience!"
+},
+new Events
+{
+    Id = 42,
+    CreatorId = 77,
+    AddressId = 12,
+    Date = new DateTime(2025, 9, 3, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 43,
+    CreatorId = 67,
+    AddressId = 23,
+    Date = new DateTime(2025, 7, 29, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 44,
+    CreatorId = 65,
+    AddressId = 89,
+    Date = new DateTime(2025, 9, 19, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Festival Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Festival food experience!"
+},
+new Events
+{
+    Id = 45,
+    CreatorId = 78,
+    AddressId = 65,
+    Date = new DateTime(2025, 9, 19, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Festival Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Festival food experience!"
+},
+new Events
+{
+    Id = 46,
+    CreatorId = 17,
+    AddressId = 20,
+    Date = new DateTime(2025, 8, 13, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Dessert Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Dessert Tasting food experience!"
+},
+new Events
+{
+    Id = 47,
+    CreatorId = 82,
+    AddressId = 30,
+    Date = new DateTime(2025, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Farm-to-Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Farm-to-Table Dinner food experience!"
+},
+new Events
+{
+    Id = 48,
+    CreatorId = 85,
+    AddressId = 40,
+    Date = new DateTime(2025, 6, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Street Food Market Culinary Experience",
+    BodyText = "Join us for an unforgettable Street Food Market food experience!"
+},
+new Events
+{
+    Id = 49,
+    CreatorId = 93,
+    AddressId = 47,
+    Date = new DateTime(2025, 1, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 50,
+    CreatorId = 72,
+    AddressId = 85,
+    Date = new DateTime(2025, 4, 12, 0, 0, 0, DateTimeKind.Utc),
+    Title = "BBQ Competition Culinary Experience",
+    BodyText = "Join us for an unforgettable BBQ Competition food experience!"
+},
+new Events
+{
+    Id = 51,
+    CreatorId = 87,
+    AddressId = 86,
+    Date = new DateTime(2025, 2, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 52,
+    CreatorId = 92,
+    AddressId = 13,
+    Date = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Cooking Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Cooking Workshop food experience!"
+},
+new Events
+{
+    Id = 53,
+    CreatorId = 34,
+    AddressId = 81,
+    Date = new DateTime(2025, 2, 7, 0, 0, 0, DateTimeKind.Utc),
+    Title = "BBQ Competition Culinary Experience",
+    BodyText = "Join us for an unforgettable BBQ Competition food experience!"
+},
+new Events
+{
+    Id = 54,
+    CreatorId = 98,
+    AddressId = 45,
+    Date = new DateTime(2025, 11, 3, 0, 0, 0, DateTimeKind.Utc),
+    Title = "BBQ Competition Culinary Experience",
+    BodyText = "Join us for an unforgettable BBQ Competition food experience!"
+},
+new Events
+{
+    Id = 55,
+    CreatorId = 45,
+    AddressId = 81,
+    Date = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Sushi Making Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Sushi Making Class food experience!"
+},
+new Events
+{
+    Id = 56,
+    CreatorId = 31,
+    AddressId = 90,
+    Date = new DateTime(2025, 3, 18, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Farm-to-Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Farm-to-Table Dinner food experience!"
+},
+new Events
+{
+    Id = 57,
+    CreatorId = 6,
+    AddressId = 64,
+    Date = new DateTime(2025, 8, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chocolate Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Chocolate Making Workshop food experience!"
+},
+new Events
+{
+    Id = 58,
+    CreatorId = 89,
+    AddressId = 29,
+    Date = new DateTime(2025, 2, 10, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Dessert Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Dessert Tasting food experience!"
+},
+new Events
+{
+    Id = 59,
+    CreatorId = 45,
+    AddressId = 33,
+    Date = new DateTime(2025, 3, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Baking Masterclass Culinary Experience",
+    BodyText = "Join us for an unforgettable Baking Masterclass food experience!"
+},
+new Events
+{
+    Id = 60,
+    CreatorId = 16,
+    AddressId = 86,
+    Date = new DateTime(2025, 2, 17, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Wine Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Wine Tasting food experience!"
+},
+new Events
+{
+    Id = 61,
+    CreatorId = 58,
+    AddressId = 73,
+    Date = new DateTime(2025, 9, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 62,
+    CreatorId = 49,
+    AddressId = 66,
+    Date = new DateTime(2025, 8, 14, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 63,
+    CreatorId = 41,
+    AddressId = 60,
+    Date = new DateTime(2025, 7, 30, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 64,
+    CreatorId = 79,
+    AddressId = 65,
+    Date = new DateTime(2025, 8, 10, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+},
+new Events
+{
+    Id = 65,
+    CreatorId = 86,
+    AddressId = 35,
+    Date = new DateTime(2025, 11, 5, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Street Food Market Culinary Experience",
+    BodyText = "Join us for an unforgettable Street Food Market food experience!"
+},
+new Events
+{
+    Id = 66,
+    CreatorId = 65,
+    AddressId = 74,
+    Date = new DateTime(2025, 2, 6, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Pasta Making Workshop food experience!"
+},
+new Events
+{
+    Id = 67,
+    CreatorId = 81,
+    AddressId = 16,
+    Date = new DateTime(2025, 1, 11, 0, 0, 0, DateTimeKind.Utc),
+    Title = "BBQ Competition Culinary Experience",
+    BodyText = "Join us for an unforgettable BBQ Competition food experience!"
+},
+new Events
+{
+    Id = 68,
+    CreatorId = 42,
+    AddressId = 97,
+    Date = new DateTime(2025, 5, 25, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+},
+new Events
+{
+    Id = 69,
+    CreatorId = 88,
+    AddressId = 89,
+    Date = new DateTime(2025, 3, 29, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Farm-to-Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Farm-to-Table Dinner food experience!"
+},
+new Events
+{
+    Id = 70,
+    CreatorId = 100,
+    AddressId = 16,
+    Date = new DateTime(2025, 11, 24, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+},
+new Events
+{
+    Id = 71,
+    CreatorId = 98,
+    AddressId = 25,
+    Date = new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Canvas: Food Photography Masterclass",
+    BodyText = "Learn food photography secrets from a pro and elevate your culinary shots."
+},
+new Events
+{
+    Id = 72,
+    CreatorId = 70,
+    AddressId = 54,
+    Date = new DateTime(2025, 9, 18, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 73,
+    CreatorId = 91,
+    AddressId = 9,
+    Date = new DateTime(2025, 2, 14, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chocolate's Sweet Symphony",
+    BodyText = "Unleash your inner chocolatier and craft delectable treats!"
+},
+new Events
+{
+    Id = 74,
+    CreatorId = 62,
+    AddressId = 82,
+    Date = new DateTime(2025, 9, 28, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Unveiling the Flavors of Wine and Cuisine",
+    BodyText = "Join us for an exquisite evening of wine tasting, savoring the perfect pairings with delectable culi"
+},
+new Events
+{
+    Id = 75,
+    CreatorId = 60,
+    AddressId = 58,
+    Date = new DateTime(2025, 7, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Street Food Extravaganza",
+    BodyText = "Savor global flavors & culinary delights from around the world!"
+},
+new Events
+{
+    Id = 76,
+    CreatorId = 85,
+    AddressId = 32,
+    Date = new DateTime(2025, 6, 24, 0, 0, 0, DateTimeKind.Utc),
+    Title = "An Evening at the Chef's Table",
+    BodyText = "Indulge in an intimate dining experience. Watch our chefs craft a masterpiece before your eyes."
+},
+new Events
+{
+    Id = 77,
+    CreatorId = 89,
+    AddressId = 12,
+    Date = new DateTime(2025, 11, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Creations Festival",
+    BodyText = "Join renowned chefs for cooking demos and hands-on workshops exploring flavors from around the globe"
+},
+new Events
+{
+    Id = 78,
+    CreatorId = 1,
+    AddressId = 83,
+    Date = new DateTime(2025, 3, 30, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Extravaganza",
+    BodyText = "Embark on a culinary journey through diverse flavors, cooking demos, and hands-on experiences."
+},
+new Events
+{
+    Id = 79,
+    CreatorId = 71,
+    AddressId = 36,
+    Date = new DateTime(2025, 7, 10, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Feast from the Farm",
+    BodyText = "Join us for a culinary journey where farm-fresh flavors take center stage."
+},
+new Events
+{
+    Id = 80,
+    CreatorId = 58,
+    AddressId = 17,
+    Date = new DateTime(2025, 11, 7, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Savor the Street",
+    BodyText = "Indulge in culinary delights from around the globe at our vibrant Street Food Market."
+},
+new Events
+{
+    Id = 81,
+    CreatorId = 85,
+    AddressId = 92,
+    Date = new DateTime(2025, 8, 26, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chocolate Crafting Extravaganza",
+    BodyText = "Indulge in a hands-on adventure, crafting exquisite chocolates from scratch!"
+},
+new Events
+{
+    Id = 82,
+    CreatorId = 92,
+    AddressId = 71,
+    Date = new DateTime(2025, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Odyssey: Farm-to-Fork Feast",
+    BodyText = "Savor the freshest flavors as local ingredients dance on your plate."
+},
+new Events
+{
+    Id = 83,
+    CreatorId = 70,
+    AddressId = 97,
+    Date = new DateTime(2025, 11, 7, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Making Mastery",
+    BodyText = "Join our hands-on workshop and learn the art of crafting authentic Italian pasta from scratch."
+},
+new Events
+{
+    Id = 84,
+    CreatorId = 69,
+    AddressId = 43,
+    Date = new DateTime(2025, 6, 16, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Pasta Proficiency Workshop",
+    BodyText = "Join us as we master the art of crafting fresh, homemade pasta from scratch."
+},
+new Events
+{
+    Id = 85,
+    CreatorId = 67,
+    AddressId = 100,
+    Date = new DateTime(2025, 8, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Canvas: Food Photography Masterclass",
+    BodyText = "Capture the art of cooking through the lens. Learn techniques to elevate your food photography skill"
+},
+new Events
+{
+    Id = 86,
+    CreatorId = 30,
+    AddressId = 91,
+    Date = new DateTime(2025, 2, 18, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Delights",
+    BodyText = "Savor a weekend of exquisite cuisine, cooking demos, and culinary workshops."
+},
+new Events
+{
+    Id = 87,
+    CreatorId = 22,
+    AddressId = 48,
+    Date = new DateTime(2025, 9, 2, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Savor the World's Flavors",
+    BodyText = "Embark on a culinary adventure, exploring diverse cuisines and tantalizing tastes from every corner "
+},
+new Events
+{
+    Id = 88,
+    CreatorId = 46,
+    AddressId = 96,
+    Date = new DateTime(2025, 8, 23, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Culinary Canvas: An Immersive Dining Experience",
+    BodyText = "Witness culinary artistry unfold as our chef paints flavors on your plate."
+},
+new Events
+{
+    Id = 89,
+    CreatorId = 66,
+    AddressId = 71,
+    Date = new DateTime(2025, 7, 22, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Smoky 'Cue Showdown",
+    BodyText = "Grab your forks and gather 'round for a sizzling BBQ competition where pitmasters ignite taste buds."
+},
+new Events
+{
+    Id = 90,
+    CreatorId = 48,
+    AddressId = 87,
+    Date = new DateTime(2025, 5, 31, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Cooking Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Cooking Workshop food experience!"
+},
+new Events
+{
+    Id = 91,
+    CreatorId = 96,
+    AddressId = 28,
+    Date = new DateTime(2025, 8, 9, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Cooking Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Cooking Workshop food experience!"
+},
+new Events
+{
+    Id = 92,
+    CreatorId = 24,
+    AddressId = 75,
+    Date = new DateTime(2025, 7, 4, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 93,
+    CreatorId = 46,
+    AddressId = 36,
+    Date = new DateTime(2025, 7, 21, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Festival Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Festival food experience!"
+},
+new Events
+{
+    Id = 94,
+    CreatorId = 66,
+    AddressId = 89,
+    Date = new DateTime(2025, 11, 25, 0, 0, 0, DateTimeKind.Utc),
+    Title = "BBQ Competition Culinary Experience",
+    BodyText = "Join us for an unforgettable BBQ Competition food experience!"
+},
+new Events
+{
+    Id = 95,
+    CreatorId = 45,
+    AddressId = 98,
+    Date = new DateTime(2025, 10, 20, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Craft Beer Tasting Culinary Experience",
+    BodyText = "Join us for an unforgettable Craft Beer Tasting food experience!"
+},
+new Events
+{
+    Id = 96,
+    CreatorId = 58,
+    AddressId = 97,
+    Date = new DateTime(2025, 7, 23, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Cooking Workshop Culinary Experience",
+    BodyText = "Join us for an unforgettable Cooking Workshop food experience!"
+},
+new Events
+{
+    Id = 97,
+    CreatorId = 56,
+    AddressId = 31,
+    Date = new DateTime(2025, 6, 13, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Chef's Table Dinner Culinary Experience",
+    BodyText = "Join us for an unforgettable Chef's Table Dinner food experience!"
+},
+new Events
+{
+    Id = 98,
+    CreatorId = 52,
+    AddressId = 39,
+    Date = new DateTime(2025, 12, 21, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Baking Masterclass Culinary Experience",
+    BodyText = "Join us for an unforgettable Baking Masterclass food experience!"
+},
+new Events
+{
+    Id = 99,
+    CreatorId = 83,
+    AddressId = 77,
+    Date = new DateTime(2025, 10, 14, 0, 0, 0, DateTimeKind.Utc),
+    Title = "Food Photography Class Culinary Experience",
+    BodyText = "Join us for an unforgettable Food Photography Class food experience!"
+},
+new Events
+{
+    Id = 100,
+    CreatorId = 28,
+    AddressId = 60,
+    Date = new DateTime(2025, 4, 11, 0, 0, 0, DateTimeKind.Utc),
+    Title = "International Food Fair Culinary Experience",
+    BodyText = "Join us for an unforgettable International Food Fair food experience!"
+}
+);

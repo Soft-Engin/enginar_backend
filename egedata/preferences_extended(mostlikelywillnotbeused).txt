@@ -1,0 +1,31 @@
+modelBuilder.Entity<Preferences>().HasData(
+    new Preferences { Id = 1, Name = "Milk", Description = "Includes all milk products, such as milk, cheese, yogurt, butter, and whey." },
+    new Preferences { Id = 2, Name = "Eggs", Description = "Includes chicken eggs and any products containing eggs, such as baked goods and mayonnaise." },
+    new Preferences { Id = 3, Name = "Fish", Description = "Includes all finned fish such as bass, cod, salmon, tuna, and anchovies." },
+    new Preferences { Id = 4, Name = "Crustacean Shellfish", Description = "Includes shrimp, crab, lobster, prawns, and crayfish." },
+    new Preferences { Id = 5, Name = "Tree Nuts", Description = "Includes almonds, walnuts, pecans, cashews, macadamia nuts, and hazelnuts. Excludes peanuts." },
+    new Preferences { Id = 6, Name = "Peanuts", Description = "Includes peanuts and peanut-containing products, such as peanut butter and peanut oil." },
+    new Preferences { Id = 7, Name = "Wheat", Description = "Includes foods containing wheat gluten, such as bread, pasta, and cereals." },
+    new Preferences { Id = 8, Name = "Soybeans", Description = "Includes soy and soy-containing products, such as tofu, soy sauce, and edamame." },
+    new Preferences { Id = 9, Name = "Sesame", Description = "Includes sesame seeds, sesame oil, and products containing sesame, such as tahini." },
+
+    // Common Dietary & Lifestyle Preferences
+    new Preferences { Id = 10, Name = "Vegan", Description = "A diet that excludes all animal products, including meat, dairy, eggs, and honey." },
+    new Preferences { Id = 11, Name = "Vegetarian", Description = "A diet that excludes meat and fish but may include dairy and eggs. There are different types of vegetarian including lacto-ovo, lacto, and ovo." },
+    new Preferences { Id = 12, Name = "No Alcohol", Description = "Avoidance of alcoholic beverages, such as beer, wine, and spirits." },
+    new Preferences { Id = 13, Name = "No Pork", Description = "Avoidance of pork and pork-derived products, such as bacon, ham, and sausage." },
+    new Preferences { Id = 14, Name = "Gluten-Free", Description = "Avoidance of foods containing gluten, a protein found in wheat, barley, and rye." },
+
+    // Illness-Related Dietary Needs
+    new Preferences { Id = 15, Name = "Diabetic-Friendly", Description = "A diet suitable for individuals with diabetes, focusing on controlling blood sugar levels through balanced carbohydrate intake, portion control, and avoidance of simple sugars." },
+    new Preferences { Id = 16, Name = "Low Sodium (Hypertension)", Description = "A diet that minimizes the consumption of salt and high-sodium foods to help manage hypertension (high blood pressure)." },
+    new Preferences { Id = 17, Name = "Heart-Healthy", Description = "A diet that minimizes the consumption of saturated and trans fats, as well as cholesterol, to help prevent heart disease." },
+    new Preferences { Id = 18, Name = "Renal-Friendly", Description = "A diet that restricts sodium, potassium, and phosphorus intake to support kidney health." },
+    new Preferences { Id = 19, Name = "Low-Carb", Description = "A diet that minimizes the consumption of carbohydrates, focusing on protein and fats." },
+    new Preferences { Id = 20, Name = "High-Fiber", Description = "A diet focused on increased intake of fiber-rich foods to promote gut health and stabilize blood sugar." },
+    new Preferences { Id = 21, Name = "Pescatarian", Description = "A diet that includes fish but excludes other forms of meat." },
+    new Preferences { Id = 22, Name = "Nightshade-Free", Description = "Avoidance of nightshade vegetables, such as tomatoes, potatoes, eggplants, and peppers." },
+    new Preferences { Id = 23, Name = "Low FODMAP", Description = "A diet that limits fermentable oligosaccharides, disaccharides, monosaccharides, and polyols to manage digestive symptoms." },
+    new Preferences { Id = 24, Name = "No Artificial Sweeteners", Description = "Avoidance of artificial sweeteners like aspartame, sucralose, and saccharin." }
+
+);
