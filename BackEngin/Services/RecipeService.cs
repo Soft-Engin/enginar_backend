@@ -382,7 +382,8 @@ namespace BackEngin.Services
 
                 if (searchParams.IngredientIds.Any())
                 {
-                    query = query.Where(r => r.Recipes_Ingredients.Any(ri => searchParams.IngredientIds.Contains(ri.IngredientId)));
+                    query = query.Where(r => searchParams.IngredientIds.All(searchId => 
+                        r.Recipes_Ingredients.Any(ri => ri.IngredientId == searchId)));
                 }
 
                 if (searchParams.AllergenIds.Any())
@@ -400,7 +401,8 @@ namespace BackEngin.Services
             query = searchParams.SortBy?.ToLower() switch
             {
                 "bodytext" => ascending ? query.OrderBy(r => r.BodyText) : query.OrderByDescending(r => r.BodyText),
-                "userid" => ascending ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId),
+                "username" => ascending ? query.OrderBy(r => r.User.UserName) : query.OrderByDescending(r => r.User.UserName),
+                "creationdate" => ascending ? query.OrderBy(r => r.CreatedAt) : query.OrderByDescending(r => r.CreatedAt),
                 _ => ascending ? query.OrderBy(r => r.Header) : query.OrderByDescending(r => r.Header),
             };
 
@@ -416,10 +418,14 @@ namespace BackEngin.Services
             var recipeDtos = recipes.Select(r => new RecipeDTO
             {
                 Id = r.Id,
-                Header = r.Header,
-                BodyText = r.BodyText,
                 UserId = r.UserId,
                 UserName = userDictionary.ContainsKey(r.UserId) ? userDictionary[r.UserId] : "Unknown",
+                Header = r.Header,
+                BodyText = r.BodyText,
+                ServingSize = r.ServingSize,
+                PreparationTime = r.PreparationTime,
+                Steps = r.Steps,
+                CreatedAt = r.CreatedAt,
             }).ToList();
 
             return new PaginatedResponseDTO<RecipeDTO>

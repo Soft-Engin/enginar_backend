@@ -44,6 +44,10 @@ namespace BackEngin.Data
         public DbSet<Recipe_Bookmarks> Recipe_Bookmarks { get; set; }
         public DbSet<Recipe_Comments> Recipe_Comments { get; set; }
         public DbSet<Recipe_Likes> Recipe_Likes { get; set; }
+        public DbSet<Event_Bookmarks> Event_Bookmarks { get; set; }
+        public DbSet<Event_Comments> Event_Comments { get; set; }
+        public DbSet<Event_Likes> Event_Likes { get; set; }
+
         public DbSet<User_Allergens> User_Allergens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -228,6 +232,24 @@ namespace BackEngin.Data
                .WithMany()
                .HasForeignKey(rb => rb.BlogId)
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Event_Bookmarks>()
+               .HasOne(rb => rb.Event)
+               .WithMany()
+               .HasForeignKey(rb => rb.EventId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Event_Comments>()
+               .HasOne(rb => rb.Event)
+               .WithMany()
+               .HasForeignKey(rb => rb.EventId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Event_Likes>()
+               .HasOne(rb => rb.Event)
+               .WithMany()
+               .HasForeignKey(rb => rb.EventId)
+               .OnDelete(DeleteBehavior.Restrict);
 
             // Configure User_Allergens
             modelBuilder.Entity<User_Allergens>()

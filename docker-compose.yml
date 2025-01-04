@@ -20,7 +20,7 @@ services:
     build:  
       context: .
       dockerfile: Dockerfile
-    image: enginar-backend
+    image: tamerkucukel/enginar-backend:latest
     container_name: enginar_backend
     depends_on:
       postgres:

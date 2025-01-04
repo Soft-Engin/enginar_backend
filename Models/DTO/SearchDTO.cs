@@ -11,7 +11,7 @@
         public List<int> IngredientIds { get; set; } = new List<int>();
         public List<int> AllergenIds { get; set; } = new List<int>();
 
-        // Sorting: Allowed fields: Header, BodyText, UserName
+        // Sorting: Allowed fields: Header, BodyText, UserName, CreationDate
         public string SortBy { get; set; } = "Header";
         public string SortOrder { get; set; } = "asc"; // "asc" or "desc"
     }
@@ -25,7 +25,7 @@
         public List<int> IngredientIds { get; set; } = new List<int>();
         public List<int> AllergenIds { get; set; } = new List<int>();
 
-        // Sorting: Allowed fields: Header, BodyText, UserName
+        // Sorting: Allowed fields: Header, BodyText, UserName, CreationDate
         public string SortBy { get; set; } = "Header";
         public string SortOrder { get; set; } = "asc"; // "asc" or "desc"
     }

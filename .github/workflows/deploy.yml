@@ -1,0 +1,122 @@
+name: Cloud & Docker Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        type: choice
+        description: Select which terraform action to perform.
+        options:
+        - test
+        - apply
+        - destroy
+        required: true
+      tag_version:
+        type: string
+        description: 'Docker image tag version (optional)'
+        required: false
+  push:
+    tags:
+     - v*
+
+jobs:
+  terraform:
+    name: Terraform Deployment
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ./deployment/terraform
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+    
+    steps:
+    - name: Checkout Repository
+      id: checkout
+      uses: actions/checkout@v4
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Setup
+      id: setup
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.10.3
+    
+    # Terraform format command is used to rewrite Terraform configuration files to a canonical format and style.
+    - name: Terraform Formatter
+      id: fmt
+      run: terraform fmt -check
+
+    # Terraform Init command is used to initialize a working directory containing Terraform configuration files.
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    # Terraform Validate command is used to validate the configuration files in a directory.
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+    
+    # Terraform Plan command is used to create an execution plan.
+    - name: Terraform Plan
+      id: plan
+      run: |
+        if [[ "${{ github.event.inputs.terraform_action }}" == "destroy" ]]; then
+          terraform plan -destroy -no-color
+        else
+          terraform plan -no-color
+        fi
+    
+    # Terraform Apply command is used to apply the changes required to reach the desired state of the configuration.
+    - name: Terraform Apply
+      id: apply
+      if: ${{ github.event.inputs.terraform_action == 'apply' }}
+      run: terraform apply -auto-approve
+    
+    # Terraform Destroy command is used to destroy the Terraform-managed infrastructure.
+    - name: Terraform destroy
+      id: destroy
+      if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+      run: terraform destroy -auto-approve
+    
+  docker-build-push:
+    if: ${{ startsWith(github.ref, 'refs/tags/') || inputs.tag_version != '' }}
+    name: Docker Build and Push
+    runs-on: self-hosted
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensures full clone for accurate analysis
+        ref: ${{ inputs.tag_version || github.ref }}
+    
+    - name: Setup Docker BuildX
+      uses: docker/setup-buildx-action@v3
+      with:
+        install: true
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Generate Docker Tags
+      id: docker_tags
+      run: |
+        if [[ -n "${{ inputs.tag_version }}" ]]; then
+          echo "version=${{ inputs.tag_version }}" >> $GITHUB_OUTPUT
+        else
+          VERSION="${GITHUB_REF##*/}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "use_latest=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: |
+          tamerkucukel/enginar-backend:${{ steps.docker_tags.outputs.version }}
+          ${{ steps.docker_tags.outputs.use_latest == 'true' && 'tamerkucukel/enginar-backend:latest' || '' }}

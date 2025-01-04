@@ -40,6 +40,9 @@ namespace DataAccess.Repositories
         public IRecipe_LikesRepository Recipe_Likes { get; }
         public IRecipe_CommentsRepository Recipe_Comments { get; }
         public IRecipe_BookmarksRepository Recipe_Bookmarks { get; }
+        public IEvent_LikesRepository Event_Likes { get; }
+        public IEvent_CommentsRepository Event_Comments { get; }
+        public IEvent_BookmarksRepository Event_Bookmarks { get; }
         public IUser_Event_ParticipationsRepository User_Event_Participations { get; }
         public IUser_AllergensRepository User_Allergens { get; }
 
@@ -75,6 +78,9 @@ namespace DataAccess.Repositories
             Recipe_Likes = new Recipe_LikesRepository(_db);
             Recipe_Comments = new Recipe_CommentsRepository(_db);
             Recipe_Bookmarks = new Recipe_BookmarksRepository(_db);
+            Event_Likes = new Event_LikesRepository(_db);
+            Event_Comments = new Event_CommentsRepository(_db);
+            Event_Bookmarks = new Event_BookmarksRepository(_db);
             User_Event_Participations = new User_Event_ParticipationsRepository(db);
             User_Allergens = new User_AllergensRepository(_db);
 

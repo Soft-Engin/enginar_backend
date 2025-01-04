@@ -289,6 +289,7 @@ namespace BackEngin.Services
             {
                 "bodytext" => ascending ? query.OrderBy(b => b.BodyText) : query.OrderByDescending(b => b.BodyText),
                 "username" => ascending ? query.OrderBy(b => b.User.UserName) : query.OrderByDescending(b => b.User.UserName),
+                "creationdate" => ascending ? query.OrderBy(b => b.CreatedAt) : query.OrderByDescending(b => b.CreatedAt),
                 _ => ascending ? query.OrderBy(b => b.Header) : query.OrderByDescending(b => b.Header),
             };
 
@@ -304,11 +305,12 @@ namespace BackEngin.Services
             var blogDtos = blogs.Select(b => new BlogDTO
             {
                 Id = b.Id,
-                Header = b.Header,
-                BodyText = b.BodyText,
                 UserId = b.UserId,
                 UserName = userDictionary.ContainsKey(b.UserId) ? userDictionary[b.UserId] : "Unknown",
-                RecipeId = b.RecipeId
+                Header = b.Header,
+                BodyText = b.BodyText,
+                RecipeId = b.RecipeId,
+                CreatedAt = b.CreatedAt,
             }).ToList();
 
             return new PaginatedResponseDTO<BlogDTO>
