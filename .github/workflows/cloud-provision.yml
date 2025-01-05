@@ -11,6 +11,7 @@ on:
         - apply
         - destroy
         required: true
+        default: apply
       deploy_app:
         type: choice
         description: Select if you want to deploy or update the application or not.
@@ -19,20 +20,19 @@ on:
         - update
         - none
         required: true
-        default: none
+        default: deploy
       MIGRATE_DATABASE:
         type: boolean
         description: Set to true or false
         required: true
-        default: false
+        default: true
       ASPNETCORE_ENVIRONMENT:
         type: string
         description: Set the environment (Development, Production)
         required: true
-        default: Production
+        default: Development
   push:
-    tags:
-     - v*
+    
 
 jobs:
   terraform:
@@ -111,23 +111,23 @@ jobs:
       run:
         working-directory: ./deployment/ansible
     steps:
-      # 1. Checkout the repository
+      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Set up Python (Ansible requires Python)
+      # Set up Python (Ansible requires Python)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.8'
 
-      # 3. Install Ansible
+      # Install Ansible
       - name: Install Ansible
         run: |
           python -m pip install --upgrade pip
           pip install ansible
 
-      # 4. Decrypt SSH Private Key
+      # Decrypt SSH Private Key
       - name: Decrypt SSH Private Key
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
@@ -135,6 +135,7 @@ jobs:
           ansible-vault decrypt encrypted_ssh_key --output decrypted_ssh_key --vault-password-file <(echo "$ANSIBLE_VAULT_PASSWORD")
           chmod 600 decrypted_ssh_key
       
+      # Replace Parameters with Secrets
       - name: Replace Parameters with Secrets
         env:
           MIGRATE_DATABASE: ${{ github.event.inputs.MIGRATE_DATABASE }}
@@ -149,13 +150,13 @@ jobs:
           sed -i 's/^remote_user =.*/remote_user = '"$SSH_USERNAME"'/' ./ansible.cfg
           echo ${{ needs.terraform.outputs.ec2_public_ip }} >> ./inventory.ini
       
-      # 6. Run Ansible Playbook
+      # Run Ansible Playbook (Deploy)
       - name: Run Ansible Playbook
         if: ${{ github.event.inputs.deploy_app == 'deploy' }}
         run: |
           ansible-playbook playbooks/deploy.yml
       
-      # 7. Run Ansible Playbook
+      # Run Ansible Playbook (Update)
       - name: Run Ansible Playbook
         if: ${{ github.event.inputs.deploy_app == 'update' }}
         run: |
