@@ -27,8 +27,11 @@ on:
         default: true
         required: true
       ASPNETCORE_ENVIRONMENT:
-        type: string
+        type: choice
         description: Set the environment (Development, Production)
+        options:
+        - Development
+        - Production
         default: 'Production'
         required: true
   push:
@@ -99,7 +102,7 @@ jobs:
     # Output the EC2 Public IP  
     - name: Output EC2 Public IP
       id: output
-      if: ${{ github.event.inputs.deploy_app != 'none' || github.event.inputs.deploy_app != '' }}
+      if: ${{ github.event.inputs.deploy_app != 'none' && github.event.inputs.deploy_app != '' }}
       run: echo "ec2_public_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
 
   deploy:
