@@ -155,7 +155,7 @@ jobs:
       - name: Run Ansible Playbook
       # if: ${{ github.event.inputs.deploy_app == 'deploy' }}
         run: |
-          ansible-playbook -i all deploy.yml
+          ansible-playbook -i inventory.ini deploy.yml
       
       # Run Ansible Playbook (Update)
       - name: Run Ansible Playbook
