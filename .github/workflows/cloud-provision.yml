@@ -34,8 +34,6 @@ on:
         - Production
         default: 'Production'
         required: true
-  push:
-    
 
 jobs:
   terraform:
