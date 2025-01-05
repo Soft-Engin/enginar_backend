@@ -11,7 +11,7 @@ on:
         - apply
         - destroy
         required: true
-        default: apply
+        default: 'apply'
       deploy_app:
         type: choice
         description: Select if you want to deploy or update the application or not.
@@ -20,7 +20,7 @@ on:
         - update
         - none
         required: true
-        default: deploy
+        default: 'deploy'
       MIGRATE_DATABASE:
         type: boolean
         description: Set to true or false
@@ -30,7 +30,7 @@ on:
         type: string
         description: Set the environment (Development, Production)
         required: true
-        default: Development
+        default: 'Development'
   push:
     
 
