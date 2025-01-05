@@ -1,0 +1,1202 @@
+modelBuilder.Entity<Ingredients>().HasData(
+   new Ingredients
+{
+    Id = 1,
+    Name = "Salt",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 2,
+    Name = "Onion",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 3,
+    Name = "Garlic",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 4,
+    Name = "Olive Oil",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 5,
+    Name = "Water",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 6,
+    Name = "Black Pepper",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 7,
+    Name = "Butter",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 8,
+    Name = "Sugar",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 9,
+    Name = "Vegetable Oil",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 10,
+    Name = "Flour",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 11,
+    Name = "Eggs",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 12,
+    Name = "Milk",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 13,
+    Name = "Lemon Juice",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 14,
+    Name = "Chicken Broth",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 15,
+    Name = "Soy Sauce",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 16,
+    Name = "Carrots",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 17,
+    Name = "Celery",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 18,
+    Name = "Tomato Paste",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 19,
+    Name = "Vinegar",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 20,
+    Name = "Potatoes",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 21,
+    Name = "Parsley",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 22,
+    Name = "Cumin",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 23,
+    Name = "Bay Leaf",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 24,
+    Name = "Thyme",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 25,
+    Name = "Oregano",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 26,
+    Name = "Basil",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 27,
+    Name = "Cilantro",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 28,
+    Name = "Paprika",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 29,
+    Name = "Cinnamon",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 30,
+    Name = "Cayenne Pepper",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 31,
+    Name = "Red Pepper Flakes",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 32,
+    Name = "Mustard",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 33,
+    Name = "Mayonnaise",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 34,
+    Name = "Ketchup",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 35,
+    Name = "Cheese",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 36,
+    Name = "Rice",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 37,
+    Name = "Pasta",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 38,
+    Name = "Bread",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 39,
+    Name = "Yeast",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 40,
+    Name = "Baking Powder",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 41,
+    Name = "Baking Soda",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 42,
+    Name = "Cornstarch",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 43,
+    Name = "Brown Sugar",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 44,
+    Name = "Honey",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 45,
+    Name = "Maple Syrup",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 46,
+    Name = "Vanilla Extract",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 47,
+    Name = "Chocolate",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 48,
+    Name = "Cocoa Powder",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 49,
+    Name = "Peanut Butter",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 50,
+    Name = "Heavy Cream",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 51,
+    Name = "Sour Cream",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 52,
+    Name = "Yogurt",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 53,
+    Name = "Chicken Breast",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 54,
+    Name = "Ground Beef",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 55,
+    Name = "Salmon",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 56,
+    Name = "Shrimp",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 57,
+    Name = "Tuna",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 58,
+    Name = "Bacon",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 59,
+    Name = "Ham",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 60,
+    Name = "Mushrooms",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 61,
+    Name = "Bell Peppers",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 62,
+    Name = "Tomatoes",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 63,
+    Name = "Spinach",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 64,
+    Name = "Broccoli",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 65,
+    Name = "Corn",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 66,
+    Name = "Green Beans",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 67,
+    Name = "Peas",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 68,
+    Name = "Avocado",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 69,
+    Name = "Lettuce",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 70,
+    Name = "Cucumber",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 71,
+    Name = "Lime Juice",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 72,
+    Name = "Oranges",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 73,
+    Name = "Apples",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 74,
+    Name = "Bananas",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 75,
+    Name = "Strawberries",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 76,
+    Name = "Blueberries",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 77,
+    Name = "Grapes",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 78,
+    Name = "Potatoes",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 79,
+    Name = "Pineapple",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 80,
+    Name = "Watermelon",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 81,
+    Name = "Peaches",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 82,
+    Name = "Almonds",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 83,
+    Name = "Walnuts",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 84,
+    Name = "Peanuts",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 85,
+    Name = "Cashews",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 86,
+    Name = "Sesame Seeds",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 87,
+    Name = "Sunflower Seeds",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 88,
+    Name = "Chia Seeds",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 89,
+    Name = "Flaxseeds",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 90,
+    Name = "Coconut Oil",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 91,
+    Name = "Vegetable Broth",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 92,
+    Name = "Red Wine",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 93,
+    Name = "White Wine",
+    TypeId = 1
+},
+   new Ingredients
+{
+    Id = 94,
+    Name = "Worcestershire Sauce",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 95,
+    Name = "Rice Vinegar",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 96,
+    Name = "Apple Cider Vinegar",
+    TypeId = 1
+},
+     new Ingredients
+{
+    Id = 97,
+    Name = "Garlic Powder",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 98,
+    Name = "Onion Powder",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 99,
+    Name = "Ginger",
+    TypeId = 1
+},
+    new Ingredients
+{
+    Id = 100,
+    Name = "Nutmeg",
+    TypeId = 1
+},
+   new Ingredients
+    {
+        Id = 101,
+        Name =  "Coriander",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 102,
+        Name =  "Cardamom",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 103,
+        Name =  "Rosemary",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+        Id = 104,
+        Name =  "Turmeric",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+        Id = 105,
+         Name = "Coconut Milk",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+         Id = 106,
+        Name =  "Dried Oregano",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+         Id = 107,
+        Name =  "Cilantro",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 108,
+         Name = "Red Onion",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 109,
+        Name =  "Shallots",
+         TypeId =  1
+    },
+      new Ingredients
+    {
+        Id = 110,
+        Name = "Green Onion",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+         Id = 111,
+        Name =  "Thyme",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+         Id = 112,
+        Name =  "Fennel",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 113,
+        Name =  "Leeks",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 114,
+        Name = "Dill",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 115,
+        Name =  "Mint",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 116,
+        Name =  "Sage",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 117,
+        Name =  "Marjoram",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 118,
+         Name = "Chives",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 119,
+       Name =  "Tarragon",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 120,
+        Name =  "Caraway Seeds",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 121,
+       Name =  "Anise",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 122,
+        Name =  "Poppy Seeds",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 123,
+        Name =  "Sesame Oil",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 124,
+       Name = "Canola Oil",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 125,
+        Name = "Grapeseed Oil",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 126,
+         Name = "Peanut Oil",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 127,
+         Name = "Sunflower Oil",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 128,
+        Name =  "Avocado Oil",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 129,
+        Name =  "Balsamic Vinegar",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 130,
+       Name =  "Rice Wine Vinegar",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 131,
+        Name =  "Apple Cider",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 132,
+         Name = "Red Wine Vinegar",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 133,
+        Name =  "White Vinegar",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 134,
+         Name = "Corn Syrup",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 135,
+       Name =  "Molasses",
+         TypeId =  1
+    },
+      new Ingredients
+    {
+        Id = 136,
+         Name = "Agave Nectar",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 137,
+        Name =  "Stevia",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 138,
+        Name =  "Brown Sugar",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 139,
+        Name =  "Powdered Sugar",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 140,
+       Name =  "Date Syrup",
+        TypeId =  1
+    },
+   new Ingredients
+    {
+        Id = 141,
+       Name =  "Miso Paste",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 142,
+       Name = "Tahini",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 143,
+        Name = "Hot Sauce",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 144,
+        Name =  "Worcestershire Sauce",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 145,
+        Name =  "Balsamic Glaze",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 146,
+        Name =  "Fish Sauce",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+       Id = 147,
+        Name = "Oyster Sauce",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 148,
+       Name =  "Soy Sauce",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 149,
+        Name = "Red Wine",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 150,
+        Name =  "White Wine",
+        TypeId =  1
+    },
+    new Ingredients
+   {
+        Id = 151,
+       Name = "Dry Sherry",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 152,
+        Name = "Vegetable Broth",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 153,
+        Name =  "Beef Broth",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 154,
+       Name =  "Chicken Stock",
+        TypeId =  1
+    },
+   new Ingredients
+    {
+        Id = 155,
+        Name =  "Vegetable Stock",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 156,
+        Name =  "Beef Stock",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 157,
+        Name = "Coconut Cream",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 158,
+        Name =  "Heavy Cream",
+         TypeId =  1
+    },
+      new Ingredients
+    {
+        Id = 159,
+        Name = "Sour Cream",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 160,
+        Name = "Cream Cheese",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+       Id = 161,
+        Name =  "Mascarpone",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 162,
+       Name =  "Ricotta Cheese",
+        TypeId =  1
+    },
+   new Ingredients
+    {
+       Id = 163,
+        Name = "Parmesan Cheese",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 164,
+        Name =  "Mozzarella Cheese",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 165,
+       Name = "Cheddar Cheese",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 166,
+        Name =  "Feta Cheese",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+         Id = 167,
+         Name = "Goat Cheese",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 168,
+        Name =  "Cottage Cheese",
+        TypeId =  1
+    },
+      new Ingredients
+    {
+       Id = 169,
+        Name =  "Polenta",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 170,
+       Name =  "Oats",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 171,
+        Name =  "Quinoa",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+       Id = 172,
+       Name =  "Barley",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 173,
+       Name = "Couscous",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 174,
+        Name = "Cornmeal",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 175,
+        Name =  "Tortillas",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 176,
+        Name =  "Rice Flour",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 177,
+        Name =  "Almond Flour",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 178,
+        Name = "Coconut Flour",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 179,
+         Name = "Baking Powder",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 180,
+       Name =  "Baking Soda",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+         Id = 181,
+        Name =  "Vanilla Extract",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 182,
+        Name = "Peanut Butter",
+        TypeId =  1
+    },
+      new Ingredients
+    {
+         Id = 183,
+        Name = "Almond Butter",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+         Id = 184,
+        Name = "Sunflower Seed Butter",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 185,
+        Name =  "Cashew Butter",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 186,
+       Name = "Tahini",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+        Id = 187,
+       Name =  "Cocoa Powder",
+        TypeId =  1
+    },
+   new Ingredients
+    {
+       Id = 188,
+        Name =  "Chocolate Chips",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 189,
+        Name =  "Active Dry Yeast",
+        TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 190,
+        Name =  "Cornstarch",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 191,
+       Name =  "Gelatin",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 192,
+        Name =  "Pecans",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 193,
+       Name =  "Hazelnuts",
+         TypeId =  1
+    },
+      new Ingredients
+    {
+        Id = 194,
+        Name =  "Macadamia Nuts",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 195,
+       Name =  "Pine Nuts",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 196,
+        Name = "Pistachios",
+         TypeId =  1
+    },
+   new Ingredients
+    {
+       Id = 197,
+        Name =  "Brazil Nuts",
+         TypeId =  1
+    },
+    new Ingredients
+    {
+       Id = 198,
+         Name = "Chia Seeds",
+         TypeId =  1
+    },
+     new Ingredients
+    {
+        Id = 199,
+       Name = "Flax Seeds",
+        TypeId =  1
+    },
+    new Ingredients
+    {
+        Id = 200,
+        Name =  "Pumpkin Seeds",
+         TypeId =  1
+    }
+);

@@ -31,7 +31,7 @@ reportgenerator -reports:"$dir/**/coverage.cobertura.xml" `
                -targetdir:"$dir/coveragereport" `
                -reporttypes:Html `
                -historydir:"$dir/CoverageHistory" `
-               -filefilters:"-*DataAccess*"
+               -filefilters:"-*DataAccess*;-*Program.cs;-*Users_Recipes_Interaction.cs;-*Users_Blogs_Interaction.cs"
 
 # Open the Code Coverage HTML Report (if running on a WorkStation)
 $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
