@@ -87,7 +87,7 @@ jobs:
     # Terraform Apply command is used to apply the changes required to reach the desired state of the configuration.
     - name: Terraform Apply
       id: apply
-    # if: ${{ github.event.inputs.terraform_action == 'apply' }}
+      if: ${{ github.event.inputs.terraform_action == 'apply' }}
       run: terraform apply -auto-approve
     
     # Terraform Destroy command is used to destroy the Terraform-managed infrastructure.
@@ -119,7 +119,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.8'
+          python-version: 3.12.8
 
       # Install Ansible
       - name: Install Ansible
