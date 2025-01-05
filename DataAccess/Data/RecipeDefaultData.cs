@@ -26,7 +26,7 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 2,
-                    UserId = "1",
+                    UserId = "3",
                     Header = "Chicken Stir Fry",
                     BodyText = "A healthy and flavorful stir-fry.",
                     BannerImage = null,
@@ -40,7 +40,7 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 3,
-                     UserId = "1",
+                     UserId = "56",
                      Header = "Hearty Lentil Soup",
                      BodyText = "A comforting and nutritious soup.",
                      BannerImage = null,
@@ -54,7 +54,7 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 4,
-                     UserId = "1",
+                     UserId = "32",
                      Header = "Baked Salmon with Lemon",
                      BodyText = "Simple and delicious baked salmon.",
                      BannerImage = null,
@@ -68,7 +68,7 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 5,
-                    UserId = "1",
+                    UserId = "99",
                     Header = "Classic Caprese Salad",
                     BodyText = "A simple and refreshing salad.",
                     BannerImage = null,
@@ -82,7 +82,7 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 6,
-                      UserId = "1",
+                      UserId = "95",
                       Header = "Oatmeal with Mixed Berries",
                       BodyText = "A healthy and warm breakfast option.",
                       BannerImage = null,
@@ -96,7 +96,7 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 7,
-                     UserId = "1",
+                     UserId = "100",
                      Header = "Spicy Black Bean Burgers",
                      BodyText = "Vegetarian burgers with a kick.",
                      BannerImage = null,
@@ -110,7 +110,7 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 8,
-                     UserId = "1",
+                     UserId = "98",
                      Header = "Fresh Guacamole",
                      BodyText = "Perfect appetizer for any occasion.",
                      BannerImage = null,
@@ -124,7 +124,7 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 9,
-                    UserId = "1",
+                    UserId = "98",
                     Header = "Avocado Toast with Eggs",
                     BodyText = "Simple and nutritious breakfast.",
                     BannerImage = null,
@@ -138,7 +138,7 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 10,
-                    UserId = "1",
+                    UserId = "95",
                     Header = "Chicken Curry",
                     BodyText = "A flavorful and aromatic curry.",
                     BannerImage = null,
@@ -152,7 +152,7 @@ namespace DataAccess.Data
                     new Recipes
                     {
                         Id = 11,
-                        UserId = "1",
+                        UserId = "96",
                         Header = "Mushroom Risotto",
                         BodyText = "Creamy and comforting risotto.",
                         BannerImage = null,
@@ -166,7 +166,7 @@ namespace DataAccess.Data
                       new Recipes
                       {
                           Id = 12,
-                          UserId = "1",
+                          UserId = "7",
                           Header = "Shrimp Scampi with Pasta",
                           BodyText = "Quick and flavorful shrimp pasta.",
                           BannerImage = null,
@@ -180,7 +180,7 @@ namespace DataAccess.Data
                     new Recipes
                     {
                         Id = 13,
-                        UserId = "1",
+                        UserId = "41",
                         Header = "Spicy Beef Tacos",
                         BodyText = "Flavorful beef tacos with your favorite toppings.",
                         BannerImage = null,
@@ -194,7 +194,7 @@ namespace DataAccess.Data
                    new Recipes
                    {
                        Id = 14,
-                       UserId = "1",
+                       UserId = "96",
                        Header = "Spinach and Feta Stuffed Chicken Breast",
                        BodyText = "Delicious and healthy stuffed chicken.",
                        BannerImage = null,
@@ -208,7 +208,7 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 15,
-                      UserId = "1",
+                      UserId = "25",
                       Header = "Fluffy Pancakes",
                       BodyText = "Classic breakfast pancakes.",
                       BannerImage = null,
@@ -222,7 +222,7 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 16,
-                     UserId = "1",
+                     UserId = "76",
                      Header = "Eggplant Parmesan",
                      BodyText = "Italian classic eggplant dish.",
                      BannerImage = null,
@@ -236,7 +236,7 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 17,
-                    UserId = "1",
+                    UserId = "65",
                     Header = "Caprese Pasta Salad",
                     BodyText = "Refreshing pasta salad with caprese flavors.",
                     BannerImage = null,
@@ -250,7 +250,7 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 18,
-                      UserId = "1",
+                      UserId = "55",
                       Header = "Classic Tuna Salad Sandwich",
                       BodyText = "Simple tuna salad sandwich.",
                       BannerImage = null,
@@ -264,7 +264,7 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 19,
-                      UserId = "1",
+                      UserId = "32",
                       Header = "Chicken and Vegetable Skewers",
                       BodyText = "Easy to grill or bake skewers.",
                       BannerImage = null,
