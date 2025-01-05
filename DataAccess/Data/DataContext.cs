@@ -335,9 +335,14 @@ namespace BackEngin.Data
             eventSeeding.PopulateEventData(modelBuilder);
 
             // USER INTERACTION
+            var userInteractionSeeding = new UserInteractionsDefaultData();
+            userInteractionSeeding.PopulateUserInteractionsData(modelBuilder);
 
+            // EVENT INTERACTION
+            var eventParticipationSeeding = new EventInteractionDefaultData();
+            eventParticipationSeeding.PopulateEventParticipationsData(modelBuilder);
+            eventParticipationSeeding.PopulateEventCommentsData(modelBuilder);
 
-            // EVENT PARTICIPATION
 
         }
     }

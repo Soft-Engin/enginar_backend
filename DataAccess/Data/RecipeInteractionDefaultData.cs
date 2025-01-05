@@ -34,7 +34,7 @@ namespace DataAccess.Data
                 new Recipe_Comments { Id = 19, UserId = "97", RecipeId = 17, CommentText = "Loved making this!", Images = null, CreatedAt = DateTime.UtcNow },
                 new Recipe_Comments { Id = 20, UserId = "99", RecipeId = 6, CommentText = "Loved making this!", Images = null, CreatedAt = DateTime.UtcNow },
                 new Recipe_Comments { Id = 21, UserId = "99", RecipeId = 13, CommentText = "So tasty!", Images = null, CreatedAt = DateTime.UtcNow }
-);
+            );
         }
 
         public void PopulateRecipeLikesData(ModelBuilder modelBuilder)
