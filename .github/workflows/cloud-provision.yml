@@ -1,0 +1,173 @@
+name: AWS Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        type: choice
+        description: Select which terraform action to perform.
+        options:
+        - test
+        - apply
+        - destroy
+        default: 'test'
+        required: true
+      deploy_app:
+        type: choice
+        description: Select if you want to deploy or update the application or not.
+        options:
+        - deploy
+        - update
+        - none
+        default: 'none'
+        required: true
+      REMOVE_VOLUME:
+        type: boolean
+        description: Set to true or false
+        default: false
+        required: true
+      MIGRATE_DATABASE:
+        type: boolean
+        description: Set to true or false
+        default: true
+        required: true
+      ASPNETCORE_ENVIRONMENT:
+        type: choice
+        description: Set the environment (Development, Production)
+        options:
+        - Development
+        - Production
+        default: 'Production'
+        required: true
+
+jobs:
+  terraform:
+    name: Terraform Provisioning
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ./deployment/terraform
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+    outputs:
+      ec2_public_ip: ${{ steps.output.outputs.ec2_public_ip }}
+
+    steps:
+    - name: Checkout Repository
+      id: checkout
+      uses: actions/checkout@v4
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Setup
+      id: setup
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.10.3
+    
+    # Terraform format command is used to rewrite Terraform configuration files to a canonical format and style.
+    - name: Terraform Formatter
+      id: fmt
+      run: terraform fmt -check
+
+    # Terraform Init command is used to initialize a working directory containing Terraform configuration files.
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    # Terraform Validate command is used to validate the configuration files in a directory.
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+    
+    # Terraform Plan command is used to create an execution plan.
+    - name: Terraform Plan
+      id: plan
+      run: |
+        if [[ "${{ github.event.inputs.terraform_action }}" == "destroy" ]]; then
+          terraform plan -destroy -no-color
+        else
+          terraform plan -no-color
+        fi
+    
+    # Terraform Apply command is used to apply the changes required to reach the desired state of the configuration.
+    - name: Terraform Apply
+      id: apply
+      if: ${{ github.event.inputs.terraform_action == 'apply' }}
+      run: terraform apply -auto-approve
+    
+    # Terraform Destroy command is used to destroy the Terraform-managed infrastructure.
+    - name: Terraform destroy
+      id: destroy
+      if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+      run: terraform destroy -auto-approve
+
+    # Output the EC2 Public IP  
+    - name: Output EC2 Public IP
+      id: output
+      if: ${{ github.event.inputs.deploy_app != 'none' && github.event.inputs.deploy_app != '' }}
+      run: echo "ec2_public_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy Application
+    runs-on: self-hosted
+    needs: terraform
+    if: ${{ needs.terraform.outputs.ec2_public_ip != '' && github.event.inputs.deploy_app != 'none' }}
+    defaults:
+      run:
+        working-directory: ./deployment/ansible
+    steps:
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Python (Ansible requires Python)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+
+      # Install Ansible
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      # Decrypt SSH Private Key
+      - name: Decrypt SSH Private Key
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          ansible-vault decrypt encrypted_ssh_key --output decrypted_ssh_key --vault-password-file <(echo "$ANSIBLE_VAULT_PASSWORD")
+          chmod 600 decrypted_ssh_key
+      
+      # Replace Parameters with Secrets
+      - name: Replace Parameters with Secrets
+        env:
+          REMOVE_VOLUME: ${{ github.event.inputs.REMOVE_VOLUME }}
+          MIGRATE_DATABASE: ${{ github.event.inputs.MIGRATE_DATABASE }}
+          ASPNETCORE_ENVIRONMENT: ${{ github.event.inputs.ASPNETCORE_ENVIRONMENT }}
+          TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          IP_ADDRESS: ${{ needs.terraform.outputs.ec2_public_ip }}
+        run: |
+          FILE_PATH="./group_vars/all.yml"
+          sed -i 's/^REMOVE_VOLUME:.*/REMOVE_VOLUME: '"$REMOVE_VOLUME"'/' $FILE_PATH
+          sed -i 's/^MIGRATE_DATABASE:.*/MIGRATE_DATABASE: '"$MIGRATE_DATABASE"'/' $FILE_PATH
+          sed -i 's/^ASPNETCORE_ENVIRONMENT:.*/ASPNETCORE_ENVIRONMENT: '"$ASPNETCORE_ENVIRONMENT"'/' $FILE_PATH
+          sed -i 's/^TUNNEL_TOKEN:.*/TUNNEL_TOKEN: '"$TUNNEL_TOKEN"'/' $FILE_PATH
+          sed -i 's/^remote_user =.*/remote_user = '"$SSH_USERNAME"'/' ./ansible.cfg
+          echo $IP_ADDRESS >> ./inventory.ini
+      
+      # Run Ansible Playbook (Deploy)
+      - name: Run Ansible Playbook
+        if: ${{ github.event.inputs.deploy_app == 'deploy' }}
+        run: |
+          ansible-playbook -i inventory.ini deploy.yml
+      
+      # Run Ansible Playbook (Update)
+      - name: Run Ansible Playbook
+        if: ${{ github.event.inputs.deploy_app == 'update' }}
+        run: |
+          ansible-playbook -i inventory.ini update.yml
