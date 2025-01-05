@@ -6,6 +6,28 @@ namespace DataAccess.Data
 {
     public class EventDefaultData
     {
+        public void PopulateEventRequirementsData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Requirements>().HasData(
+                new Requirements { Id = 1, Name = "RSVP Required", Description = "Guests must confirm attendance before the event." },
+                new Requirements { Id = 2, Name = "Dress Code", Description = "Guests are required to follow the formal dress code." },
+                new Requirements { Id = 3, Name = "Age Limit", Description = "Only guests aged 18 and above are allowed to attend." },
+                new Requirements { Id = 4, Name = "Bring Your Own Beverage (BYOB)", Description = "Guests are encouraged to bring their own beverages to the event." },
+                new Requirements { Id = 5, Name = "No Pets Allowed", Description = "Pets are not allowed at the event venue." },
+                new Requirements { Id = 6, Name = "ID Verification", Description = "Guests must present valid identification upon entry." },
+                new Requirements { Id = 7, Name = "Allergy Notification", Description = "Guests should inform the host of any food allergies in advance." },
+                new Requirements { Id = 8, Name = "Photography Policy", Description = "Photography is allowed, but guests must respect the privacy of others." },
+                new Requirements { Id = 9, Name = "Non-Smoking", Description = "The event venue is a non-smoking area." },
+                new Requirements { Id = 10, Name = "Timing Restrictions", Description = "Guests must arrive on time; late arrivals may not be admitted." },
+                new Requirements { Id = 11, Name = "Ticket Required", Description = "Guests must bring their tickets for entry." },
+                new Requirements { Id = 12, Name = "Child-Friendly", Description = "Children are welcome but must be supervised at all times." },
+                new Requirements { Id = 13, Name = "Accessible Venue", Description = "The venue is fully accessible for guests with disabilities." },
+                new Requirements { Id = 14, Name = "Reusable Utensils", Description = "Guests are encouraged to bring their own reusable utensils to support sustainability." },
+                new Requirements { Id = 15, Name = "Meal Preferences", Description = "Guests should specify their meal preferences (e.g., vegetarian, vegan) in advance." }
+            );
+
+        }
+
         public void PopulateAddressData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Addresses>().HasData(
