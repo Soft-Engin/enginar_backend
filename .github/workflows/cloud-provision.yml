@@ -21,6 +21,11 @@ on:
         - none
         default: 'none'
         required: true
+      REMOVE_VOLUME:
+        type: boolean
+        description: Set to true or false
+        default: false
+        required: true
       MIGRATE_DATABASE:
         type: boolean
         description: Set to true or false
@@ -140,6 +145,7 @@ jobs:
       # Replace Parameters with Secrets
       - name: Replace Parameters with Secrets
         env:
+          REMOVE_VOLUME: ${{ github.event.inputs.REMOVE_VOLUME }}
           MIGRATE_DATABASE: ${{ github.event.inputs.MIGRATE_DATABASE }}
           ASPNETCORE_ENVIRONMENT: ${{ github.event.inputs.ASPNETCORE_ENVIRONMENT }}
           TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
@@ -147,6 +153,7 @@ jobs:
           IP_ADDRESS: ${{ needs.terraform.outputs.ec2_public_ip }}
         run: |
           FILE_PATH="./group_vars/all.yml"
+          sed -i 's/^REMOVE_VOLUME:.*/REMOVE_VOLUME: '"$REMOVE_VOLUME"'/' $FILE_PATH
           sed -i 's/^MIGRATE_DATABASE:.*/MIGRATE_DATABASE: '"$MIGRATE_DATABASE"'/' $FILE_PATH
           sed -i 's/^ASPNETCORE_ENVIRONMENT:.*/ASPNETCORE_ENVIRONMENT: '"$ASPNETCORE_ENVIRONMENT"'/' $FILE_PATH
           sed -i 's/^TUNNEL_TOKEN:.*/TUNNEL_TOKEN: '"$TUNNEL_TOKEN"'/' $FILE_PATH

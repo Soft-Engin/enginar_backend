@@ -1,4 +1,4 @@
-# roles/common/tasks/main.yml
+---
 - name: Update all packages to the latest version
   yum:
     name: "*"

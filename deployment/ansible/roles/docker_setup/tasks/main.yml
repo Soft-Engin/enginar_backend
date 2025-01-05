@@ -1,5 +1,4 @@
-# roles/docker/tasks/main.yml
-
+---
 - name: Start and enable Docker service
   service:
     name: docker
