@@ -33,8 +33,6 @@ namespace BackEngin.Data
 
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
-        public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
-        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
         public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
 
@@ -162,42 +160,6 @@ namespace BackEngin.Data
                 .HasOne(ui => ui.Interaction)
                 .WithMany()
                 .HasForeignKey(ui => ui.InteractionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-               .HasOne(uri => uri.User)
-               .WithMany()
-               .HasForeignKey(uri => uri.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-                .HasOne(uri => uri.Recipe)
-                .WithMany()
-                .HasForeignKey(uri => uri.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-                .HasOne(uri => uri.Interaction)
-                .WithMany()
-                .HasForeignKey(uri => uri.InteractionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.User)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.Blog)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.Interaction)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Bookmarks>()

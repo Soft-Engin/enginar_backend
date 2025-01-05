@@ -21,9 +21,7 @@ namespace DataAccess.Repositories
         IRecipes_IngredientsRepository Recipes_Ingredients { get; }
         IRequirementsRepository Requirements { get; }
         IRolesRepository Roles { get; }
-        IUsers_Blogs_InteractionsRepository Users_Blogs_Interactions { get; }
         IUsers_InteractionsRepository Users_Interactions { get; }
-        IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         IUsersRepository Users { get; }
         IBlog_LikesRepository Blog_Likes { get; }
         IBlog_CommentsRepository Blog_Comments { get; }
