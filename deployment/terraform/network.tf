@@ -14,16 +14,16 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   cidr_ipv4   = "0.0.0.0/0"
 }
 
-# Allow HTTP access from anywhere.
-resource "aws_vpc_security_group_ingress_rule" "allow_http" {
-  security_group_id = aws_security_group.allow_access.id
+# # Allow HTTP access from anywhere.
+# resource "aws_vpc_security_group_ingress_rule" "allow_http" {
+#   security_group_id = aws_security_group.allow_access.id
 
-  description = "Allow HTTP"
-  from_port   = 80
-  to_port     = 80
-  ip_protocol = "tcp"
-  cidr_ipv4   = "0.0.0.0/0"
-}
+#   description = "Allow HTTP"
+#   from_port   = 80
+#   to_port     = 80
+#   ip_protocol = "tcp"
+#   cidr_ipv4   = "0.0.0.0/0"
+# }
 
 # Allow HTTPS access from anywhere.
 resource "aws_vpc_security_group_ingress_rule" "allow_https" {
@@ -36,11 +36,19 @@ resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   cidr_ipv4   = "0.0.0.0/0"
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_cloudflare" {
+resource "aws_vpc_security_group_ingress_rule" "allow_cloudflare_tcp" {
   security_group_id = aws_security_group.allow_access.id
   from_port         = 7844
   to_port           = 7844
-  ip_protocol       = "-1"
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_cloudflare_udp" {
+  security_group_id = aws_security_group.allow_access.id
+  from_port         = 7844
+  to_port           = 7844
+  ip_protocol       = "udp"
   cidr_ipv4         = "0.0.0.0/0"
 }
 

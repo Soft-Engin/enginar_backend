@@ -16,7 +16,7 @@ namespace DataAccess.Data
                     Header = "Almond Butter Banana Smoothie",
                     BodyText = "A quick and easy breakfast smoothie.",
                     BannerImage = null,
-                    Steps = ["1. Combine all ingredients in a blender.", "2. Blend until smooth.", "3. Pour into a glass and enjoy!"],
+                    Steps = ["Combine all ingredients in a blender.", "Blend until smooth.", "Pour into a glass and enjoy!"],
                     StepImages = null,
                     ServingSize = 1,
                     PreparationTime = 5,
@@ -26,11 +26,11 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 2,
-                    UserId = "1",
+                    UserId = "3",
                     Header = "Chicken Stir Fry",
                     BodyText = "A healthy and flavorful stir-fry.",
                     BannerImage = null,
-                    Steps = ["1. Cut the chicken and vegetables into bite-sized pieces.", "2. Heat sesame oil in a wok or large skillet.", "3. Add chicken and stir-fry until cooked through.", "4. Add vegetables and stir-fry until tender-crisp.", "5. Add soy sauce and stir-fry for 1 more minute.", "6. Serve hot."],
+                    Steps = ["Cut the chicken and vegetables into bite-sized pieces.", "Heat sesame oil in a wok or large skillet.", "Add chicken and stir-fry until cooked through.", "Add vegetables and stir-fry until tender-crisp.", "Add soy sauce and stir-fry for 1 more minute.", "Serve hot."],
                     StepImages = null,
                     ServingSize = 2,
                     PreparationTime = 20,
@@ -40,11 +40,11 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 3,
-                     UserId = "1",
+                     UserId = "56",
                      Header = "Hearty Lentil Soup",
                      BodyText = "A comforting and nutritious soup.",
                      BannerImage = null,
-                     Steps = ["1. Sauté onions, carrots, and garlic in olive oil until softened.", "2. Add lentils, vegetable stock, and bay leaves.", "3. Bring to a boil, then reduce heat and simmer until lentils are tender.", "4. Season with salt and pepper.", "5. Remove bay leaves and serve hot."],
+                     Steps = ["Sauté onions, carrots, and garlic in olive oil until softened.", "Add lentils, vegetable stock, and bay leaves.", "Bring to a boil, then reduce heat and simmer until lentils are tender.", "Season with salt and pepper.", "Remove bay leaves and serve hot."],
                      StepImages = null,
                      ServingSize = 4,
                      PreparationTime = 40,
@@ -54,11 +54,11 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 4,
-                     UserId = "1",
+                     UserId = "32",
                      Header = "Baked Salmon with Lemon",
                      BodyText = "Simple and delicious baked salmon.",
                      BannerImage = null,
-                     Steps = ["1. Place salmon fillets on a baking sheet.", "2. Drizzle with olive oil and lemon juice.", "3. Season with salt, pepper, and dill.", "4. Bake until cooked through."],
+                     Steps = ["Place salmon fillets on a baking sheet.", "Drizzle with olive oil and lemon juice.", "Season with salt, pepper, and dill.", "Bake until cooked through."],
                      StepImages = null,
                      ServingSize = 2,
                      PreparationTime = 15,
@@ -68,11 +68,11 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 5,
-                    UserId = "1",
+                    UserId = "99",
                     Header = "Classic Caprese Salad",
                     BodyText = "A simple and refreshing salad.",
                     BannerImage = null,
-                    Steps = ["1. Slice tomatoes and fresh mozzarella.", "2. Arrange tomato and mozzarella slices on a plate.", "3. Top with fresh basil leaves.", "4. Drizzle with balsamic glaze.", "5. Season with salt and pepper."],
+                    Steps = ["Slice tomatoes and fresh mozzarella.", "Arrange tomato and mozzarella slices on a plate.", "Top with fresh basil leaves.", "Drizzle with balsamic glaze.", "Season with salt and pepper."],
                     StepImages = null,
                     ServingSize = 2,
                     PreparationTime = 10,
@@ -82,11 +82,11 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 6,
-                      UserId = "1",
+                      UserId = "95",
                       Header = "Oatmeal with Mixed Berries",
                       BodyText = "A healthy and warm breakfast option.",
                       BannerImage = null,
-                      Steps = ["1. Cook oats with water or milk according to package directions.", "2. Top with mixed berries.", "3. Add a drizzle of honey or maple syrup if desired."],
+                      Steps = ["Cook oats with water or milk according to package directions.", "Top with mixed berries.", "Add a drizzle of honey or maple syrup if desired."],
                       StepImages = null,
                       ServingSize = 1,
                       PreparationTime = 10,
@@ -96,11 +96,11 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 7,
-                     UserId = "1",
+                     UserId = "100",
                      Header = "Spicy Black Bean Burgers",
                      BodyText = "Vegetarian burgers with a kick.",
                      BannerImage = null,
-                     Steps = ["1. Mash black beans in a bowl.", "2. Add breadcrumbs, chopped onions, spices and mix thoroughly.", "3. Form mixture into patties.", "4. Cook the burgers in a pan with oil until each side is browned."],
+                     Steps = ["Mash black beans in a bowl.", "Add breadcrumbs, chopped onions, spices and mix thoroughly.", "Form mixture into patties.", "Cook the burgers in a pan with oil until each side is browned."],
                      StepImages = null,
                      ServingSize = 4,
                      PreparationTime = 25,
@@ -110,11 +110,11 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 8,
-                     UserId = "1",
+                     UserId = "98",
                      Header = "Fresh Guacamole",
                      BodyText = "Perfect appetizer for any occasion.",
                      BannerImage = null,
-                     Steps = ["1. Mash avocados in a bowl.", "2. Add diced onions, cilantro, diced tomatoes, lime juice and mix thoroughly.", "3. Season with salt and pepper to taste.", "4. Serve with chips or vegetables."],
+                     Steps = ["Mash avocados in a bowl.", "Add diced onions, cilantro, diced tomatoes, lime juice and mix thoroughly.", "Season with salt and pepper to taste.", "Serve with chips or vegetables."],
                      StepImages = null,
                      ServingSize = 4,
                      PreparationTime = 15,
@@ -124,11 +124,11 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 9,
-                    UserId = "1",
+                    UserId = "98",
                     Header = "Avocado Toast with Eggs",
                     BodyText = "Simple and nutritious breakfast.",
                     BannerImage = null,
-                    Steps = ["1. Toast the bread.", "2. Mash avocado and spread on toast.", "3. Cook eggs to your liking.", "4. Top toast with eggs and season with salt and pepper."],
+                    Steps = ["Toast the bread.", "Mash avocado and spread on toast.", "Cook eggs to your liking.", "Top toast with eggs and season with salt and pepper."],
                     StepImages = null,
                     ServingSize = 2,
                     PreparationTime = 10,
@@ -138,11 +138,11 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 10,
-                    UserId = "1",
+                    UserId = "95",
                     Header = "Chicken Curry",
                     BodyText = "A flavorful and aromatic curry.",
                     BannerImage = null,
-                    Steps = ["1. Sauté onions, garlic and ginger in coconut oil until fragrant.", "2. Add chicken pieces and brown them.", "3. Add curry powder, cumin, turmeric and stir well.", "4. Pour in vegetable stock, coconut milk and simmer until chicken is cooked thoroughly."],
+                    Steps = ["Sauté onions, garlic and ginger in coconut oil until fragrant.", "Add chicken pieces and brown them.", "Add curry powder, cumin, turmeric and stir well.", "Pour in vegetable stock, coconut milk and simmer until chicken is cooked thoroughly."],
                     StepImages = null,
                     ServingSize = 4,
                     PreparationTime = 40,
@@ -152,11 +152,11 @@ namespace DataAccess.Data
                     new Recipes
                     {
                         Id = 11,
-                        UserId = "1",
+                        UserId = "96",
                         Header = "Mushroom Risotto",
                         BodyText = "Creamy and comforting risotto.",
                         BannerImage = null,
-                        Steps = ["1. Sauté mushrooms and onions in olive oil.", "2. Add rice and toast for a minute.", "3. Add warm vegetable stock gradually, stirring continuously until absorbed.", "4. Stir in parmesan cheese and butter at the end."],
+                        Steps = ["Sauté mushrooms and onions in olive oil.", "Add rice and toast for a minute.", "Add warm vegetable stock gradually, stirring continuously until absorbed.", "Stir in parmesan cheese and butter at the end."],
                         StepImages = null,
                         ServingSize = 4,
                         PreparationTime = 45,
@@ -166,11 +166,11 @@ namespace DataAccess.Data
                       new Recipes
                       {
                           Id = 12,
-                          UserId = "1",
+                          UserId = "7",
                           Header = "Shrimp Scampi with Pasta",
                           BodyText = "Quick and flavorful shrimp pasta.",
                           BannerImage = null,
-                          Steps = ["1. Cook pasta according to package directions.", "2. Sauté garlic in olive oil.", "3. Add shrimp and cook until pink.", "4. Toss with cooked pasta, lemon juice, parsley and serve."],
+                          Steps = ["Cook pasta according to package directions.", "Sauté garlic in olive oil.", "Add shrimp and cook until pink.", "Toss with cooked pasta, lemon juice, parsley and serve."],
                           StepImages = null,
                           ServingSize = 2,
                           PreparationTime = 20,
@@ -180,11 +180,11 @@ namespace DataAccess.Data
                     new Recipes
                     {
                         Id = 13,
-                        UserId = "1",
+                        UserId = "41",
                         Header = "Spicy Beef Tacos",
                         BodyText = "Flavorful beef tacos with your favorite toppings.",
                         BannerImage = null,
-                        Steps = ["1. Cook beef with taco seasoning.", "2. Warm tortillas.", "3. Fill tortillas with beef, salsa and toppings of choice."],
+                        Steps = ["Cook beef with taco seasoning.", "Warm tortillas.", "Fill tortillas with beef, salsa and toppings of choice."],
                         StepImages = null,
                         ServingSize = 4,
                         PreparationTime = 25,
@@ -194,11 +194,11 @@ namespace DataAccess.Data
                    new Recipes
                    {
                        Id = 14,
-                       UserId = "1",
+                       UserId = "96",
                        Header = "Spinach and Feta Stuffed Chicken Breast",
                        BodyText = "Delicious and healthy stuffed chicken.",
                        BannerImage = null,
-                       Steps = ["1. Mix spinach, feta cheese, garlic.", "2. Cut a slit into each chicken breast.", "3. Stuff chicken breasts with spinach-feta mixture.", "4. Bake until chicken is cooked through."],
+                       Steps = ["Mix spinach, feta cheese, garlic.", "Cut a slit into each chicken breast.", "Stuff chicken breasts with spinach-feta mixture.", "Bake until chicken is cooked through."],
                        StepImages = null,
                        ServingSize = 2,
                        PreparationTime = 30,
@@ -208,11 +208,11 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 15,
-                      UserId = "1",
+                      UserId = "25",
                       Header = "Fluffy Pancakes",
                       BodyText = "Classic breakfast pancakes.",
                       BannerImage = null,
-                      Steps = ["1. Whisk together dry ingredients.", "2. Combine wet ingredients.", "3. Gently mix wet and dry ingredients.", "4. Cook on a preheated griddle until golden brown."],
+                      Steps = ["Whisk together dry ingredients.", "Combine wet ingredients.", "Gently mix wet and dry ingredients.", "Cook on a preheated griddle until golden brown."],
                       StepImages = null,
                       ServingSize = 4,
                       PreparationTime = 20,
@@ -222,11 +222,11 @@ namespace DataAccess.Data
                  new Recipes
                  {
                      Id = 16,
-                     UserId = "1",
+                     UserId = "76",
                      Header = "Eggplant Parmesan",
                      BodyText = "Italian classic eggplant dish.",
                      BannerImage = null,
-                     Steps = ["1. Slice and salt the eggplant.", "2. Bread eggplant slices.", "3. Fry eggplant slices until golden.", "4. Layer eggplant, sauce and mozzarella in a baking dish and bake."],
+                     Steps = ["Slice and salt the eggplant.", "Bread eggplant slices.", "Fry eggplant slices until golden.", "Layer eggplant, sauce and mozzarella in a baking dish and bake."],
                      StepImages = null,
                      ServingSize = 4,
                      PreparationTime = 60,
@@ -236,11 +236,11 @@ namespace DataAccess.Data
                 new Recipes
                 {
                     Id = 17,
-                    UserId = "1",
+                    UserId = "65",
                     Header = "Caprese Pasta Salad",
                     BodyText = "Refreshing pasta salad with caprese flavors.",
                     BannerImage = null,
-                    Steps = ["1. Cook pasta according to package.", "2. Combine cooked pasta with diced tomatoes, mozzarella, basil leaves.", "3. Drizzle with olive oil, balsamic glaze and serve."],
+                    Steps = ["Cook pasta according to package.", "Combine cooked pasta with diced tomatoes, mozzarella, basil leaves.", "Drizzle with olive oil, balsamic glaze and serve."],
                     StepImages = null,
                     ServingSize = 4,
                     PreparationTime = 15,
@@ -250,11 +250,11 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 18,
-                      UserId = "1",
+                      UserId = "55",
                       Header = "Classic Tuna Salad Sandwich",
                       BodyText = "Simple tuna salad sandwich.",
                       BannerImage = null,
-                      Steps = ["1. Mix tuna with mayonnaise, diced celery and onions.", "2. Spread on bread slices.", "3. Add lettuce and other toppings to liking."],
+                      Steps = ["Mix tuna with mayonnaise, diced celery and onions.", "Spread on bread slices.", "Add lettuce and other toppings to liking."],
                       StepImages = null,
                       ServingSize = 2,
                       PreparationTime = 10,
@@ -264,11 +264,11 @@ namespace DataAccess.Data
                   new Recipes
                   {
                       Id = 19,
-                      UserId = "1",
+                      UserId = "32",
                       Header = "Chicken and Vegetable Skewers",
                       BodyText = "Easy to grill or bake skewers.",
                       BannerImage = null,
-                      Steps = ["1. Cut chicken and vegetables into bite-sized pieces.", "2. Thread onto skewers.", "3. Grill or bake until chicken is cooked through."],
+                      Steps = ["Cut chicken and vegetables into bite-sized pieces.", "Thread onto skewers.", "Grill or bake until chicken is cooked through."],
                       StepImages = null,
                       ServingSize = 4,
                       PreparationTime = 25,
@@ -282,7 +282,7 @@ namespace DataAccess.Data
                      Header = "Baked Sweet Potato Fries",
                      BodyText = "Healthy baked sweet potato fries.",
                      BannerImage = null,
-                     Steps = ["1. Cut sweet potatoes into strips.", "2. Toss with olive oil, salt, pepper, paprika.", "3. Bake until tender and lightly brown."],
+                     Steps = ["Cut sweet potatoes into strips.", "Toss with olive oil, salt, pepper, paprika.", "Bake until tender and lightly brown."],
                      StepImages = null,
                      ServingSize = 4,
                      PreparationTime = 40,
