@@ -1,7 +1,6 @@
 name: SonarQube Analysis and Build Project
 
 on:
-  push:
   pull_request:
 
 jobs:

@@ -1,0 +1,5 @@
+---
+- name: Run Docker Compose
+  command: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  args:
+    chdir: "{{ APP_PATH }}"

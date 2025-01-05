@@ -1,0 +1,8 @@
+---
+- name: Update Docker containers
+  hosts: all
+  become: yes
+  roles:
+    - common
+    - copy_envs
+    - app_update
