@@ -169,14 +169,14 @@ namespace BackEngin.Services
         private uint GetMultiplier(uint seedValue)
         {
             uint multiplier = (seedValue % 6131) + 5531; // Ensures multiplier is >= 31 and variable
-            
+
             return multiplier;
         }
 
         private uint GetSeedValue(string seed)
         {
             uint seedValue = (uint)seed.Aggregate(0, (current, ch) => current * 1931 + ch);
-            
+
             return seedValue;
         }
 
@@ -232,7 +232,7 @@ namespace BackEngin.Services
             //get feed from db and order by date
             var (recipes, totalCount) = await _unitOfWork.Recipes.GetPaginatedByFollowedAsync(
                 predicate: r => !r.Recipes_Ingredients.Any(i => userAllergenIngredientIds.Contains(i.IngredientId)) && followingIdList.Contains(r.UserId),
-                page, 
+                page,
                 pageSize,
                 includeProperties: "User,Recipes_Ingredients");
 
@@ -330,6 +330,8 @@ namespace BackEngin.Services
 
             var mostFollowedUsersList = interactions.GroupBy(u => u.TargetUserId)
                 .OrderByDescending(g => g.Count())
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
 
             //return paginated
