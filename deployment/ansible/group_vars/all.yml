@@ -2,6 +2,7 @@
 APP_PATH: /app
 
 # App settings
+REMOVE_VOLUME: false
 MIGRATE_DATABASE: true
 ASPNETCORE_ENVIRONMENT: Development
 TUNNEL_TOKEN:
