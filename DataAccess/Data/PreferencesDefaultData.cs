@@ -28,41 +28,63 @@ namespace DataAccess.Data
         public void PopulateIngredientPreferencesData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Ingredients_Preferences>().HasData(
-                new Ingredients_Preferences { Id = 1, IngredientId = 61, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 2, IngredientId = 62, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 3, IngredientId = 63, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 4, IngredientId = 64, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 5, IngredientId = 65, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 6, IngredientId = 66, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 7, IngredientId = 67, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 8, IngredientId = 68, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 9, IngredientId = 69, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 10, IngredientId = 70, PreferenceId = 1 },
-                new Ingredients_Preferences { Id = 11, IngredientId = 48, PreferenceId = 2 },
-                new Ingredients_Preferences { Id = 12, IngredientId = 136, PreferenceId = 2 },
-                new Ingredients_Preferences { Id = 13, IngredientId = 45, PreferenceId = 3 },
-                new Ingredients_Preferences { Id = 14, IngredientId = 47, PreferenceId = 3 },
-                new Ingredients_Preferences { Id = 15, IngredientId = 56, PreferenceId = 3 },
-                new Ingredients_Preferences { Id = 16, IngredientId = 58, PreferenceId = 3 },
-                new Ingredients_Preferences { Id = 17, IngredientId = 46, PreferenceId = 4 },
-                new Ingredients_Preferences { Id = 18, IngredientId = 57, PreferenceId = 4 },
-                new Ingredients_Preferences { Id = 19, IngredientId = 60, PreferenceId = 4 },
-                new Ingredients_Preferences { Id = 20, IngredientId = 81, PreferenceId = 5 },
-                new Ingredients_Preferences { Id = 21, IngredientId = 82, PreferenceId = 5 },
-                new Ingredients_Preferences { Id = 22, IngredientId = 83, PreferenceId = 5 },
-                new Ingredients_Preferences { Id = 23, IngredientId = 84, PreferenceId = 5 },
-                new Ingredients_Preferences { Id = 24, IngredientId = 141, PreferenceId = 5 },
-                new Ingredients_Preferences { Id = 25, IngredientId = 85, PreferenceId = 6 },
-                new Ingredients_Preferences { Id = 26, IngredientId = 140, PreferenceId = 6 },
-                new Ingredients_Preferences { Id = 27, IngredientId = 72, PreferenceId = 7 },
-                new Ingredients_Preferences { Id = 28, IngredientId = 75, PreferenceId = 7 },
-                new Ingredients_Preferences { Id = 29, IngredientId = 49, PreferenceId = 8 },
-                new Ingredients_Preferences { Id = 30, IngredientId = 50, PreferenceId = 8 },
-                new Ingredients_Preferences { Id = 31, IngredientId = 131, PreferenceId = 8 },
-                new Ingredients_Preferences { Id = 32, IngredientId = 137, PreferenceId = 8 },
-                new Ingredients_Preferences { Id = 33, IngredientId = 86, PreferenceId = 9 },
-                new Ingredients_Preferences { Id = 34, IngredientId = 114, PreferenceId = 9 },
-                new Ingredients_Preferences { Id = 35, IngredientId = 138, PreferenceId = 9 }
+                // Milk
+                new Ingredients_Preferences { Id = 1, IngredientId = 32, PreferenceId = 1 }, // Cheese
+                new Ingredients_Preferences { Id = 2, IngredientId = 24, PreferenceId = 1 }, // Butter
+                new Ingredients_Preferences { Id = 3, IngredientId = 49, PreferenceId = 1 }, // Cottage Cheese
+                 new Ingredients_Preferences { Id = 4, IngredientId = 51, PreferenceId = 1 }, // Cream cheese
+                new Ingredients_Preferences { Id = 5, IngredientId = 52, PreferenceId = 1 }, // Cream
+                new Ingredients_Preferences { Id = 6, IngredientId = 83, PreferenceId = 1 }, // Milk
+                new Ingredients_Preferences { Id = 7, IngredientId = 117, PreferenceId = 1 }, // Ricotta
+                new Ingredients_Preferences { Id = 8, IngredientId = 125, PreferenceId = 1 }, // Sour cream
+                new Ingredients_Preferences { Id = 9, IngredientId = 149, PreferenceId = 1 }, // Yogurt
+
+
+                // Eggs
+                new Ingredients_Preferences { Id = 10, IngredientId = 58, PreferenceId = 2 }, // Eggs
+                new Ingredients_Preferences { Id = 11, IngredientId = 82, PreferenceId = 2 },// Mayonnaise
+
+
+                // Fish
+                new Ingredients_Preferences { Id = 12, IngredientId = 68, PreferenceId = 3 },// Halibut
+                new Ingredients_Preferences { Id = 13, IngredientId = 119, PreferenceId = 3 }, // Salmon
+                new Ingredients_Preferences { Id = 14, IngredientId = 120, PreferenceId = 3 }, // Sardines
+                new Ingredients_Preferences { Id = 15, IngredientId = 139, PreferenceId = 3 }, // Tuna
+
+
+               // Crustacean Shellfish
+               new Ingredients_Preferences { Id = 16, IngredientId = 79, PreferenceId = 4 },// Lobster
+               new Ingredients_Preferences { Id = 17, IngredientId = 121, PreferenceId = 4 },// Scallops
+                new Ingredients_Preferences { Id = 18, IngredientId = 124, PreferenceId = 4 }, // Shrimp
+
+
+                 // Tree Nuts
+                 new Ingredients_Preferences { Id = 19, IngredientId = 3, PreferenceId = 5 }, // Almonds
+                 new Ingredients_Preferences { Id = 20, IngredientId = 29, PreferenceId = 5 },// Cashews
+                 new Ingredients_Preferences { Id = 21, IngredientId = 104, PreferenceId = 5 },// Pecans
+                new Ingredients_Preferences { Id = 22, IngredientId = 144, PreferenceId = 5 }, // Walnuts
+
+
+               // Peanuts
+               new Ingredients_Preferences { Id = 23, IngredientId = 100, PreferenceId = 6 },// Peanuts
+                new Ingredients_Preferences { Id = 24, IngredientId = 101, PreferenceId = 6 },// Peanut butter
+
+
+               // Wheat
+               new Ingredients_Preferences { Id = 25, IngredientId = 12, PreferenceId = 7 },// Barley
+                new Ingredients_Preferences { Id = 26, IngredientId = 22, PreferenceId = 7 },// Bread
+                new Ingredients_Preferences { Id = 27, IngredientId = 50, PreferenceId = 7 },// Couscous
+                 new Ingredients_Preferences { Id = 28, IngredientId = 98, PreferenceId = 7 },// Pasta
+
+               // Soybeans
+               new Ingredients_Preferences { Id = 29, IngredientId = 126, PreferenceId = 8 },// Soy sauce
+                new Ingredients_Preferences { Id = 30, IngredientId = 134, PreferenceId = 8 },// Tempeh
+               new Ingredients_Preferences { Id = 31, IngredientId = 136, PreferenceId = 8 },// Tofu
+
+               // Sesame
+               new Ingredients_Preferences { Id = 32, IngredientId = 122, PreferenceId = 9 },// Sesame oil
+               new Ingredients_Preferences { Id = 33, IngredientId = 123, PreferenceId = 9 }, // Sesame seeds
+                 new Ingredients_Preferences { Id = 34, IngredientId = 133, PreferenceId = 9 }// Tahini
             );
 
         }
