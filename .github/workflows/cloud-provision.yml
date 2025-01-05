@@ -10,7 +10,7 @@ on:
         - test
         - apply
         - destroy
-        default: 'apply'
+        default: 'test'
         required: true
       deploy_app:
         type: choice
@@ -19,7 +19,7 @@ on:
         - deploy
         - update
         - none
-        default: 'deploy'
+        default: 'none'
         required: true
       MIGRATE_DATABASE:
         type: boolean
@@ -29,7 +29,7 @@ on:
       ASPNETCORE_ENVIRONMENT:
         type: string
         description: Set the environment (Development, Production)
-        default: 'Development'
+        default: 'Production'
         required: true
   push:
     
@@ -99,14 +99,14 @@ jobs:
     # Output the EC2 Public IP  
     - name: Output EC2 Public IP
       id: output
-    # if: ${{ github.event.inputs.deploy_app == 'deploy' || github.event.inputs.deploy_app == 'update' }}
+      if: ${{ github.event.inputs.deploy_app != 'none'}}
       run: echo "ec2_public_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy Application
     runs-on: self-hosted
     needs: terraform
-    #if: ${{ needs.terraform.outputs.ec2_public_ip != '' && github.event.inputs.deploy_app != 'none' }}
+    if: ${{ needs.terraform.outputs.ec2_public_ip != '' && github.event.inputs.deploy_app != 'none' }}
     defaults:
       run:
         working-directory: ./deployment/ansible
@@ -143,17 +143,18 @@ jobs:
           ASPNETCORE_ENVIRONMENT: ${{ github.event.inputs.ASPNETCORE_ENVIRONMENT }}
           TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          IP_ADDRESS: ${{ needs.terraform.outputs.ec2_public_ip }}
         run: |
           FILE_PATH="./group_vars/all.yml"
           sed -i 's/^MIGRATE_DATABASE:.*/MIGRATE_DATABASE: '"$MIGRATE_DATABASE"'/' $FILE_PATH
           sed -i 's/^ASPNETCORE_ENVIRONMENT:.*/ASPNETCORE_ENVIRONMENT: '"$ASPNETCORE_ENVIRONMENT"'/' $FILE_PATH
           sed -i 's/^TUNNEL_TOKEN:.*/TUNNEL_TOKEN: '"$TUNNEL_TOKEN"'/' $FILE_PATH
           sed -i 's/^remote_user =.*/remote_user = '"$SSH_USERNAME"'/' ./ansible.cfg
-          echo ${{ needs.terraform.outputs.ec2_public_ip }} >> ./inventory.ini
+          echo $IP_ADDRESS >> ./inventory.ini
       
       # Run Ansible Playbook (Deploy)
       - name: Run Ansible Playbook
-      # if: ${{ github.event.inputs.deploy_app == 'deploy' }}
+        if: ${{ github.event.inputs.deploy_app == 'deploy' }}
         run: |
           ansible-playbook -i inventory.ini deploy.yml
       
