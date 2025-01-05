@@ -33,8 +33,6 @@ namespace BackEngin.Data
 
         public DbSet<Users_Interactions> Users_Interactions { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
-        public DbSet<Users_Recipes_Interaction> Users_Recipes_Interactions { get; set; }
-        public DbSet<Users_Blogs_Interaction> Users_Blogs_Interactions { get; set; }
         public DbSet<Ingredients_Preferences> Ingredients_Preferences { get; set; }
         public DbSet<User_Event_Participations> User_Event_Participations { get; set; }
 
@@ -162,42 +160,6 @@ namespace BackEngin.Data
                 .HasOne(ui => ui.Interaction)
                 .WithMany()
                 .HasForeignKey(ui => ui.InteractionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-               .HasOne(uri => uri.User)
-               .WithMany()
-               .HasForeignKey(uri => uri.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-                .HasOne(uri => uri.Recipe)
-                .WithMany()
-                .HasForeignKey(uri => uri.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Recipes_Interaction>()
-                .HasOne(uri => uri.Interaction)
-                .WithMany()
-                .HasForeignKey(uri => uri.InteractionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.User)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.Blog)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users_Blogs_Interaction>()
-                .HasOne(ubi => ubi.Interaction)
-                .WithMany()
-                .HasForeignKey(ubi => ubi.InteractionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe_Bookmarks>()
@@ -345,6 +307,22 @@ namespace BackEngin.Data
             ingredinetSeeding.PopulateIngredientTypesData(modelBuilder);
             ingredinetSeeding.PopulateIngredientsData(modelBuilder);
 
+
+            // RECIPE, ITS INGREDIENT
+            var recipeSeeding = new RecipeDefaultData();
+            recipeSeeding.PopulateRecipeData(modelBuilder);
+            recipeSeeding.PopulateRecipeIngredientsData(modelBuilder);
+
+            // RECIPE INTERACTIONS
+            var recipeInteractionSeeding = new RecipeInteractionDefaultData();
+            recipeInteractionSeeding.PopulateRecipeLikesData(modelBuilder);
+            recipeInteractionSeeding.PopulateRecipeCommentsData(modelBuilder);
+
+            // BLOG INTERACTIONS
+            var blogInteractionSeeding = new BlogInteractionDefaultData();
+            blogInteractionSeeding.PopulateBlogLikesData(modelBuilder);
+            blogInteractionSeeding.PopulateBlogCommentsData(modelBuilder);
+
             //ING_PREFERENCES, PREFERENCES
             var preferencesSeeding = new PreferencesDefaultData();
             preferencesSeeding.PopulatePreferencesData(modelBuilder);
@@ -352,8 +330,19 @@ namespace BackEngin.Data
 
             // EVENTS
             var eventSeeding = new EventDefaultData();
+            eventSeeding.PopulateEventRequirementsData(modelBuilder);
             eventSeeding.PopulateAddressData(modelBuilder);
             eventSeeding.PopulateEventData(modelBuilder);
+
+            // USER INTERACTION
+            var userInteractionSeeding = new UserInteractionsDefaultData();
+            userInteractionSeeding.PopulateUserInteractionsData(modelBuilder);
+
+            // EVENT INTERACTION
+            var eventParticipationSeeding = new EventInteractionDefaultData();
+            eventParticipationSeeding.PopulateEventParticipationsData(modelBuilder);
+            eventParticipationSeeding.PopulateEventCommentsData(modelBuilder);
+
 
         }
     }
