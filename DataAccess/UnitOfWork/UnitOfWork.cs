@@ -27,9 +27,7 @@ namespace DataAccess.Repositories
         public IRecipes_IngredientsRepository Recipes_Ingredients { get; }
         public IRequirementsRepository Requirements { get; }
         public IRolesRepository Roles { get; }
-        public IUsers_Blogs_InteractionsRepository Users_Blogs_Interactions { get; }
         public IUsers_InteractionsRepository Users_Interactions { get; }
-        public IUsers_Recipes_InteractionsRepository Users_Recipes_Interactions { get; }
         public IUsersRepository Users { get; }
         public IBlog_LikesRepository Blog_Likes { get; }
         public IBlog_CommentsRepository Blog_Comments { get; }
@@ -64,9 +62,7 @@ namespace DataAccess.Repositories
             Recipes = new RecipesRepository(_db);
             Requirements = new RequirementsRepository(_db);
             Roles = new RolesRepository(_db);
-            Users_Blogs_Interactions = new Users_Blogs_InteractionsRepository(_db);
             Users_Interactions = new Users_InteractionsRepository(_db);
-            Users_Recipes_Interactions = new Users_Recipes_InteractionsRepository(_db);
             Users = new UsersRepository(_db);
             Blog_Likes = new Blog_LikesRepository(_db);
             Blog_Comments = new Blog_CommentsRepository(_db);
