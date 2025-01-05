@@ -1,0 +1,7 @@
+# Configuration settings
+APP_PATH: /app
+
+# App settings
+MIGRATE_DATABASE: true
+ASPNETCORE_ENVIRONMENT: Development
+TUNNEL_TOKEN:
