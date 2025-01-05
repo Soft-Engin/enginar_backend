@@ -10,7 +10,6 @@ on:
         - test
         - apply
         - destroy
-        required: true
         default: 'apply'
       deploy_app:
         type: choice
@@ -19,17 +18,14 @@ on:
         - deploy
         - update
         - none
-        required: true
         default: 'deploy'
       MIGRATE_DATABASE:
         type: boolean
         description: Set to true or false
-        required: true
         default: true
       ASPNETCORE_ENVIRONMENT:
         type: string
         description: Set the environment (Development, Production)
-        required: true
         default: 'Development'
   push:
     
