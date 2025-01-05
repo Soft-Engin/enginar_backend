@@ -23,12 +23,12 @@ on:
         required: true
       REMOVE_VOLUME:
         type: boolean
-        description: Set to true or false
+        description: Remove volume ?
         default: false
         required: true
       MIGRATE_DATABASE:
         type: boolean
-        description: Set to true or false
+        description: Migrate database ?
         default: true
         required: true
       ASPNETCORE_ENVIRONMENT:
