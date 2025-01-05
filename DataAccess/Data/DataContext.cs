@@ -345,6 +345,19 @@ namespace BackEngin.Data
             ingredinetSeeding.PopulateIngredientTypesData(modelBuilder);
             ingredinetSeeding.PopulateIngredientsData(modelBuilder);
 
+            // EVENT REQUIREMENT eskiyi ekle
+
+
+            // RECIPE, ITS INGREDIENT
+
+
+            // RECIPE INTERACTIONS
+
+
+            // BLOG INTERACTIONS
+
+
+                      
             //ING_PREFERENCES, PREFERENCES
             var preferencesSeeding = new PreferencesDefaultData();
             preferencesSeeding.PopulatePreferencesData(modelBuilder);
@@ -354,6 +367,11 @@ namespace BackEngin.Data
             var eventSeeding = new EventDefaultData();
             eventSeeding.PopulateAddressData(modelBuilder);
             eventSeeding.PopulateEventData(modelBuilder);
+
+            // USER INTERACTION
+
+
+            // EVENT PARTICIPATION
 
         }
     }
