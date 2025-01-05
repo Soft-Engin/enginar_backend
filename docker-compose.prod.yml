@@ -3,6 +3,11 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflare
     command: tunnel --no-autoupdate run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    env_file:
+      - .env
     restart: always
+  
+  enginar-frontend:
+    image: tamerkucukel/enginar-frontend:latest
+    ports:
+      - "3000:80"

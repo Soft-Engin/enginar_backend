@@ -1,0 +1,48 @@
+- name: Ensure APP_PATH directory exists
+  file:
+    path: "{{ APP_PATH }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy application files to the instance
+  copy:
+    src: ./../../../../../{{ item }}
+    dest: "{{ APP_PATH }}/"
+    owner: root
+    group: root
+    mode: '0644'
+    loop:
+      - .env.example
+      - docker-compose.yml
+      - docker-compose.prod.yml
+
+- name: Rename .env.example to .env
+  command: mv "{{ APP_PATH }}/.env.example" "{{ APP_PATH }}/.env"
+
+- name: Set MIGRATE_DATABASE in .env
+  lineinfile:
+    path: "{{ APP_PATH }}/.env" 
+    regexp: '^MIGRATE_DATABASE=.*'
+    line: 'MIGRATE_DATABASE="{{ MIGRATE_DATABASE | lower }}"'
+    create: yes
+
+- name: Set ASPNETCORE_ENVIRONMENT in .env
+  lineinfile:
+    path: "{{ APP_PATH }}/.env" 
+    regexp: '^ASPNETCORE_ENVIRONMENT=.*'
+    line: 'ASPNETCORE_ENVIRONMENT="{{ ASPNETCORE_ENVIRONMENT }}"'
+    create: yes
+
+- name: Add or update TUNNEL_TOKEN in the .env file
+  lineinfile:
+    path: "{{ APP_PATH }}/.env"
+    regexp: '^TUNNEL_TOKEN='
+    line: 'TUNNEL_TOKEN="{{ TUNNEL_TOKEN }}"'
+    create: yes
+
+- name: Run Docker Compose with TUNNEL_TOKEN
+  command: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  args:
+    chdir: "{{ APP_PATH }}"

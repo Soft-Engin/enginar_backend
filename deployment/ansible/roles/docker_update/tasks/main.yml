@@ -1,0 +1,20 @@
+---
+- name: Ensure Docker Compose directory exists
+  file:
+    path: "{{ APP_PATH }}"
+    state: directory
+
+- name: Pull the latest Docker images
+  command: docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
+  args:
+    chdir: "{{ APP_PATH }}"
+    
+- name: Stop the Docker container and remove the images
+  command: docker-compose -f docker-compose.yml -f docker-compose.prod.yml down --rmi all
+  args:
+    chdir: "{{ APP_PATH }}"
+
+- name: Update and restart the Docker container
+  command: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  args:
+    chdir: "{{ APP_PATH }}"
